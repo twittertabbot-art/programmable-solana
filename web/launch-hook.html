@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Custom hook</title>
+<meta name="description" content="Launch a coin on a hook: one of the platform's own, a frozen hook somebody else built, or a program id you paste.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap">
+  <div class="page-top">
+    <h1>Custom hook</h1>
+    <p>Launch a coin on a hook. Pick one of the platform's hooks or a hook somebody else built, or paste a program id.</p>
+  </div>
+
+  <div class="launch-cols">
+    <!-- what the launcher sets -->
+    <div class="launch-set stack">
+      <section class="panel" aria-labelledby="hookTitle">
+        <h2 class="panel-title" id="hookTitle">The hook</h2>
+
+        <div class="module-group">
+          <h3>Platform hooks</h3>
+          <p>Three hooks the platform maintains. Each does one thing.</p>
+          <div class="hook-pick" id="platformHooks">
+            <button class="hook-option" type="button" data-hook="tax" aria-pressed="false"><b>Tax to treasury</b><span>A share of every trade goes to a wallet you choose.</span></button>
+            <button class="hook-option" type="button" data-hook="launch_guard" aria-pressed="false"><b>Launch guard</b><span>Buys pay a high fee in the first minutes. It stays in the pool.</span></button>
+            <button class="hook-option" type="button" data-hook="buyback" aria-pressed="false"><b>Buyback and burn</b><span>A share of every trade buys the coin and burns it.</span></button>
+          </div>
+        </div>
+
+        <div class="module-group">
+          <h3>Community hooks</h3>
+          <p id="communityLede">Frozen hooks other people built, from <a class="link" href="workshop.html">Custom hooks</a>. Read a hook's page and its report before you launch on it.</p>
+          <div class="hook-pick" id="communityHooks"><div class="inline-msg">Reading the hooks</div></div>
+          <label class="field" style="margin: 12px 0 0"><span><span>Or paste a hook's program id</span><span class="dim">checked on chain when you leave the field</span></span><input class="input mono" id="customId" placeholder="program address" autocomplete="off" spellcheck="false"></label>
+        </div>
+
+        <!-- the settings of the hook that is picked: one block per hook, one shown at a time -->
+        <div class="raised hook-body" data-for="tax" hidden style="margin-top: 16px">
+          <h3>Tax to treasury</h3>
+          <p>A share of every buy and sell, in SOL, goes to a wallet you choose. The ceiling is fixed forever. You can lower or raise the taxes under it, or renounce and freeze them.</p>
+          <div class="row">
+            <label class="field"><span><span>Buy tax</span></span><div class="input-wrap"><input class="input num" id="taxBuy" inputmode="decimal" value="3" autocomplete="off"><span class="suffix">%</span></div></label>
+            <label class="field"><span><span>Sell tax</span></span><div class="input-wrap"><input class="input num" id="taxSell" inputmode="decimal" value="5" autocomplete="off"><span class="suffix">%</span></div></label>
+            <label class="field"><span><span>Ceiling</span><span class="dim">max <span id="taxCap"></span></span></span><div class="input-wrap"><input class="input num" id="taxMax" inputmode="decimal" value="10" autocomplete="off"><span class="suffix">%</span></div></label>
+          </div>
+          <label class="field"><span><span>Treasury wallet</span><span class="dim">empty means your wallet</span></span><input class="input mono" id="taxTreasury" placeholder="wallet address" autocomplete="off" spellcheck="false"></label>
+          <p class="error-text" id="taxErr" aria-live="polite"></p>
+          <p class="help">The tax collects as wrapped SOL in this wallet's wrapped SOL account. Its owner takes it from the coin page as plain SOL.</p>
+        </div>
+
+        <div class="raised hook-body" data-for="launch_guard" hidden style="margin-top: 16px">
+          <h3>Launch guard</h3>
+          <p>Buys pay a high fee in the first minutes. The fee falls every slot down to the pool fee and stays in the pool as liquidity. Nobody collects it, and nobody can add liquidity until the window is over. The hook is never called on a sell.</p>
+          <div class="row">
+            <label class="field"><span><span>Start fee on buys</span><span class="dim">max <span id="guardCap"></span></span></span><div class="input-wrap"><input class="input num" id="guardFee" inputmode="decimal" value="30" autocomplete="off"><span class="suffix">%</span></div></label>
+            <label class="field"><span><span>Window</span><span class="dim" id="guardSlots"></span></span><div class="input-wrap"><input class="input num" id="guardMin" inputmode="decimal" value="2" autocomplete="off"><span class="suffix">min</span></div></label>
+          </div>
+          <p class="error-text" id="launch_guardErr" aria-live="polite"></p>
+          <p class="help">Your own first buy, if you make one, pays the start fee too.</p>
+        </div>
+
+        <div class="raised hook-body" data-for="buyback" hidden style="margin-top: 16px">
+          <h3>Buyback and burn</h3>
+          <p>A share of every trade, in SOL, collects in a treasury only the hook controls. Once it reaches the minimum, anyone can run a buyback. A run buys the coin with a slice of the treasury and burns what it buys. The first call records the pool's price, and a buy can follow <span id="bbWait">25</span> slots later.</p>
+          <div class="row">
+            <label class="field"><span><span>Buy share</span></span><div class="input-wrap"><input class="input num" id="bbBuy" inputmode="decimal" value="2" autocomplete="off"><span class="suffix">%</span></div></label>
+            <label class="field"><span><span>Sell share</span></span><div class="input-wrap"><input class="input num" id="bbSell" inputmode="decimal" value="2" autocomplete="off"><span class="suffix">%</span></div></label>
+            <label class="field"><span><span>Minimum to trigger</span><span class="dim" id="bbMinMax"></span></span><div class="input-wrap"><input class="input num" id="bbMin" inputmode="decimal" value="0.05" autocomplete="off"><span class="suffix">SOL</span></div></label>
+          </div>
+          <p class="error-text" id="buybackErr" aria-live="polite"></p>
+          <p class="help" id="bbRun"></p>
+        </div>
+
+        <div class="hook-body" data-for="custom" hidden style="margin-top: 16px">
+          <div id="customVerdict"></div>
+          <!-- the hook's own settings, built from its descriptor (workshop-lib.js customHookSetup) -->
+          <div id="customSetup" hidden></div>
+          <label class="field" id="customTreasuryField" hidden><span><span>Treasury owner</span><span class="dim">receives the hook fee, empty means your wallet</span></span><input class="input mono" id="customTreasury" placeholder="wallet address" autocomplete="off" spellcheck="false"></label>
+          <p class="error-text" id="customErr" aria-live="polite"></p>
+          <div class="verdict-box" id="customPool" hidden></div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="detTitle">
+        <h2 class="panel-title" id="detTitle">Coin details</h2>
+        <div id="mDetails"></div>
+      </section>
+    </div>
+
+    <!-- the review of what a trade pays and what the launch costs, and the one button -->
+    <aside class="launch-review">
+      <div class="panel review" id="reviewCard">
+        <div class="review-scroll">
+          <div id="mPreview"></div>
+          <div id="mReview"></div>
+        </div>
+        <div class="go" id="mGo"></div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module" src="launch-hook.js"></script>
+</body>
+</html>

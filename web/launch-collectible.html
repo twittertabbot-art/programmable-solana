@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Collectible</title>
+<meta name="description" content="Launch a coin whose buys earn pieces of a collection. A wallet keeps one piece for each set amount of coins it holds.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap">
+  <div class="page-top">
+    <h1>Collectible</h1>
+    <p>Every buy earns the buyer pieces of a collection. A wallet keeps one piece for each set amount of coins it holds.</p>
+  </div>
+
+  <div class="launch-cols">
+    <!-- what the launcher sets -->
+    <div class="launch-set stack">
+      <section class="panel" aria-labelledby="colTitle">
+        <h2 class="panel-title" id="colTitle">The collection</h2>
+        <p class="help col-intro">Buys of this coin earn pieces of your collection. Each piece is a real NFT in the buyer's wallet. Pieces stay tied to the coins: a wallet keeps one piece for every set amount of coins it holds, and a sell burns them.</p>
+        <div class="field">
+          <span class="label"><span>Kind of coin</span><span class="dim">fixed at launch</span></span>
+          <div class="seg kind-seg" id="colKind" role="group" aria-label="Kind of coin">
+            <button type="button" data-kind="plain" aria-pressed="true">Plain coin</button>
+            <button type="button" data-kind="pegged" aria-pressed="false">Pegged coin</button>
+          </div>
+        </div>
+        <div data-kind-body="plain">
+          <p class="help kind-sum">Works in every wallet and exchange, and can launch on the curve. Pick this one if you are not sure.</p>
+          <div class="raised">
+            <ul class="check-lines">
+              <li>The coin is a normal Solana coin. Wallets, exchanges and other apps support it.</li>
+              <li>No program of ours runs when it moves between wallets. The hook never sees a sell.</li>
+              <li>A sell on this site burns the piece in the same transaction.</li>
+              <li>A plain send of coins leaves the piece behind. It burns a few seconds later.</li>
+              <li>A piece moves to another wallet only through Send on the coin page.</li>
+            </ul>
+          </div>
+        </div>
+        <div data-kind-body="pegged" hidden>
+          <p class="help kind-sum">The pieces travel with the coins on every transfer. Fewer apps support it, and it starts with a seed you put in, not on the curve.</p>
+          <div class="raised">
+            <ul class="check-lines">
+              <li>A transfer of the coin carries the piece to the receiver.</li>
+              <li>The receiver takes one piece for each whole unit of coins the transfer sends. A piece that cannot travel burns.</li>
+              <li>A sell burns the piece in the same trade.</li>
+            </ul>
+          </div>
+          <div class="note warn" style="margin-top: 8px">
+            <h3>What a pegged coin costs</h3>
+            <ul>
+              <li>Our program runs inside every transfer of the coin, sells included. On a plain coin the hook never sees a sell.</li>
+              <li>Fewer wallets, exchanges and apps support this kind of coin. A wallet app can fail to send it to a wallet that never held it.</li>
+              <li>A wallet needs a ticket to receive a piece. A ticket is a small account for this coin, and every wallet that bought here has one. A plain send to a wallet without one burns the piece. Send on the coin page opens the ticket first.</li>
+              <li>After a transfer made outside this site, the NFT picture in the wallet can follow a few seconds later.</li>
+              <li>The coin trades in this pool only.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="row" style="margin-top: 16px">
+          <label class="field"><span><span>Collection name</span><span class="dim" id="colNameCount">0/24</span></span><input class="input" id="colName" maxlength="24" placeholder="Collection name" autocomplete="off"></label>
+          <label class="field"><span><span>Coins per piece</span><span class="dim" id="colUnitShare"></span></span><input class="input num" id="colUnit" inputmode="numeric" value="10,000,000" autocomplete="off"></label>
+        </div>
+        <p class="help">Coins per piece: how many coins one piece needs. One buy earns a piece for each this many coins it buys. Coins from different buys do not add up.</p>
+        <p class="error-text" id="colErrA" aria-live="polite"></p>
+        <div class="row">
+          <label class="field"><span><span>Max supply of pieces</span><span class="dim">at once, fixed forever</span></span><input class="input num" id="colMax" inputmode="numeric" value="100" autocomplete="off"></label>
+          <label class="field"><span><span>Max pieces per buy</span><span class="dim">1 to 5</span></span><select id="colPerBuy"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option></select></label>
+        </div>
+        <p class="help">Max supply: the most pieces that can exist at the same time. A burned piece frees its place for a later buy. Max pieces per buy: the most one single buy can earn, however big it is.</p>
+        <p class="error-text" id="colErrB" aria-live="polite"></p>
+        <div class="raised col-explain" id="colExplain" aria-live="polite">
+          <h3>What these numbers mean</h3>
+          <ul class="check-lines" id="colExplainLines"></ul>
+        </div>
+        <p class="help">When coins leave a wallet, it loses the pieces those coins backed, from the end of the holder's own list. Holders order their list on the coin page. A piece moves to another wallet only with its coins, so no marketplace can list it.</p>
+        <p class="error-text" id="colAltNote" hidden></p>
+      </section>
+
+      <section class="panel" aria-labelledby="artTitle">
+        <h2 class="panel-title" id="artTitle">The art</h2>
+        <div id="colArt"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="detTitle">
+        <h2 class="panel-title" id="detTitle">Coin details</h2>
+        <div id="mDetails"></div>
+      </section>
+    </div>
+
+    <!-- the review of what a trade pays and what the launch costs, and the one button -->
+    <aside class="launch-review">
+      <div class="panel review" id="reviewCard">
+        <div class="review-scroll">
+          <div id="mPreview"></div>
+          <div id="mReview"></div>
+        </div>
+        <div class="go" id="mGo"></div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module" src="launch-collectible.js"></script>
+</body>
+</html>

@@ -1,0 +1,3136 @@
+{
+  "address": "3WCHK9zmFdndiUMZmFcn7vBbTSdssduN9zuR6vfSFr9m",
+  "metadata": {
+    "name": "hook_collectible",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "hookpool template: every buy earns the buyer generated collectibles (Metaplex Core), seeded by the trade"
+  },
+  "instructions": [
+    {
+      "name": "after_swap",
+      "discriminator": [
+        235,
+        215,
+        232,
+        183,
+        152,
+        109,
+        5,
+        35
+      ],
+      "accounts": [
+        {
+          "name": "pool"
+        },
+        {
+          "name": "hook_caller",
+          "signer": true
+        },
+        {
+          "name": "user"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "ticket",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "slot_hashes",
+          "address": "SysvarS1otHashes111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "payload",
+          "type": {
+            "defined": {
+              "name": "SwapPayload"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "deliver",
+      "docs": [
+        "Hand the Metaplex Core assets of pieces that moved in a transfer to the wallet whose",
+        "list now holds them. Anyone may send it. The assets go in remaining accounts; one",
+        "that is not in this ticket's list, or is already with its holder, is skipped."
+      ],
+      "discriminator": [
+        250,
+        131,
+        222,
+        57,
+        211,
+        229,
+        209,
+        147
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "ticket",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              },
+              {
+                "kind": "account",
+                "path": "ticket.user",
+                "account": "Ticket"
+              }
+            ]
+          }
+        },
+        {
+          "name": "holder"
+        },
+        {
+          "name": "collection",
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "collection_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "core_program",
+          "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "execute",
+      "docs": [
+        "Token-2022 calls this on every transfer of a pegged coin, after the balances moved.",
+        "uPEG's `_afterTokenTransfer`: the pieces the sender's coins no longer back leave the",
+        "sender, from the end of its list. They go to the receiver while it has a ticket and",
+        "this transfer added whole units to its associated token account, one piece per unit",
+        "added; the rest is burned. A transfer out of the pool is a buy and moves nothing.",
+        "",
+        "This runs inside every transfer, also inside every sell, so it makes no CPI, reads",
+        "the tickets as raw bytes, and answers `Ok` to everything that is a real transfer."
+      ],
+      "discriminator": [
+        105,
+        37,
+        101,
+        197,
+        75,
+        251,
+        102,
+        26
+      ],
+      "accounts": [
+        {
+          "name": "source"
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "destination"
+        },
+        {
+          "name": "authority"
+        },
+        {
+          "name": "validation"
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "from_ticket",
+          "writable": true
+        },
+        {
+          "name": "to_ticket",
+          "writable": true
+        },
+        {
+          "name": "queue",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "init_manifest",
+      "discriminator": [
+        185,
+        170,
+        202,
+        228,
+        72,
+        6,
+        8,
+        106
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "program_data"
+        },
+        {
+          "name": "manifest",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  110,
+                  105,
+                  102,
+                  101,
+                  115,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "extra_metas",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  120,
+                  116,
+                  114,
+                  97,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  115
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "uri",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "init_peg",
+      "docs": [
+        "Bind a pegged coin to this config, before the pool exists. The coin must be a",
+        "Token-2022 mint whose transfer hook is this program and can never be changed. The",
+        "mint signs: only whoever creates the coin can bind it, and only once. Creates the",
+        "account list Token-2022 passes to `execute`, and the pool's burn queue."
+      ],
+      "discriminator": [
+        236,
+        27,
+        208,
+        168,
+        131,
+        171,
+        34,
+        92
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "The coin. It signs, so only whoever creates the mint can bind it."
+          ],
+          "signer": true
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "validation",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  120,
+                  116,
+                  114,
+                  97,
+                  45,
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "queue",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  113,
+                  117,
+                  101,
+                  117,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "init_pool_config",
+      "docs": [
+        "Before `create_pool`. Creates the config and the Metaplex Core collection."
+      ],
+      "discriminator": [
+        229,
+        200,
+        245,
+        211,
+        100,
+        33,
+        44,
+        79
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "collection",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  108,
+                  108,
+                  101,
+                  99,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "collection_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "core_program",
+          "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "pool",
+          "type": "pubkey"
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "InitCollectionArgs"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "mint",
+      "docs": [
+        "Reveal what can be revealed, then mint up to `count` decided pieces. A no-op when",
+        "none are decided yet. Waiting pieces the wallet no longer holds the coins for are",
+        "dropped first, so nothing unbacked is ever minted. The asset accounts go in",
+        "remaining accounts. The wallet pays the rent, and is paid back what the assets cost",
+        "out of its deposit, as far as the deposit goes: a wallet that deposited in its buy",
+        "and then mints itself never pays twice."
+      ],
+      "discriminator": [
+        51,
+        57,
+        225,
+        47,
+        182,
+        146,
+        137,
+        166
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "ticket"
+          ]
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "ticket",
+          "docs": [
+            "Grown in the handler to hold exactly the pieces minted, its own deposit first."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "coins",
+          "docs": [
+            "in the handler."
+          ]
+        },
+        {
+          "name": "collection",
+          "writable": true,
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "collection_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "core_program",
+          "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "slot_hashes",
+          "address": "SysvarS1otHashes111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "count",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "mint_for",
+      "docs": [
+        "Anyone may mint a wallet's decided pieces INTO THAT WALLET, paid by the wallet's",
+        "deposit (what its ticket holds above the rent, sent in with the buy). Same checks as",
+        "`mint`: what can be revealed is revealed, waiting pieces the wallet's coins no longer",
+        "back are dropped, and the pieces are exactly what `mint` would make; nothing about",
+        "them depends on who sends this or when. It mints every decided piece, up to four, and",
+        "needs that many asset addresses. The sender pays the Metaplex rent and is paid back,",
+        "out of the deposit, exactly what it spent plus `KEEPER_FEE`; the ticket's growth stays",
+        "in the ticket, paid by the deposit. A deposit that does not cover all of it is",
+        "refused (`DepositTooSmall`) and nothing is created."
+      ],
+      "discriminator": [
+        116,
+        187,
+        78,
+        38,
+        184,
+        238,
+        191,
+        238
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "docs": [
+            "Pays the Metaplex rent and is paid back from the deposit, with `KEEPER_FEE`."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "user",
+          "docs": [
+            "ticket by its address and `has_one`."
+          ],
+          "relations": [
+            "ticket"
+          ]
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "ticket",
+          "docs": [
+            "Grown in the handler, out of its own deposit."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "coins",
+          "docs": [
+            "in the handler."
+          ]
+        },
+        {
+          "name": "collection",
+          "writable": true,
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "collection_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "core_program",
+          "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "slot_hashes",
+          "address": "SysvarS1otHashes111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "on_pool_create",
+      "discriminator": [
+        145,
+        87,
+        198,
+        141,
+        215,
+        104,
+        119,
+        28
+      ],
+      "accounts": [
+        {
+          "name": "pool"
+        },
+        {
+          "name": "hook_caller",
+          "signer": true
+        },
+        {
+          "name": "user"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "ticket",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "slot_hashes",
+          "address": "SysvarS1otHashes111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "payload",
+          "type": {
+            "defined": {
+              "name": "PoolCreatePayload"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "open_ticket",
+      "docs": [
+        "The buyer creates their ticket for a pool, once. Without it a buy earns nothing.",
+        "Opening a ticket that is already open does nothing, so a ticket somebody else opened",
+        "for this wallet first never makes the wallet's own transaction fail."
+      ],
+      "discriminator": [
+        154,
+        120,
+        166,
+        69,
+        155,
+        111,
+        27,
+        207
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "ticket",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "pool",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "open_ticket_for",
+      "docs": [
+        "Open the ticket of any wallet, paid by whoever sends this. A wallet needs a ticket",
+        "to receive pieces in a transfer of a pegged coin."
+      ],
+      "discriminator": [
+        207,
+        104,
+        147,
+        202,
+        15,
+        229,
+        57,
+        135
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "ticket",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "pool"
+              },
+              {
+                "kind": "arg",
+                "path": "wallet"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "pool",
+          "type": "pubkey"
+        },
+        {
+          "name": "wallet",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "reap",
+      "docs": [
+        "Burn the Metaplex Core assets of pieces a pegged coin's transfers burned. Anyone may",
+        "send it and receives their rent. The assets go in remaining accounts; one that is",
+        "not in the burn queue is skipped."
+      ],
+      "discriminator": [
+        147,
+        15,
+        172,
+        179,
+        252,
+        146,
+        108,
+        91
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "docs": [
+            "Pays the fee and receives the rent of the assets it burns."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "queue",
+          "docs": [
+            "hook does, so nothing is written back over them when the instruction ends."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  113,
+                  117,
+                  101,
+                  117,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "collection",
+          "writable": true,
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "collection_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "core_program",
+          "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "reorder",
+      "docs": [
+        "The wallet's own order: the piece at `from` goes to `to`, the others shift. Burns",
+        "take from the end, so the pieces to keep go first. Only a wallet whose coins back",
+        "all its pieces may reorder: a wallet above the peg cannot shuffle its list to dodge",
+        "a settle."
+      ],
+      "discriminator": [
+        50,
+        99,
+        244,
+        1,
+        120,
+        131,
+        179,
+        231
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "signer": true,
+          "relations": [
+            "ticket"
+          ]
+        },
+        {
+          "name": "cfg",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "ticket",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "coins",
+          "docs": [
+            "in the handler."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "from",
+          "type": "u32"
+        },
+        {
+          "name": "to",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "reveal",
+      "docs": [
+        "Anyone may lock in the outcome of anyone's ticket once its block has passed. The",
+        "watcher does this for every ticket, so nobody can sit on an unrevealed result."
+      ],
+      "discriminator": [
+        9,
+        35,
+        59,
+        190,
+        167,
+        249,
+        76,
+        115
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "ticket",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "ticket.pool",
+                "account": "Ticket"
+              },
+              {
+                "kind": "account",
+                "path": "ticket.user",
+                "account": "Ticket"
+              }
+            ]
+          }
+        },
+        {
+          "name": "slot_hashes",
+          "address": "SysvarS1otHashes111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "send_pieces",
+      "docs": [
+        "Move pieces to another wallet together with the coins behind them: `unit` coins per",
+        "piece. A piece never travels without its coins. The pieces go in remaining accounts;",
+        "the receiving wallet's ticket is opened here if it has none, and grows at the",
+        "sender's cost. The sender's ticket shrinks to its list; the rent it frees stays in it,",
+        "as the sender's deposit."
+      ],
+      "discriminator": [
+        140,
+        235,
+        189,
+        8,
+        66,
+        69,
+        214,
+        234
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "ticket"
+          ]
+        },
+        {
+          "name": "cfg",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "ticket",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "to"
+        },
+        {
+          "name": "to_ticket",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              },
+              {
+                "kind": "account",
+                "path": "to"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "from_coins",
+          "writable": true
+        },
+        {
+          "name": "to_coins",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "collection",
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "collection_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "core_program",
+          "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "set_owner",
+      "docs": [
+        "Pass Pubkey::default() to lock the collection forever."
+      ],
+      "discriminator": [
+        72,
+        202,
+        120,
+        52,
+        77,
+        128,
+        96,
+        197
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_owner",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "settle",
+      "docs": [
+        "Anyone may settle any wallet. A wallet holds at most one piece per `unit` coins in",
+        "its token account. What is above that is removed, newest first: waiting pieces are",
+        "dropped, then minted pieces are burned from the end of the wallet's list. The",
+        "assets that may burn go in remaining accounts, in any order: the program burns the",
+        "last piece of the list while it finds it there and the wallet is above the peg,",
+        "and stops otherwise. Nothing else is ever burned. The rent of a burned piece's",
+        "asset goes to whoever sends this. The ticket then shrinks to its list: the rent of",
+        "the bytes the burned pieces took stays in the ticket, as the wallet's deposit, and",
+        "none of it goes to the sender."
+      ],
+      "discriminator": [
+        175,
+        42,
+        185,
+        87,
+        144,
+        131,
+        102,
+        212
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "docs": [
+            "Pays the fee and receives the rent of the pieces it burns."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "ticket",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              },
+              {
+                "kind": "account",
+                "path": "ticket.user",
+                "account": "Ticket"
+              }
+            ]
+          }
+        },
+        {
+          "name": "coins",
+          "docs": [
+            "checked in the handler."
+          ]
+        },
+        {
+          "name": "collection",
+          "writable": true,
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "collection_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "core_program",
+          "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "stage",
+      "docs": [
+        "Pegged coins: send chosen pieces with exactly their coins, uPEG's `transferUpeg`.",
+        "The holder puts the pieces at the end of its list, stages `count` of them, and",
+        "transfers `unit` coins for each in the same transaction: the hook moves the staged",
+        "pieces to the receiver even though the sender's coins would still back them. One",
+        "staged piece travels per whole unit sent. The stage holds for this slot only and is",
+        "spent by the wallet's first transfer. A staged piece is never burned for being",
+        "staged: without room at the receiver it stays.",
+        "",
+        "The pieces to send go in remaining accounts, in list order. If the end of the list",
+        "is not exactly them, nothing is staged and the transaction fails, so a piece that",
+        "reached the list in the meantime can never travel in their place."
+      ],
+      "discriminator": [
+        110,
+        46,
+        48,
+        164,
+        138,
+        253,
+        60,
+        46
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "signer": true,
+          "relations": [
+            "ticket"
+          ]
+        },
+        {
+          "name": "cfg",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "ticket",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "coins",
+          "docs": [
+            "in the handler."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "count",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "update_collection",
+      "docs": [
+        "Owner only, while not locked. Changes apply to pieces minted from now on."
+      ],
+      "discriminator": [
+        97,
+        70,
+        36,
+        49,
+        138,
+        12,
+        199,
+        239
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "collection",
+          "writable": true,
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "collection_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "CollectionConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "core_program",
+          "address": "CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "UpdateCollectionArgs"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "withdraw_deposit",
+      "docs": [
+        "The wallet takes its whole deposit back: everything its ticket holds above the rent.",
+        "A ticket longer than its list (one an older version of this program grew for more",
+        "pieces than it minted, or one whose pieces left before tickets shrank) first shrinks",
+        "to fit, so the rent of the bytes nobody uses comes back too."
+      ],
+      "discriminator": [
+        197,
+        59,
+        182,
+        208,
+        73,
+        187,
+        119,
+        25
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "ticket"
+          ]
+        },
+        {
+          "name": "ticket",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  105,
+                  99,
+                  107,
+                  101,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "ticket.pool",
+                "account": "Ticket"
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BurnQueue",
+      "discriminator": [
+        80,
+        203,
+        4,
+        100,
+        241,
+        78,
+        33,
+        222
+      ]
+    },
+    {
+      "name": "CollectionConfig",
+      "discriminator": [
+        223,
+        110,
+        152,
+        160,
+        174,
+        157,
+        106,
+        255
+      ]
+    },
+    {
+      "name": "HookManifest",
+      "discriminator": [
+        41,
+        17,
+        255,
+        71,
+        98,
+        180,
+        87,
+        109
+      ]
+    },
+    {
+      "name": "Ticket",
+      "discriminator": [
+        41,
+        228,
+        24,
+        165,
+        78,
+        90,
+        235,
+        200
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "BatchRevealed",
+      "discriminator": [
+        140,
+        6,
+        240,
+        135,
+        209,
+        140,
+        58,
+        20
+      ]
+    },
+    {
+      "name": "CollectionUpdated",
+      "discriminator": [
+        11,
+        44,
+        88,
+        63,
+        234,
+        215,
+        64,
+        203
+      ]
+    },
+    {
+      "name": "DepositUsed",
+      "discriminator": [
+        61,
+        253,
+        173,
+        67,
+        126,
+        32,
+        170,
+        27
+      ]
+    },
+    {
+      "name": "DepositWithdrawn",
+      "discriminator": [
+        152,
+        139,
+        194,
+        204,
+        237,
+        235,
+        26,
+        134
+      ]
+    },
+    {
+      "name": "PieceBurned",
+      "discriminator": [
+        178,
+        48,
+        28,
+        62,
+        239,
+        160,
+        146,
+        227
+      ]
+    },
+    {
+      "name": "PieceDelivered",
+      "discriminator": [
+        23,
+        6,
+        164,
+        167,
+        33,
+        207,
+        24,
+        85
+      ]
+    },
+    {
+      "name": "PieceMinted",
+      "discriminator": [
+        104,
+        29,
+        116,
+        162,
+        88,
+        116,
+        224,
+        25
+      ]
+    },
+    {
+      "name": "PieceSent",
+      "discriminator": [
+        183,
+        145,
+        97,
+        80,
+        75,
+        29,
+        162,
+        36
+      ]
+    },
+    {
+      "name": "PiecesCancelled",
+      "discriminator": [
+        102,
+        58,
+        224,
+        15,
+        114,
+        161,
+        31,
+        151
+      ]
+    },
+    {
+      "name": "PiecesEarned",
+      "discriminator": [
+        212,
+        211,
+        116,
+        170,
+        229,
+        104,
+        148,
+        129
+      ]
+    },
+    {
+      "name": "PiecesTransferred",
+      "discriminator": [
+        180,
+        181,
+        161,
+        207,
+        66,
+        8,
+        176,
+        169
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "BadName",
+      "msg": "name is empty or longer than 24 bytes"
+    },
+    {
+      "code": 6001,
+      "name": "BadUriBase",
+      "msg": "renderer base uri is empty or longer than 80 bytes"
+    },
+    {
+      "code": 6002,
+      "name": "BadUnit",
+      "msg": "unit must be greater than zero"
+    },
+    {
+      "code": 6003,
+      "name": "BadSupply",
+      "msg": "max supply must be greater than zero"
+    },
+    {
+      "code": 6004,
+      "name": "BadMaxPerBuy",
+      "msg": "max per buy must be between 1 and 5"
+    },
+    {
+      "code": 6005,
+      "name": "WrongPool",
+      "msg": "config does not belong to this pool"
+    },
+    {
+      "code": 6006,
+      "name": "WrongCreator",
+      "msg": "config was not created by the pool creator"
+    },
+    {
+      "code": 6007,
+      "name": "NotOwner",
+      "msg": "only the collection owner can do this"
+    },
+    {
+      "code": 6008,
+      "name": "Locked",
+      "msg": "collection is locked"
+    },
+    {
+      "code": 6009,
+      "name": "WrongTicket",
+      "msg": "ticket does not belong to this wallet and pool"
+    },
+    {
+      "code": 6010,
+      "name": "WrongAsset",
+      "msg": "asset account is not the expected address"
+    },
+    {
+      "code": 6011,
+      "name": "SlotHashes",
+      "msg": "slot hashes sysvar could not be read"
+    },
+    {
+      "code": 6012,
+      "name": "WrongCoins",
+      "msg": "that is not the wallet's token account for this coin"
+    },
+    {
+      "code": 6013,
+      "name": "NotHeld",
+      "msg": "the wallet does not hold this piece"
+    },
+    {
+      "code": 6014,
+      "name": "BadIndex",
+      "msg": "no such position in the wallet's list"
+    },
+    {
+      "code": 6015,
+      "name": "BadCount",
+      "msg": "send between 1 and 4 pieces at a time"
+    },
+    {
+      "code": 6016,
+      "name": "SameWallet",
+      "msg": "a wallet cannot send pieces to itself"
+    },
+    {
+      "code": 6017,
+      "name": "ListFull",
+      "msg": "the receiving wallet's list is full"
+    },
+    {
+      "code": 6018,
+      "name": "AboveThePeg",
+      "msg": "this wallet holds more pieces than its coins back: settle it first"
+    },
+    {
+      "code": 6019,
+      "name": "NotATransfer",
+      "msg": "only the token program calls this, in the middle of a transfer of this coin"
+    },
+    {
+      "code": 6020,
+      "name": "BadPegMint",
+      "msg": "the coin must be a Token-2022 mint whose transfer hook is this program, with no hook authority"
+    },
+    {
+      "code": 6021,
+      "name": "AlreadyPegged",
+      "msg": "this config is already bound to a coin"
+    },
+    {
+      "code": 6022,
+      "name": "NotPegged",
+      "msg": "a pegged coin trades in one pool only, the one it was bound to"
+    },
+    {
+      "code": 6023,
+      "name": "UseTransfer",
+      "msg": "this coin carries its pieces in a plain transfer: move the piece to the end of the list and send the coins"
+    },
+    {
+      "code": 6024,
+      "name": "WrongQueue",
+      "msg": "the burn queue does not belong to this pool"
+    },
+    {
+      "code": 6025,
+      "name": "NotPeggedCoin",
+      "msg": "staging is for pegged coins; a plain coin sends its pieces with send_pieces"
+    },
+    {
+      "code": 6026,
+      "name": "NotStaged",
+      "msg": "the end of the wallet's list is not the pieces named: the list changed, nothing was staged"
+    },
+    {
+      "code": 6027,
+      "name": "WrongHook",
+      "msg": "this pool does not run this hook"
+    },
+    {
+      "code": 6028,
+      "name": "DepositTooSmall",
+      "msg": "the wallet's deposit does not cover this mint: the rent of the pieces, the ticket's growth and the keeper fee"
+    },
+    {
+      "code": 6029,
+      "name": "NothingToMint",
+      "msg": "no decided piece to mint for this wallet"
+    },
+    {
+      "code": 6030,
+      "name": "TooFewAssets",
+      "msg": "a mint for another wallet mints every decided piece, up to 4: pass that many asset addresses"
+    },
+    {
+      "code": 6031,
+      "name": "NoDeposit",
+      "msg": "this ticket holds no deposit"
+    }
+  ],
+  "types": [
+    {
+      "name": "Batch",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "state",
+            "type": "u8"
+          },
+          {
+            "name": "pieces",
+            "docs": [
+              "Pieces of this batch not minted yet."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "minted_from",
+            "docs": [
+              "Pieces of this batch already minted."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "first_roll",
+            "docs": [
+              "Roll number of this batch's first piece, fixed when it was earned."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "target_slot",
+            "docs": [
+              "The seed is the hash of the first block at or after this slot."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "seed",
+            "docs": [
+              "Zero until revealed."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "art",
+            "docs": [
+              "The collection's art bytes when these pieces were earned. A piece is minted with",
+              "them, whatever the owner changes between the buy and the mint."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "BatchRevealed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "target_slot",
+            "type": "u64"
+          },
+          {
+            "name": "expired",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BurnQueue",
+      "docs": [
+        "The pieces a pegged coin's transfers burned, waiting for their Metaplex Core asset to",
+        "be burned too (`reap`). The asset addresses follow this header as raw 32-byte entries;",
+        "the transfer hook appends without ever reading the list."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "count",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CollectionConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "authority_bump",
+            "type": "u8"
+          },
+          {
+            "name": "collection_bump",
+            "type": "u8"
+          },
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "creator",
+            "docs": [
+              "Who paid for this config. Must be the pool creator."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "docs": [
+              "May update name, renderer and art. Pubkey::default() = locked forever."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "collection",
+            "docs": [
+              "The Metaplex Core collection, a PDA of this program."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "base_mint",
+            "docs": [
+              "The coin and its token program, recorded by the pool when it is created (a plain",
+              "coin) or by `init_peg` (a pegged coin)."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "token_program",
+            "type": "pubkey"
+          },
+          {
+            "name": "pegged",
+            "docs": [
+              "The coin is a Token-2022 mint whose transfer hook is this program: its pieces move",
+              "or burn inside every transfer."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "unit",
+            "docs": [
+              "Coins (raw units) behind one piece: a buy earns one per `unit` received, and a",
+              "wallet keeps one per `unit` held. Fixed."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "max_supply",
+            "docs": [
+              "The most pieces that may exist at once. Fixed."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "minted",
+            "docs": [
+              "Pieces ever minted. Only numbers them."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "live",
+            "docs": [
+              "Pieces that exist now."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "reserved_pending",
+            "docs": [
+              "Pieces earned and waiting in tickets."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "max_per_buy",
+            "docs": [
+              "Fixed."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "art_version",
+            "docs": [
+              "Bumped on every art or renderer change."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "art",
+            "docs": [
+              "Opaque art parameters, copied into every piece's URI at mint time."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "uri_base",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CollectionUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "art_version",
+            "type": "u16"
+          },
+          {
+            "name": "locked",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DepositUsed",
+      "docs": [
+        "A mint took lamports out of the wallet's deposit: `mint` by the wallet itself, or",
+        "`mint_for` by anyone. `paid` went to `by`."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "by",
+            "type": "pubkey"
+          },
+          {
+            "name": "pieces",
+            "docs": [
+              "Pieces this call minted."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "paid",
+            "docs": [
+              "Lamports paid to `by`: what it spent on the assets, plus `KEEPER_FEE` for `mint_for`."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "left",
+            "docs": [
+              "The deposit left after this call."
+            ],
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DepositWithdrawn",
+      "docs": [
+        "The wallet took its whole deposit back."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "lamports",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HookManifest",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "flags",
+            "type": "u32"
+          },
+          {
+            "name": "admin",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "uri",
+            "type": {
+              "array": [
+                "u8",
+                128
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "InitCollectionArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "uri_base",
+            "type": "string"
+          },
+          {
+            "name": "unit",
+            "type": "u64"
+          },
+          {
+            "name": "max_supply",
+            "type": "u32"
+          },
+          {
+            "name": "max_per_buy",
+            "type": "u8"
+          },
+          {
+            "name": "art",
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PieceBurned",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "asset",
+            "type": "pubkey"
+          },
+          {
+            "name": "by",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PieceDelivered",
+      "docs": [
+        "The Metaplex asset of a piece that moved in a transfer was handed to its holder."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "asset",
+            "type": "pubkey"
+          },
+          {
+            "name": "to",
+            "type": "pubkey"
+          },
+          {
+            "name": "by",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PieceMinted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "asset",
+            "type": "pubkey"
+          },
+          {
+            "name": "number",
+            "type": "u32"
+          },
+          {
+            "name": "seed",
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          },
+          {
+            "name": "art_version",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PieceSent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "from",
+            "type": "pubkey"
+          },
+          {
+            "name": "to",
+            "type": "pubkey"
+          },
+          {
+            "name": "asset",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PiecesCancelled",
+      "docs": [
+        "Waiting pieces dropped because the wallet no longer holds the coins for them."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "pieces",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PiecesEarned",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "pieces",
+            "type": "u32"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          },
+          {
+            "name": "target_slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PiecesTransferred",
+      "docs": [
+        "What one transfer of a pegged coin did to the sender's pieces."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "from",
+            "type": "pubkey"
+          },
+          {
+            "name": "to",
+            "type": "pubkey"
+          },
+          {
+            "name": "dropped",
+            "docs": [
+              "Waiting pieces dropped."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "moved",
+            "docs": [
+              "Pieces that moved to the receiver's list."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "burned",
+            "docs": [
+              "Pieces burned (queued for `reap`)."
+            ],
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PoolCreatePayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "base_amount",
+            "type": "u64"
+          },
+          {
+            "name": "quote_amount",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SwapPayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "direction",
+            "type": "u8"
+          },
+          {
+            "name": "amount_in",
+            "type": "u64"
+          },
+          {
+            "name": "net_in",
+            "type": "u64"
+          },
+          {
+            "name": "amount_out",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_base",
+            "docs": [
+              "Reserves at the moment of the callback (before the swap in `before_swap`,",
+              "after it in `after_swap`)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "reserve_quote",
+            "type": "u64"
+          },
+          {
+            "name": "lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Ticket",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "minted",
+            "docs": [
+              "Pieces this wallet has ever minted on this pool: the index of its next asset address."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "rolls",
+            "docs": [
+              "Pieces this wallet has ever earned on this pool. Each piece's roll number comes",
+              "from here at buy time and never moves."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "staged",
+            "docs": [
+              "Pegged coins: how many pieces, from the end of the list, travel with the wallet's",
+              "next transfer even though its coins would still back them. Only honoured in the",
+              "slot it was set in, so a stale stage can never move a piece by surprise."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "staged_slot",
+            "type": "u64"
+          },
+          {
+            "name": "batches",
+            "type": {
+              "array": [
+                {
+                  "defined": {
+                    "name": "Batch"
+                  }
+                },
+                4
+              ]
+            }
+          },
+          {
+            "name": "owned",
+            "docs": [
+              "The pieces this wallet holds, in the wallet's own order. A burn takes the last one."
+            ],
+            "type": {
+              "vec": "pubkey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateCollectionArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "uri_base",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "art",
+            "type": {
+              "option": {
+                "array": [
+                  "u8",
+                  16
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

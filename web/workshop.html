@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Custom hooks</title>
+<meta name="description" content="Hooks other people built, read from the chain: the ones Programmable reviewed and approved, what the chain allows each of them, its coins and what it collected.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="workshop.css">
+<link rel="stylesheet" href="reviews/reviews.css">
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap">
+  <div class="page-top">
+    <h1>Custom hooks</h1>
+    <p id="lede">Hooks other people built and froze. A hook is listed from its first coin. The ones Programmable reviewed carry its mark.</p>
+  </div>
+
+  <div class="explore-bar ws-bar">
+    <label class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <span class="sr-only">Search hooks</span>
+      <input class="input" id="search" type="search" placeholder="Search" autocomplete="off" spellcheck="false">
+    </label>
+    <button class="btn" id="refresh" type="button">Refresh</button>
+    <a class="btn btn-primary" id="listYours" href="review-hook.html">Get your hook reviewed</a>
+  </div>
+  <p class="ws-status"><span id="count">Reading the pools</span></p>
+
+  <section class="coin-grid ws-grid" id="hooks" aria-labelledby="count"><div class="explore-state" style="grid-column: 1 / -1">Reading the pools from <span class="mono" id="rpcName"></span></div></section>
+
+  <!-- while the platform's rule is on: outside hooks with coins that are not on the approved list -->
+  <details class="panel ws-unreviewed" id="unreviewed" hidden>
+    <summary><span class="ws-unrev-title">Not reviewed</span><span class="ws-unrev-n" id="unreviewedCount"></span></summary>
+    <p class="note warn" id="unreviewedNote">These hooks have coins on them, but they are not on Programmable's approved list. No new coin can launch on them. Coins already on one keep it, because a pool's hook can never change. Read a hook's page before you trade a coin on it.</p>
+    <div class="coin-grid ws-grid" id="unreviewedHooks"></div>
+  </details>
+
+  <section class="panel ws-means" id="means">
+    <h2 class="panel-title">What a listing means</h2>
+    <div class="ws-means-cols">
+      <div>
+        <h3>Reviewed and approved</h3>
+        <p>Programmable reviews a hook's code against ten rules before it can open a pool. An approved hook carries the mark Reviewed by Programmable, with the date and a link to its report.</p>
+      </div>
+      <div>
+        <h3>The code is frozen</h3>
+        <p>A pool takes a hook only when nobody can change its code. An approval covers that one frozen program. The accounts a hook keeps can still change, as far as its code allows.</p>
+      </div>
+      <div>
+        <h3>Two voices</h3>
+        <p>The chain says what a hook may do. Its author says what it does, in a file the author hosts. This site shows that file next to the chain's facts.</p>
+      </div>
+    </div>
+    <p class="ws-means-foot">A review is not an audit and not a promise. A hook can refuse a trade it is called on. Read a hook's report and its page before you buy a coin on it or launch one. <a class="link" href="review-hook.html">How the review works</a></p>
+  </section>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module" src="workshop.js"></script>
+</body>
+</html>

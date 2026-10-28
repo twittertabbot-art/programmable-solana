@@ -1,0 +1,4 @@
+{
+  "about": "Settings of the workshop pages that the operator of this site decides. descriptorUpload: true means this site's upload endpoint (POST /api/metadata) stores a hook descriptor as it was sent and answers with its address, and the 'List yours' guide shows 'Upload to this site'. Set it to false on a deployment without file hosting: the guide then tells a builder to host hook.json somewhere else.",
+  "descriptorUpload": true
+}

@@ -1,0 +1,3499 @@
+{
+  "address": "7CL4KGeaZFsNYqEjErwTezMYuAE54185TieqLQnGjdgh",
+  "metadata": {
+    "name": "hookpool",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "hookpool: constant-product AMM with pool-level hooks on Solana"
+  },
+  "instructions": [
+    {
+      "name": "accept_admin",
+      "discriminator": [
+        112,
+        42,
+        45,
+        90,
+        116,
+        181,
+        13,
+        170
+      ],
+      "accounts": [
+        {
+          "name": "new_admin",
+          "signer": true
+        },
+        {
+          "name": "platform",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "add_liquidity",
+      "discriminator": [
+        181,
+        157,
+        89,
+        67,
+        143,
+        182,
+        52,
+        72
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "signer": true
+        },
+        {
+          "name": "platform",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.base_mint",
+                "account": "Pool"
+              },
+              {
+                "kind": "account",
+                "path": "pool.quote_mint",
+                "account": "Pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "base_vault",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_vault",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "lp_mint",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "user_base",
+          "writable": true
+        },
+        {
+          "name": "user_quote",
+          "writable": true
+        },
+        {
+          "name": "user_lp",
+          "writable": true
+        },
+        {
+          "name": "hook_program"
+        },
+        {
+          "name": "hook_extra_metas"
+        },
+        {
+          "name": "hook_caller",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hook_program"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_token_program",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_token_program",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "event_authority"
+        },
+        {
+          "name": "program"
+        }
+      ],
+      "args": [
+        {
+          "name": "lp_amount",
+          "type": "u64"
+        },
+        {
+          "name": "max_base",
+          "type": "u64"
+        },
+        {
+          "name": "max_quote",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "approve_hook",
+      "docs": [
+        "Admin: puts a frozen hook program on the approved list. While",
+        "`Platform::hook_approval_required` is on, only listed programs (and the platform's own",
+        "hooks) can open a pool. The admin pays the rent of the platform account's growth."
+      ],
+      "discriminator": [
+        71,
+        225,
+        169,
+        218,
+        144,
+        153,
+        82,
+        46
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "Pays the rent of the platform account's growth by one entry."
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "platform"
+          ]
+        },
+        {
+          "name": "platform",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "hook_program"
+        },
+        {
+          "name": "hook_program_data"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "collect_hook_fees",
+      "docs": [
+        "Pays the hook fees that waited for a closed treasury. Anyone may call it."
+      ],
+      "discriminator": [
+        161,
+        80,
+        95,
+        45,
+        41,
+        49,
+        96,
+        93
+      ],
+      "accounts": [
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.base_mint",
+                "account": "Pool"
+              },
+              {
+                "kind": "account",
+                "path": "pool.quote_mint",
+                "account": "Pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_vault",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "hook_quote_treasury",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_token_program",
+          "relations": [
+            "pool"
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "collect_protocol_fees",
+      "discriminator": [
+        22,
+        67,
+        23,
+        98,
+        150,
+        178,
+        70,
+        220
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "platform",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.base_mint",
+                "account": "Pool"
+              },
+              {
+                "kind": "account",
+                "path": "pool.quote_mint",
+                "account": "Pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "base_vault",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_vault",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "treasury"
+        },
+        {
+          "name": "treasury_base",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "treasury"
+              },
+              {
+                "kind": "account",
+                "path": "base_token_program"
+              },
+              {
+                "kind": "account",
+                "path": "base_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "treasury_quote",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "treasury"
+              },
+              {
+                "kind": "account",
+                "path": "quote_token_program"
+              },
+              {
+                "kind": "account",
+                "path": "quote_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "base_token_program",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_token_program",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_curve_pool",
+      "docs": [
+        "A pool on the curve: the whole supply of the coin and no quote at all. It prices",
+        "trades with the platform's virtual quote on top of its real reserve, pays out the",
+        "real reserve only, refuses liquidity until it graduates, and locks all of its LP.",
+        "The same accounts as `create_pool`."
+      ],
+      "discriminator": [
+        92,
+        46,
+        170,
+        252,
+        226,
+        105,
+        215,
+        157
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "docs": [
+            "Pays rent for the new accounts."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "Owns the source token accounts, receives the LP tokens, recorded as creator."
+          ],
+          "signer": true
+        },
+        {
+          "name": "platform",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "base_mint"
+              },
+              {
+                "kind": "account",
+                "path": "quote_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "path": "base_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "path": "quote_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lp_mint",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  112
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lp_lock",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  112,
+                  45,
+                  108,
+                  111,
+                  99,
+                  107
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority_base",
+          "writable": true
+        },
+        {
+          "name": "authority_quote",
+          "writable": true
+        },
+        {
+          "name": "authority_lp",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "authority"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "lp_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "hook_program"
+        },
+        {
+          "name": "hook_program_data"
+        },
+        {
+          "name": "hook_manifest"
+        },
+        {
+          "name": "hook_extra_metas"
+        },
+        {
+          "name": "hook_quote_treasury"
+        },
+        {
+          "name": "hook_caller",
+          "docs": [
+            "Holds no data."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hook_program"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_token_program"
+        },
+        {
+          "name": "quote_token_program"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "event_authority"
+        },
+        {
+          "name": "program"
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "CreateCurvePoolArgs"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "create_pool",
+      "discriminator": [
+        233,
+        146,
+        209,
+        142,
+        207,
+        104,
+        64,
+        188
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "docs": [
+            "Pays rent for the new accounts."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "Owns the source token accounts, receives the LP tokens, recorded as creator."
+          ],
+          "signer": true
+        },
+        {
+          "name": "platform",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "base_mint"
+              },
+              {
+                "kind": "account",
+                "path": "quote_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "path": "base_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              },
+              {
+                "kind": "account",
+                "path": "quote_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lp_mint",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  112
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lp_lock",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  112,
+                  45,
+                  108,
+                  111,
+                  99,
+                  107
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority_base",
+          "writable": true
+        },
+        {
+          "name": "authority_quote",
+          "writable": true
+        },
+        {
+          "name": "authority_lp",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "authority"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "lp_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "hook_program"
+        },
+        {
+          "name": "hook_program_data"
+        },
+        {
+          "name": "hook_manifest"
+        },
+        {
+          "name": "hook_extra_metas"
+        },
+        {
+          "name": "hook_quote_treasury"
+        },
+        {
+          "name": "hook_caller",
+          "docs": [
+            "Holds no data."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hook_program"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_token_program"
+        },
+        {
+          "name": "quote_token_program"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "event_authority"
+        },
+        {
+          "name": "program"
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "CreatePoolArgs"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "graduate",
+      "docs": [
+        "Permissionless: once a pool on the curve holds its graduation target in real quote,",
+        "drop the virtual quote, take the platform's share, and burn the coins that the",
+        "virtual quote stood for, so that the price does not move."
+      ],
+      "discriminator": [
+        45,
+        235,
+        225,
+        181,
+        17,
+        218,
+        64,
+        130
+      ],
+      "accounts": [
+        {
+          "name": "platform",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.base_mint",
+                "account": "Pool"
+              },
+              {
+                "kind": "account",
+                "path": "pool.quote_mint",
+                "account": "Pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint",
+          "docs": [
+            "Writable: the burn lowers the coin's supply."
+          ],
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "base_vault",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "base_token_program",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "event_authority"
+        },
+        {
+          "name": "program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "hook_buy_burn",
+      "docs": [
+        "A buy started by the pool's hook whose coins are burned in the pool's vault and",
+        "never transferred. Who may call it, the price and the fees are those of",
+        "`hook_swap` in the buy direction. (Added after every other instruction, so that",
+        "nothing before it moves.)"
+      ],
+      "discriminator": [
+        8,
+        103,
+        173,
+        214,
+        106,
+        75,
+        167,
+        33
+      ],
+      "accounts": [
+        {
+          "name": "hook_authority",
+          "docs": [
+            "PDA [\"hook-authority\", pool] of the pool's hook program."
+          ],
+          "signer": true
+        },
+        {
+          "name": "platform",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.base_mint",
+                "account": "Pool"
+              },
+              {
+                "kind": "account",
+                "path": "pool.quote_mint",
+                "account": "Pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint",
+          "docs": [
+            "Writable: the burn lowers the coin's supply."
+          ],
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "base_vault",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_vault",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "hook_quote",
+          "docs": [
+            "The hook's own quote account: what the buy is paid from."
+          ],
+          "writable": true
+        },
+        {
+          "name": "base_token_program",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_token_program",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "event_authority"
+        },
+        {
+          "name": "program"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount_in",
+          "type": "u64"
+        },
+        {
+          "name": "min_amount_out",
+          "type": "u64"
+        },
+        {
+          "name": "authority_bump",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "hook_swap",
+      "docs": [
+        "Same as `swap`, started by the pool's hook. No callbacks, no hook fee."
+      ],
+      "discriminator": [
+        122,
+        98,
+        77,
+        213,
+        6,
+        114,
+        102,
+        250
+      ],
+      "accounts": [
+        {
+          "name": "hook_authority",
+          "docs": [
+            "PDA [\"hook-authority\", pool] of the pool's hook program."
+          ],
+          "signer": true
+        },
+        {
+          "name": "platform",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.base_mint",
+                "account": "Pool"
+              },
+              {
+                "kind": "account",
+                "path": "pool.quote_mint",
+                "account": "Pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "base_vault",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_vault",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "hook_base",
+          "writable": true
+        },
+        {
+          "name": "hook_quote",
+          "writable": true
+        },
+        {
+          "name": "base_token_program",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_token_program",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "event_authority"
+        },
+        {
+          "name": "program"
+        }
+      ],
+      "args": [
+        {
+          "name": "direction",
+          "type": "u8"
+        },
+        {
+          "name": "amount_in",
+          "type": "u64"
+        },
+        {
+          "name": "min_amount_out",
+          "type": "u64"
+        },
+        {
+          "name": "authority_bump",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "init_platform",
+      "discriminator": [
+        29,
+        22,
+        210,
+        225,
+        219,
+        114,
+        193,
+        169
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "platform",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "program_data"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "InitPlatformArgs"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "remove_liquidity",
+      "discriminator": [
+        80,
+        85,
+        209,
+        72,
+        24,
+        206,
+        177,
+        108
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "signer": true
+        },
+        {
+          "name": "platform",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.base_mint",
+                "account": "Pool"
+              },
+              {
+                "kind": "account",
+                "path": "pool.quote_mint",
+                "account": "Pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "base_vault",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_vault",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "lp_mint",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "user_base",
+          "writable": true
+        },
+        {
+          "name": "user_quote",
+          "writable": true
+        },
+        {
+          "name": "user_lp",
+          "writable": true
+        },
+        {
+          "name": "hook_program"
+        },
+        {
+          "name": "hook_extra_metas"
+        },
+        {
+          "name": "hook_caller",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hook_program"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_token_program",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_token_program",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "event_authority"
+        },
+        {
+          "name": "program"
+        }
+      ],
+      "args": [
+        {
+          "name": "lp_amount",
+          "type": "u64"
+        },
+        {
+          "name": "min_base",
+          "type": "u64"
+        },
+        {
+          "name": "min_quote",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "revoke_hook",
+      "docs": [
+        "Admin: takes a program off the approved list. Pools already on it are not touched."
+      ],
+      "discriminator": [
+        206,
+        42,
+        212,
+        165,
+        30,
+        120,
+        6,
+        54
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "Receives the rent the shorter platform account no longer needs."
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "platform"
+          ]
+        },
+        {
+          "name": "platform",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "program",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "set_whitelist",
+      "discriminator": [
+        69,
+        161,
+        114,
+        252,
+        244,
+        66,
+        197,
+        48
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "platform"
+          ]
+        },
+        {
+          "name": "platform",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "keys",
+          "type": {
+            "vec": "pubkey"
+          }
+        }
+      ]
+    },
+    {
+      "name": "swap",
+      "docs": [
+        "direction: 0 = buy (quote in, base out), 1 = sell (base in, quote out). Exact input."
+      ],
+      "discriminator": [
+        248,
+        198,
+        158,
+        145,
+        225,
+        117,
+        135,
+        200
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "signer": true
+        },
+        {
+          "name": "platform",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool.base_mint",
+                "account": "Pool"
+              },
+              {
+                "kind": "account",
+                "path": "pool.quote_mint",
+                "account": "Pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "base_vault",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_vault",
+          "writable": true,
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "user_base",
+          "docs": [
+            "The token accounts of the trade: one is spent, the other receives. The token",
+            "program checks that `user` may spend the account the coins leave (its owner, or a",
+            "delegate). The account that receives may belong to anyone, so an aggregator or a",
+            "bot can sign with one wallet and pay out to another. Never the pool's own vault."
+          ],
+          "writable": true
+        },
+        {
+          "name": "user_quote",
+          "writable": true
+        },
+        {
+          "name": "hook_quote_treasury",
+          "docs": [
+            "hook fee get any writable account here (clients pass the user's quote account)."
+          ],
+          "writable": true
+        },
+        {
+          "name": "hook_program"
+        },
+        {
+          "name": "hook_extra_metas"
+        },
+        {
+          "name": "hook_caller",
+          "docs": [
+            "One address per hook program, so that no hook can pass the pool's signature on to",
+            "another hook. For a pool without a hook it is the address of the system program",
+            "(the `hook_program` clients pass then) and signs nothing."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  108,
+                  108,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "hook_program"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_token_program",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "quote_token_program",
+          "relations": [
+            "pool"
+          ]
+        },
+        {
+          "name": "event_authority"
+        },
+        {
+          "name": "program"
+        }
+      ],
+      "args": [
+        {
+          "name": "direction",
+          "type": "u8"
+        },
+        {
+          "name": "amount_in",
+          "type": "u64"
+        },
+        {
+          "name": "min_amount_out",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "transfer_admin",
+      "discriminator": [
+        42,
+        242,
+        66,
+        106,
+        228,
+        10,
+        111,
+        156
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "platform"
+          ]
+        },
+        {
+          "name": "platform",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_admin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "update_platform",
+      "discriminator": [
+        46,
+        78,
+        138,
+        189,
+        47,
+        163,
+        120,
+        85
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "platform"
+          ]
+        },
+        {
+          "name": "platform",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "UpdatePlatformArgs"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Platform",
+      "discriminator": [
+        77,
+        92,
+        204,
+        58,
+        187,
+        98,
+        91,
+        12
+      ]
+    },
+    {
+      "name": "Pool",
+      "discriminator": [
+        241,
+        154,
+        109,
+        4,
+        17,
+        177,
+        109,
+        188
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "CurveOpened",
+      "discriminator": [
+        222,
+        62,
+        115,
+        103,
+        123,
+        108,
+        79,
+        149
+      ]
+    },
+    {
+      "name": "Graduated",
+      "discriminator": [
+        51,
+        241,
+        66,
+        50,
+        140,
+        245,
+        156,
+        192
+      ]
+    },
+    {
+      "name": "HookApprovalChanged",
+      "discriminator": [
+        248,
+        160,
+        138,
+        80,
+        92,
+        95,
+        130,
+        88
+      ]
+    },
+    {
+      "name": "HookApprovalRequiredChanged",
+      "discriminator": [
+        204,
+        241,
+        1,
+        95,
+        239,
+        208,
+        146,
+        118
+      ]
+    },
+    {
+      "name": "HookFeesCollected",
+      "discriminator": [
+        9,
+        60,
+        154,
+        77,
+        40,
+        27,
+        96,
+        111
+      ]
+    },
+    {
+      "name": "LiquidityChanged",
+      "discriminator": [
+        132,
+        132,
+        193,
+        214,
+        12,
+        99,
+        40,
+        28
+      ]
+    },
+    {
+      "name": "PlatformUpdated",
+      "discriminator": [
+        75,
+        10,
+        83,
+        45,
+        92,
+        4,
+        133,
+        128
+      ]
+    },
+    {
+      "name": "PoolCreated",
+      "discriminator": [
+        202,
+        44,
+        41,
+        88,
+        104,
+        220,
+        157,
+        82
+      ]
+    },
+    {
+      "name": "ProtocolFeesCollected",
+      "discriminator": [
+        165,
+        34,
+        125,
+        155,
+        15,
+        86,
+        99,
+        191
+      ]
+    },
+    {
+      "name": "Swapped",
+      "discriminator": [
+        217,
+        52,
+        52,
+        83,
+        147,
+        135,
+        96,
+        109
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Paused",
+      "msg": "platform is paused"
+    },
+    {
+      "code": 6001,
+      "name": "NotAdmin",
+      "msg": "only the platform admin can do this"
+    },
+    {
+      "code": 6002,
+      "name": "NotPendingAdmin",
+      "msg": "only the pending admin can accept"
+    },
+    {
+      "code": 6003,
+      "name": "NotUpgradeAuthority",
+      "msg": "the signer is not the program's upgrade authority"
+    },
+    {
+      "code": 6004,
+      "name": "FeeTooHigh",
+      "msg": "fee exceeds the allowed maximum"
+    },
+    {
+      "code": 6005,
+      "name": "WhitelistTooLong",
+      "msg": "whitelist holds at most 8 keys"
+    },
+    {
+      "code": 6006,
+      "name": "ZeroAmount",
+      "msg": "amount must be greater than zero"
+    },
+    {
+      "code": 6007,
+      "name": "BadDirection",
+      "msg": "direction must be 0 (buy) or 1 (sell)"
+    },
+    {
+      "code": 6008,
+      "name": "Slippage",
+      "msg": "output below min_amount_out"
+    },
+    {
+      "code": 6009,
+      "name": "InputAboveMax",
+      "msg": "input above the maximum you allowed"
+    },
+    {
+      "code": 6010,
+      "name": "MathOverflow",
+      "msg": "math overflow"
+    },
+    {
+      "code": 6011,
+      "name": "InsufficientLiquidity",
+      "msg": "not enough liquidity in the pool"
+    },
+    {
+      "code": 6012,
+      "name": "InitialLiquidityTooSmall",
+      "msg": "initial liquidity too small"
+    },
+    {
+      "code": 6013,
+      "name": "SameMint",
+      "msg": "base and quote mint must differ"
+    },
+    {
+      "code": 6014,
+      "name": "MintExtensionNotAllowed",
+      "msg": "mint has a Token-2022 extension the pool does not accept: only metadata, and a transfer hook that is the pool's own platform hook"
+    },
+    {
+      "code": 6015,
+      "name": "TokenProgramMismatch",
+      "msg": "token program does not match the pool"
+    },
+    {
+      "code": 6016,
+      "name": "TokenAccountMintMismatch",
+      "msg": "token account mint does not match"
+    },
+    {
+      "code": 6017,
+      "name": "TokenAccountOwnerMismatch",
+      "msg": "token account owner does not match"
+    },
+    {
+      "code": 6018,
+      "name": "HookNotExecutable",
+      "msg": "hook program is not executable"
+    },
+    {
+      "code": 6019,
+      "name": "InvalidHookProgramAccount",
+      "msg": "hook program account could not be parsed"
+    },
+    {
+      "code": 6020,
+      "name": "HookProgramDataMismatch",
+      "msg": "hook program data account does not belong to the hook program"
+    },
+    {
+      "code": 6021,
+      "name": "HookNotFrozen",
+      "msg": "hook is upgradeable and its authority is not whitelisted"
+    },
+    {
+      "code": 6022,
+      "name": "UnknownLoader",
+      "msg": "hook program uses a loader the pool does not know"
+    },
+    {
+      "code": 6023,
+      "name": "HookProgramMismatch",
+      "msg": "hook program does not match the pool"
+    },
+    {
+      "code": 6024,
+      "name": "HookManifestAddress",
+      "msg": "hook manifest address is wrong"
+    },
+    {
+      "code": 6025,
+      "name": "HookExtraMetasAddress",
+      "msg": "hook extra-metas address is wrong"
+    },
+    {
+      "code": 6026,
+      "name": "HookExtraMetasOwner",
+      "msg": "hook extra-metas account must be owned by the hook program"
+    },
+    {
+      "code": 6027,
+      "name": "HookExtraAccounts",
+      "msg": "hook extra accounts could not be resolved; pass them as remaining accounts"
+    },
+    {
+      "code": 6028,
+      "name": "HookTreasuryInvalid",
+      "msg": "hook quote treasury must be a token account for the quote mint"
+    },
+    {
+      "code": 6029,
+      "name": "HookTreasuryMismatch",
+      "msg": "hook quote treasury does not match the pool, or is not writable"
+    },
+    {
+      "code": 6030,
+      "name": "HookTreasuryNotAta",
+      "msg": "hook quote treasury must be the associated token account of its owner"
+    },
+    {
+      "code": 6031,
+      "name": "LaunchMintAuthority",
+      "msg": "launch mint must have no mint authority and no freeze authority"
+    },
+    {
+      "code": 6032,
+      "name": "BadHookReturn",
+      "msg": "hook return data could not be decoded"
+    },
+    {
+      "code": 6033,
+      "name": "HookPowerNotGranted",
+      "msg": "hook used a power its flags do not grant"
+    },
+    {
+      "code": 6034,
+      "name": "HookFeeTooHigh",
+      "msg": "hook fee or fee override above the platform cap"
+    },
+    {
+      "code": 6035,
+      "name": "HookCurveInvalid",
+      "msg": "hook curve output is zero or exceeds reserves"
+    },
+    {
+      "code": 6036,
+      "name": "HookTreasuryFlagMismatch",
+      "msg": "hook manifest flags require no treasury but one was given, or vice versa"
+    },
+    {
+      "code": 6037,
+      "name": "HookAuthorityMismatch",
+      "msg": "hook authority PDA does not match"
+    },
+    {
+      "code": 6038,
+      "name": "NoHook",
+      "msg": "pool has no hook"
+    },
+    {
+      "code": 6039,
+      "name": "ProgramDataMismatch",
+      "msg": "program data account is wrong"
+    },
+    {
+      "code": 6040,
+      "name": "NothingToCollect",
+      "msg": "no fees to collect"
+    },
+    {
+      "code": 6041,
+      "name": "PayoutIsVault",
+      "msg": "a swap cannot spend from or pay out to the pool's own vault"
+    },
+    {
+      "code": 6042,
+      "name": "BaseMintFreezable",
+      "msg": "the coin of a pool must have no freeze authority: it could freeze the pool's vault"
+    },
+    {
+      "code": 6043,
+      "name": "CurveDisabled",
+      "msg": "curve launches are switched off on this platform"
+    },
+    {
+      "code": 6044,
+      "name": "CurveSupplyNotInPool",
+      "msg": "a curve pool must hold the whole supply and the mint must be closed"
+    },
+    {
+      "code": 6045,
+      "name": "CurveOpen",
+      "msg": "liquidity opens at graduation"
+    },
+    {
+      "code": 6046,
+      "name": "CurveHook",
+      "msg": "a hook that owns the price curve cannot run a curve pool"
+    },
+    {
+      "code": 6047,
+      "name": "NotOnCurve",
+      "msg": "the pool is not on the curve"
+    },
+    {
+      "code": 6048,
+      "name": "GraduationNotReached",
+      "msg": "the pool has not reached its graduation target"
+    },
+    {
+      "code": 6049,
+      "name": "CurveRealReserve",
+      "msg": "a sell cannot take more than the real reserve"
+    },
+    {
+      "code": 6050,
+      "name": "CurvePegged",
+      "msg": "a pegged coin cannot open a pool on the curve"
+    },
+    {
+      "code": 6051,
+      "name": "CurveSettingsOutOfBounds",
+      "msg": "the virtual quote is above u64::MAX / 4, or the graduation target is below a thousandth of it"
+    },
+    {
+      "code": 6052,
+      "name": "HookNotApproved",
+      "msg": "this hook program is not on the platform's approved list"
+    },
+    {
+      "code": 6053,
+      "name": "HookAlreadyApproved",
+      "msg": "this hook program is already on the approved list"
+    },
+    {
+      "code": 6054,
+      "name": "HookApprovalNotNeeded",
+      "msg": "the platform's own hooks need no approval: only a frozen hook can be approved"
+    },
+    {
+      "code": 6055,
+      "name": "TooManyApprovedHooks",
+      "msg": "the approved list is full"
+    },
+    {
+      "code": 6056,
+      "name": "ApprovedListCorrupt",
+      "msg": "the approved list after the platform account cannot be read"
+    }
+  ],
+  "types": [
+    {
+      "name": "CreateCurvePoolArgs",
+      "docs": [
+        "A pool on the curve: no quote amount, the real quote reserve starts at 0."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "base_amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreatePoolArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "base_amount",
+            "type": "u64"
+          },
+          {
+            "name": "quote_amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CurveOpened",
+      "docs": [
+        "A pool opened on the curve (right after its `PoolCreated`): the settings it was given."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "virtual_quote",
+            "type": "u64"
+          },
+          {
+            "name": "graduation_target",
+            "type": "u64"
+          },
+          {
+            "name": "graduation_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Graduated",
+      "docs": [
+        "A pool graduated: the virtual quote is gone, the fee left the reserve, and enough coins",
+        "were burned from the vault to keep the price."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "reserve_quote_before",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_quote_after",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_base_before",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_base_after",
+            "type": "u64"
+          },
+          {
+            "name": "burned_base",
+            "type": "u64"
+          },
+          {
+            "name": "fee_quote",
+            "type": "u64"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HookApprovalChanged",
+      "docs": [
+        "A hook program was put on the approved list (`approved`) or taken off it. `count` is the",
+        "length of the list after the change."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "program",
+            "type": "pubkey"
+          },
+          {
+            "name": "approved",
+            "type": "bool"
+          },
+          {
+            "name": "count",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HookApprovalRequiredChanged",
+      "docs": [
+        "The approved-list rule was switched on or off."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "required",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HookFeesCollected",
+      "docs": [
+        "Hook fees that had waited for a closed treasury were paid to it."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "InitPlatformArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "protocol_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_hook_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_fee_override_bps",
+            "type": "u16"
+          },
+          {
+            "name": "launch_fee_lamports",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LiquidityChanged",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "added",
+            "type": "bool"
+          },
+          {
+            "name": "base_amount",
+            "type": "u64"
+          },
+          {
+            "name": "quote_amount",
+            "type": "u64"
+          },
+          {
+            "name": "lp_amount",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_base",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_quote",
+            "type": "u64"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Platform",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "protocol_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_hook_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_fee_override_bps",
+            "type": "u16"
+          },
+          {
+            "name": "launch_fee_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          },
+          {
+            "name": "whitelist_len",
+            "type": "u8"
+          },
+          {
+            "name": "whitelist",
+            "type": {
+              "array": [
+                "pubkey",
+                8
+              ]
+            }
+          },
+          {
+            "name": "pool_count",
+            "type": "u64"
+          },
+          {
+            "name": "curve_virtual_quote",
+            "docs": [
+              "The curve launch (HOOKS.md section 2): the quote counted in the price of a new curve",
+              "pool without being there, and the real quote reserve at which it graduates. Copied",
+              "into each curve pool at creation; a later change does not touch running curves.",
+              "Either one at 0 switches curve launches off (`CurveDisabled`)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "curve_graduation_target",
+            "type": "u64"
+          },
+          {
+            "name": "curve_graduation_fee_bps",
+            "docs": [
+              "Share of the target taken for the platform at graduation, at most",
+              "`HARD_MAX_GRADUATION_FEE_BPS`."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "hook_approval_required",
+            "docs": [
+              "When true, a hook that is not the platform's own (HOOK_KIND_FROZEN) opens a pool",
+              "only when its program is on the approved list kept after this account's fixed part",
+              "(HOOKS.md section 6.1, `crate::approvals`). Taken from the first reserved byte, so a",
+              "platform written before it existed reads false: nothing changes until the admin",
+              "turns it on."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "reserved",
+            "type": {
+              "array": [
+                "u8",
+                45
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PlatformUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "protocol_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_hook_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_fee_override_bps",
+            "type": "u16"
+          },
+          {
+            "name": "launch_fee_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          },
+          {
+            "name": "whitelist",
+            "type": {
+              "vec": "pubkey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Pool",
+      "docs": [
+        "The pool account. All fields live in the shared `PoolData` so hooks can read",
+        "them with the interface crate alone. `Deref` keeps `pool.reserve_base` ergonomic."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "data",
+            "type": {
+              "defined": {
+                "name": "PoolData"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PoolCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "base_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "hook_program",
+            "type": "pubkey"
+          },
+          {
+            "name": "hook_flags",
+            "type": "u32"
+          },
+          {
+            "name": "hook_kind",
+            "type": "u8"
+          },
+          {
+            "name": "lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "base_amount",
+            "type": "u64"
+          },
+          {
+            "name": "quote_amount",
+            "type": "u64"
+          },
+          {
+            "name": "lp_minted",
+            "type": "u64"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PoolData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "base_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "base_vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_vault",
+            "type": "pubkey"
+          },
+          {
+            "name": "lp_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "lp_lock",
+            "type": "pubkey"
+          },
+          {
+            "name": "base_token_program",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_token_program",
+            "type": "pubkey"
+          },
+          {
+            "name": "lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "hook_program",
+            "type": "pubkey"
+          },
+          {
+            "name": "hook_flags",
+            "type": "u32"
+          },
+          {
+            "name": "hook_extra_metas",
+            "type": "pubkey"
+          },
+          {
+            "name": "hook_quote_treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "hook_kind",
+            "type": "u8"
+          },
+          {
+            "name": "reserve_base",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_quote",
+            "type": "u64"
+          },
+          {
+            "name": "protocol_fees_base",
+            "type": "u64"
+          },
+          {
+            "name": "protocol_fees_quote",
+            "type": "u64"
+          },
+          {
+            "name": "hook_fees_quote_total",
+            "docs": [
+              "Hook fees charged so far, paid or still owed."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "volume_quote_total",
+            "type": "u64"
+          },
+          {
+            "name": "swap_count",
+            "type": "u64"
+          },
+          {
+            "name": "created_slot",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "hook_fees_owed_quote",
+            "docs": [
+              "Hook fees charged while the treasury account did not exist. They wait in the quote",
+              "vault, outside the reserves, and are paid by the next swap that finds the treasury",
+              "or by `collect_hook_fees`."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "hook_treasury_owner",
+            "docs": [
+              "The wallet whose associated token account the hook treasury is, so that anyone can",
+              "recreate that account. All zeros when the hook takes no fee."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "virtual_quote",
+            "docs": [
+              "Quote counted in the price while the pool is on the curve, and not in the vault:",
+              "the price is `(reserve_quote + virtual_quote) / reserve_base`, a sell is paid from",
+              "`reserve_quote` alone. 0 on a seeded pool and after graduation."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "graduation_target",
+            "docs": [
+              "The real quote reserve at which `graduate` is allowed. 0 on a seeded pool and",
+              "after graduation."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "graduation_fee_bps",
+            "docs": [
+              "Share of the target, in basis points, that graduation takes for the platform."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "curve_state",
+            "docs": [
+              "`CURVE_NONE`, `CURVE_OPEN` or `CURVE_GRADUATED`."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "reserved",
+            "type": {
+              "array": [
+                "u8",
+                5
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProtocolFeesCollected",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "base_amount",
+            "type": "u64"
+          },
+          {
+            "name": "quote_amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Swapped",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "direction",
+            "type": "u8"
+          },
+          {
+            "name": "amount_in",
+            "type": "u64"
+          },
+          {
+            "name": "amount_out",
+            "type": "u64"
+          },
+          {
+            "name": "protocol_fee",
+            "type": "u64"
+          },
+          {
+            "name": "hook_fee",
+            "type": "u64"
+          },
+          {
+            "name": "lp_fee",
+            "type": "u64"
+          },
+          {
+            "name": "fee_bps_applied",
+            "type": "u16"
+          },
+          {
+            "name": "reserve_base",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_quote",
+            "type": "u64"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          },
+          {
+            "name": "by_hook",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdatePlatformArgs",
+      "docs": [
+        "Every field is optional: `None` leaves the setting as it is. The curve launch's three",
+        "and then `hook_approval_required` were appended later; an encoding that ends before",
+        "them, as the earlier clients wrote it, is read as leaving them unchanged."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "treasury",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "protocol_fee_bps",
+            "type": {
+              "option": "u16"
+            }
+          },
+          {
+            "name": "max_lp_fee_bps",
+            "type": {
+              "option": "u16"
+            }
+          },
+          {
+            "name": "max_hook_fee_bps",
+            "type": {
+              "option": "u16"
+            }
+          },
+          {
+            "name": "max_fee_override_bps",
+            "type": {
+              "option": "u16"
+            }
+          },
+          {
+            "name": "launch_fee_lamports",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "paused",
+            "type": {
+              "option": "bool"
+            }
+          },
+          {
+            "name": "curve_virtual_quote",
+            "docs": [
+              "The curve launch. A virtual quote or a target of 0 switches curve launches off."
+            ],
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "curve_graduation_target",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "curve_graduation_fee_bps",
+            "docs": [
+              "At most `HARD_MAX_GRADUATION_FEE_BPS`."
+            ],
+            "type": {
+              "option": "u16"
+            }
+          },
+          {
+            "name": "hook_approval_required",
+            "docs": [
+              "The approved-list rule (HOOKS.md section 6.1)."
+            ],
+            "type": {
+              "option": "bool"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

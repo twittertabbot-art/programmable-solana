@@ -1,0 +1,11 @@
+{
+  "name": "hookpool-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node serve.js"
+  },
+  "dependencies": {
+    "@vercel/blob": "^0.27.0"
+  }
+}

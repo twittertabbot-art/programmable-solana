@@ -1,0 +1,59 @@
+# Programmable watcher, as a service that starts at boot and restarts if it ever stops.
+#
+# Install (as root on the server), one line at a time:
+#   cp /home/programmable/sol-hooks/watcher/programmable-watcher.service /etc/systemd/system/
+#   systemctl daemon-reload
+#   systemctl enable --now programmable-watcher
+#
+# Watch it:    journalctl -u programmable-watcher -f
+# Stop it:     systemctl stop programmable-watcher
+# Restart it:  systemctl restart programmable-watcher
+#
+# Configuration comes from /home/programmable/sol-hooks/watcher/.env, read by the watcher itself.
+# Edit User, WorkingDirectory and ExecStart if your paths differ. README.md has the whole setup.
+
+[Unit]
+Description=hookpool watcher: simulates trades on every pool with a hook and publishes status/pools.json
+Documentation=file:///home/programmable/sol-hooks/watcher/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=programmable
+Group=programmable
+WorkingDirectory=/home/programmable/sol-hooks/watcher
+ExecStart=/usr/bin/node index.mjs
+# Always come back, but not in a tight loop: a watcher that cannot start must not hammer the RPC.
+Restart=always
+RestartSec=15
+# Give the current pass time to finish and save its state before being killed.
+KillSignal=SIGTERM
+TimeoutStopSec=90
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=programmable-watcher
+# A runtime folder for the trades feed's lock: /run/programmable-watcher, made for the service, empty after every
+# reboot, so a lock never outlives the process that took it. LOCK_DIR=/run/programmable-watcher in .env points the
+# watcher there (a check by hand with --once reads the same .env and finds the same lock). Kept while the service
+# is stopped, so a run by hand still finds the folder.
+RuntimeDirectory=programmable-watcher
+RuntimeDirectoryMode=0755
+RuntimeDirectoryPreserve=yes
+
+# The only key here is the probe wallet, which also pays the collectible reveals, settles, deliveries and burns,
+# and the buybacks and burns of buyback and rules pools: fee money only, no power over anybody's funds. The
+# process is boxed in anyway.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/programmable/sol-hooks/watcher/state /home/programmable/sol-hooks/watcher/status
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target

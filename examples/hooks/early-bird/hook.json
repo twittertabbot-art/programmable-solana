@@ -1,0 +1,28 @@
+{
+  "programmable_hook": 1,
+  "program": "A5qiRWmrYQTLzjtRHNrmqseR6dTtNScUsT7JU6uGFUdJ",
+  "name": "Early bird",
+  "summary": "Buyers in the first minutes of a coin pay a share of the pool's fee. After that the pool charges its normal fee.",
+  "rules": [
+    "For a set number of slots after the pool is created, a buy pays only a share of the pool's own fee.",
+    "After that window the hook answers nothing, and every buy pays the normal pool fee.",
+    "It never takes a fee for anyone.",
+    "The pool never calls it on a sell.",
+    "The window and the share are set at launch. Nobody can change them afterwards."
+  ],
+  "source": "https://example.com/examples/hooks/early-bird/programs/early_bird/src/lib.rs",
+  "author": "The hook kit",
+  "setup": {
+    "instruction": "init_pool_config",
+    "args": [
+      { "name": "pool", "type": "pool" },
+      { "name": "window_slots", "type": "u64", "label": "Early window", "unit": "slots", "min": 0, "max": 216000, "default": 750, "help": "How long the lower fee lasts, counted from the pool's creation. A slot is about 0.4 seconds, so 750 slots are about 5 minutes." },
+      { "name": "discount_bps", "type": "u16", "label": "Share of the pool fee an early buyer pays", "unit": "%", "decimals": 2, "min": 0, "max": 100, "default": 50, "help": "50 means an early buyer pays half of the pool fee. 0 means none of it." }
+    ],
+    "accounts": [
+      { "role": "launcher" },
+      { "role": "pda", "seeds": ["cfg", { "key": "pool" }], "writable": true },
+      { "role": "system_program" }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "programmable_hook": 1,
+  "program": "3gVPyNxBYkxi344M7LbMYH9Znttdjf86BYJL4fPXLwmg",
+  "name": "Fixed fee",
+  "summary": "Takes a fixed share of every buy and every sell, in SOL, for a wallet the launcher names.",
+  "rules": [
+    "Every buy and every sell pays the fee the launcher set.",
+    "The fee goes to the wallet the launcher named. The author of this hook gets none of it.",
+    "The owner of a coin's settings can change the fee at any time, from zero up to the ceiling.",
+    "The ceiling is set at launch, is at most 10%, and never changes.",
+    "The owner can hand the settings to another wallet, or give them up for good."
+  ],
+  "source": "https://example.com/hook-template/programs/my_hook/src/lib.rs",
+  "author": "The hook kit",
+  "setup": {
+    "instruction": "init_pool_config",
+    "args": [
+      { "name": "pool", "type": "pool" },
+      { "name": "fee_bps", "type": "u16", "label": "Fee on every trade", "unit": "%", "decimals": 2, "min": 0, "max": 10, "default": 2.5, "help": "The share of every buy and every sell that goes to the treasury." },
+      { "name": "max_bps", "type": "u16", "label": "Ceiling", "unit": "%", "decimals": 2, "min": 0, "max": 10, "default": 5, "help": "The fee can never be raised above this. It cannot be changed after the launch." }
+    ],
+    "accounts": [
+      { "role": "launcher" },
+      { "role": "launcher" },
+      { "role": "pda", "seeds": ["cfg", { "key": "pool" }], "writable": true },
+      { "role": "system_program" }
+    ]
+  }
+}

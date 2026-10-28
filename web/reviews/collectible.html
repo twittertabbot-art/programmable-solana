@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="../">
+<title>Collectible per buy, report</title>
+<meta name="description" content="Report on the collectible template, one of the platform's own hooks: the pieces a buy earns, the peg, what the collection owner can change, and how it compares with the review rules.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="reviews/reviews.css">
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap rv-report">
+  <a class="back" href="reviews/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>All reports</a>
+
+  <div class="page-top">
+    <h1>Collectible per buy</h1>
+    <p>A report on one of the platform's own hooks, written from its code.</p>
+  </div>
+
+  <section class="panel rv-report-head" aria-label="The hook in short">
+    <div>
+      <p class="lead">Every buy earns the buyer pieces, NFTs in the coin's collection. A wallet keeps one piece per set amount of coins it holds. The hook takes no fee and never refuses a trade.</p>
+      <p class="help">Its code is <code>programs/hook_collectible/src/lib.rs</code> in the package.</p>
+    </div>
+    <dl class="kv">
+      <dt>Program</dt><dd data-program="3WCHK9zmFdndiUMZmFcn7vBbTSdssduN9zuR6vfSFr9m" data-short="1">3WCHK9zmFdndiUMZmFcn7vBbTSdssduN9zuR6vfSFr9m</dd>
+      <dt>Kind</dt><dd>One of the platform's own hooks</dd>
+      <dt>Approval</dt><dd>Not needed</dd>
+      <dt>Upgradeable</dt><dd>Yes, by Programmable's key</dd>
+      <dt>Report date</dt><dd>24 Oct 2026</dd>
+    </dl>
+  </section>
+
+  <div class="docs-layout">
+  <nav class="toc-col" aria-label="Sections"><ul class="toc" id="toc"></ul></nav>
+  <section class="panel doc-panel">
+    <article class="doc">
+      <h2 id="does">What it does</h2>
+      <p>After a buy, the hook records how many pieces the buy earned. A buy earns one piece per set amount of coins received, up to a maximum per buy, the collection's maximum supply and 200 pieces per wallet. The hash of a block two slots later decides what each piece looks like. Pieces are minted as Metaplex Core NFTs, by the wallet or by a keeper paid from the wallet's own deposit.</p>
+      <p>The pieces are pegged to the coin. When a wallet's coins no longer back its pieces, the extra pieces leave it. Waiting pieces are dropped first, then minted pieces are burned from the end of the wallet's list.</p>
+      <p>A coin is one of two kinds, fixed at launch. On a plain coin the hook sees buys only, and anyone can send <code>settle</code> to remove the pieces a wallet's coins no longer back. On a pegged coin, a Token-2022 coin, the same program runs inside every transfer of the coin and moves or burns pieces there.</p>
+
+      <h2 id="control">Who controls the program</h2>
+      <p>This is one of the platform's own hooks. Its upgrade authority is a key of Programmable that the platform whitelists, so the pool takes it without approval. Only a hook of the platform's own can be the transfer hook of a coin.</p>
+      <p>Programmable's key can still upgrade it. An upgrade could change anything this report says. Programmable answers for it as it answers for the pool program itself.</p>
+
+      <h2 id="when">When it runs</h2>
+      <table>
+        <thead><tr><th>Moment</th><th>Called</th><th>What it does then</th></tr></thead>
+        <tbody>
+          <tr><td>A buy</td><td>yes, after the trade</td><td>Records the pieces the buy earned in the buyer's ticket.</td></tr>
+          <tr><td>A sell</td><td>never by the pool</td><td>On a pegged coin it runs inside the transfer of the sell, and burns the pieces the sold coins backed.</td></tr>
+          <tr><td>A send of the coin</td><td>pegged coin only</td><td>Runs inside the transfer. Moves pieces to the receiver when it can, burns the rest.</td></tr>
+          <tr><td>Adding or removing liquidity</td><td>never by the pool</td><td>On a pegged coin these are transfers too. It never refuses them.</td></tr>
+          <tr><td>Pool creation</td><td>once</td><td>Checks the pool, its hook, its creator and its coin.</td></tr>
+        </tbody>
+      </table>
+      <p>Its manifest flags are <code>AFTER_SWAP</code>, <code>ON_POOL_CREATE</code>, <code>CALL_ON_BUY</code>.</p>
+
+      <h2 id="takes">What it can take, and where it goes</h2>
+      <p>Nothing from a trade. It has no flag for a fee and gives the pool no answer.</p>
+      <p>Outside the trade a buyer pays the rent of a ticket, once, and the NFTs of the pieces. A buy on this site adds a deposit to the buyer's ticket for those NFTs. A keeper that mints a wallet's pieces takes back what the mint cost plus 10,000 lamports from that deposit, and mints into that wallet only. Only the wallet can withdraw the rest.</p>
+      <p>When a piece is burned, its NFT's rent goes to whoever sent the burn, by <code>settle</code> or <code>reap</code>.</p>
+
+      <h2 id="refuse">Can it refuse a trade</h2>
+      <p>No. A buy that can earn no piece earns none and still goes through, for example when the buyer has no ticket, the wallet is full or the supply is used up. Inside a transfer of a pegged coin it returns success for every real transfer, sells and sends included. When a piece has nowhere to go, it stays where it is instead of failing the transfer.</p>
+      <p>Three of its own instructions, <code>stage</code>, <code>reorder</code> and <code>send_pieces</code>, are refused for a wallet whose coins no longer back its pieces. They are not trades.</p>
+
+      <h2 id="change">What can change after launch, and who changes it</h2>
+      <table>
+        <thead><tr><th>Instruction</th><th>Who</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>update_collection</code></td><td>the collection owner, until it is locked</td><td>Changes the collection's name, art and renderer address. A new name and renderer apply to pieces minted afterwards, new art to pieces bought afterwards. A minted piece never changes.</td></tr>
+          <tr><td><code>set_owner</code></td><td>the collection owner, until it is locked</td><td>Hands the collection to another wallet, or locks it forever.</td></tr>
+          <tr><td><code>settle</code>, <code>reap</code>, <code>deliver</code>, <code>reveal</code>, <code>mint_for</code>, <code>open_ticket_for</code></td><td>anyone</td><td>Remove the pieces a wallet's coins no longer back, burn or deliver the NFTs of moved pieces, fix the look of earned pieces, mint a wallet's pieces from its own deposit, open a ticket for a wallet.</td></tr>
+          <tr><td><code>open_ticket</code>, <code>mint</code>, <code>withdraw_deposit</code>, <code>stage</code>, <code>reorder</code>, <code>send_pieces</code></td><td>the wallet itself</td><td>Its own ticket, its own pieces and its own deposit.</td></tr>
+          <tr><td><code>init_pool_config</code>, <code>init_peg</code></td><td>the launcher, once</td><td>Create the collection and the settings before the pool exists, and bind a pegged coin.</td></tr>
+          <tr><td><code>init_manifest</code></td><td>the upgrade authority, once</td><td>Writes the manifest and the list of extra accounts.</td></tr>
+          <tr><td><code>on_pool_create</code>, <code>after_swap</code>, <code>execute</code></td><td>the pool, or the token program in a transfer</td><td>The calls above.</td></tr>
+        </tbody>
+      </table>
+      <p>The coins per piece, the maximum supply and the maximum per buy are fixed at launch. No instruction changes them. The coin's page shows whether the collection is locked and who can update it.</p>
+
+      <h2 id="manifest">Its manifest and its account lists</h2>
+      <p><code>init_manifest</code> writes the manifest and the pool's list of extra accounts once. It needs the program's upgrade authority, and an account that exists cannot be created again. The list names the coin's settings, the buyer's ticket and the recent block hashes. A pegged coin also has the list a token transfer reads, and a burn queue, both created once by <code>init_peg</code>. No instruction rewrites any of them.</p>
+
+      <h2 id="calls">Programs it calls</h2>
+      <p>Metaplex Core, to create the collection and the pieces, to burn and move them, and to update the collection. The system program, for accounts and rent. The token program, in <code>send_pieces</code>, for a transfer the wallet signs.</p>
+
+      <h2 id="binary">The binary on mainnet</h2>
+      <p>The sha256 of the program that runs on mainnet today:</p>
+      <p class="rv-hash">99e7bd58152ebe7da9c63c670ece0dd9a010f3925c9e0b2fd84d85ae533df262</p>
+      <p>An upgrade would change it.</p>
+
+      <h2 id="rules">Next to the review rules</h2>
+      <p>The review rules are for hooks from outside the platform. This is how this hook stands against each of them.</p>
+      <table>
+        <thead><tr><th>Rule</th><th>Here</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>1. Public source, pinned</td><td class="rv-not">not met</td><td>No public repository at a pinned commit is named for this code yet. This report was written from the platform's source.</td></tr>
+          <tr><td>2. Frozen, and the reviewed code</td><td class="rv-not">not met</td><td>Programmable's key can upgrade it.</td></tr>
+          <tr><td>3. Sells always go through</td><td class="rv-met">met</td><td>The pool never calls it on a sell. Inside a pegged coin's transfer it never refuses one.</td></tr>
+          <tr><td>4. Fees bounded in code</td><td class="rv-met">met</td><td>It charges no fee on a trade.</td></tr>
+          <tr><td>5. No power that hurts holders</td><td class="rv-met">met</td><td>The collection owner's two powers are named above. Neither can block a trade, charge a fee or touch a deposit. A deposit pays only for its own wallet's pieces.</td></tr>
+          <tr><td>6. Written once</td><td class="rv-met">met</td><td>No instruction rewrites the manifest or the lists.</td></tr>
+          <tr><td>7. Asks only for what it uses</td><td class="rv-met">met</td><td>It records pieces after buys and checks the pool at creation, which is what its flags allow.</td></tr>
+          <tr><td>8. Calls only what it names</td><td class="rv-met">met</td><td>The programs are named above.</td></tr>
+          <tr><td>9. Checks its caller and its settings</td><td class="rv-met">met</td><td>Both pool calls check the pool program's caller address. At creation it checks the pool, that the pool runs this hook, that the pool's creator made the settings, and the coin.</td></tr>
+          <tr><td>10. Fits</td><td class="rv-met">met</td><td>A wallet's list holds at most 200 pieces and the burn queue at most 4,096. A sell on a pegged coin that burns 200 pieces uses about 105,000 compute units.</td></tr>
+        </tbody>
+      </table>
+
+      <p class="rv-not-promise">A review is not an audit and not a promise.</p>
+    </article>
+  </section>
+  </div>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module" src="reviews/report.js"></script>
+</body>
+</html>

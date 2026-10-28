@@ -1,0 +1,22 @@
+[package]
+name = "hookpool-interface"
+version = "0.1.0"
+description = "Shared types between the hookpool AMM and the hooks that plug into it"
+edition = "2021"
+# The oldest compiler this crate is built with: the SBF toolchain a hook is compiled with.
+rust-version = "1.84.0"
+
+[lib]
+name = "hookpool_interface"
+
+[features]
+default = []
+idl-build = ["anchor-lang/idl-build"]
+
+# Explicit versions, nothing inherited from a workspace: this folder can be copied into
+# another project (for example as vendor/hookpool-interface) and built there as it is.
+# They are the versions the pool program itself is built with.
+[dependencies]
+anchor-lang = "1.2.0"
+spl-tlv-account-resolution = "0.11.4"
+spl-discriminator = "0.5"

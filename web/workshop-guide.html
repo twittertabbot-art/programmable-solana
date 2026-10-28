@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build a hook</title>
+<meta name="description" content="Four steps from an idea to an approved hook: choose its powers, build and test it with the kit, describe it, then get it reviewed and deploy the reviewed code frozen.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="workshop.css">
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap">
+  <a class="back" href="workshop.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>Custom hooks</a>
+
+  <div class="page-top">
+    <h1>Build a hook</h1>
+    <p>Write a hook, test it and describe it. Programmable reviews the code. Once it passes, you deploy it frozen and it goes on the approved list.</p>
+  </div>
+
+  <section class="panel ws-guide" aria-labelledby="guideTitle">
+    <h2 class="panel-title" id="guideTitle">Build a custom hook</h2>
+    <div class="ws-steps" id="steps">
+
+      <div class="ws-step" id="step1">
+        <button class="ws-step-head" id="step1Head" type="button" aria-expanded="false" aria-controls="step1Body">
+          <span class="ws-step-n">01</span>
+          <span class="ws-step-title">Choose its powers</span>
+          <span class="ws-step-line">Tick what your hook runs on and what it may do. People read it as sentences on every coin.</span>
+        </button>
+        <div class="ws-step-body" id="step1Body" role="region" aria-labelledby="step1Head" hidden>
+          <p class="ws-lede">A hook declares its powers once, as flags in its manifest. A pool copies them when it is created and keeps them forever. Tick what your hook needs and nothing more.</p>
+          <div class="ws-two">
+            <div class="raised">
+              <h3>When the pool calls it</h3>
+              <ul class="flag-list" id="flagCalls"></ul>
+              <h3 class="ws-gap">What its answer may do</h3>
+              <ul class="flag-list" id="flagPowers"></ul>
+            </div>
+            <div class="raised">
+              <h3>In your lib.rs</h3>
+              <pre id="flagRust"></pre>
+              <h3 class="ws-gap">What people will read</h3>
+              <ul class="ws-sentences" id="flagWords"></ul>
+              <p class="note warn ws-warn" id="flagWarn" hidden></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ws-step" id="step2">
+        <button class="ws-step-head" id="step2Head" type="button" aria-expanded="false" aria-controls="step2Body">
+          <span class="ws-step-n">02</span>
+          <span class="ws-step-title">Build and test it</span>
+          <span class="ws-step-line">Copy the kit, change the code, and run its tests next to the real pool program.</span>
+        </button>
+        <div class="ws-step-body" id="step2Body" role="region" aria-labelledby="step2Head" hidden>
+          <p class="ws-lede">The folder hook-template of the package is a complete hook with its tests and its scripts. Copy it, name your program and change the code. The commands run in Linux or WSL, from the root of the package.</p>
+          <div class="ws-two">
+            <div class="raised">
+              <h3>Copy, rename, test</h3>
+              <pre id="cmdCopy">cp -r hook-template my-hook
+cd my-hook
+bash scripts/rename.sh fee_split
+bash scripts/test.sh</pre>
+              <p class="help">The tests load your hook next to the real pool program, without a validator. Test before you freeze. Every fix after the freeze is a new program at a new address.</p>
+              <h3 class="ws-gap">Build</h3>
+              <pre id="cmdBuild">bash scripts/build.sh</pre>
+              <p class="help">The build prints your program id. Step 3 needs it.</p>
+            </div>
+            <div class="raised">
+              <h3>Start the local chain</h3>
+              <pre id="cmdChain">bash build.sh build
+bash scripts/localnet.sh up
+node scripts/init-platform.mjs localnet</pre>
+              <p class="help" id="chainNote">The pool program runs on a local validator only. It is not on devnet and not on mainnet. Run these from the root of the package.</p>
+              <p class="help">The README of hook-template explains every script.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ws-step" id="step3">
+        <button class="ws-step-head" id="step3Head" type="button" aria-expanded="false" aria-controls="step3Body">
+          <span class="ws-step-n">03</span>
+          <span class="ws-step-title">Describe it</span>
+          <span class="ws-step-line">Write its rules in a small JSON file. The launch form builds its settings from it.</span>
+        </button>
+        <div class="ws-step-body" id="step3Body" role="region" aria-labelledby="step3Head" hidden>
+          <p class="ws-lede">A descriptor is a small JSON file that you host and your manifest links to. It carries the hook's name, its rules in your words, and how the launch form builds its settings for a new coin. The kit's folder holds one, hook.json. Open it here, or fill in the form. The site shows your words as yours and does not check them against your code.</p>
+          <div class="ws-desc-cols">
+            <div class="raised" id="descForm">
+              <div class="row">
+                <label class="field" style="flex: 3 1 260px"><span><span>Program id</span><span class="dim">printed by scripts/build.sh</span></span><input class="input mono" id="gProgram" placeholder="program address" autocomplete="off" spellcheck="false"></label>
+                <div class="field" style="flex: 1 1 170px"><span class="label"><span>Start from a file</span></span><span class="btn btn-block file-btn ws-file">Open a hook.json<input type="file" id="gFile" accept="application/json,.json" aria-label="Open a hook.json"></span></div>
+              </div>
+              <div class="row">
+                <label class="field"><span><span>Name</span><span class="dim" id="gNameCount"></span></span><input class="input" id="gName" maxlength="48" autocomplete="off"></label>
+                <label class="field"><span><span>Author</span><span class="dim">a name or an address, optional</span></span><input class="input" id="gAuthor" maxlength="80" autocomplete="off"></label>
+              </div>
+              <label class="field"><span><span>Summary</span><span class="dim" id="gSummaryCount"></span></span><textarea id="gSummary" maxlength="280" rows="2"></textarea></label>
+              <label class="field"><span><span>Rules</span><span class="dim">one sentence a line, at most 12</span></span><textarea id="gRules" rows="6"></textarea></label>
+              <label class="field"><span><span>Link to the code</span><span class="dim">https, optional</span></span><input class="input" id="gSource" type="url" maxlength="200" placeholder="https://" autocomplete="off"></label>
+              <label class="check-row"><input type="checkbox" id="gHasSetup"><span>My hook keeps settings for each pool. The launcher creates them before the pool exists.</span></label>
+              <div id="gSetup">
+                <label class="field" style="margin-top: 12px"><span><span>Instruction</span><span class="dim">its name in your Rust code</span></span><input class="input mono" id="gInstruction" autocomplete="off" spellcheck="false"></label>
+                <h4 class="ws-sub">Arguments, in the order of your Rust code</h4>
+                <div class="rows" id="gArgs"></div>
+                <button class="btn btn-sm" id="gAddArg" type="button">Add an argument</button>
+                <h4 class="ws-sub">Accounts, in the order of your accounts struct</h4>
+                <div class="rows" id="gAccounts"></div>
+                <button class="btn btn-sm" id="gAddAccount" type="button">Add an account</button>
+                <p class="help">The site passes these accounts and no others. It never passes another signer, another wallet's account or a token account. A seed is text, or one of {pool}, {launcher}, {base_mint}, {quote_mint}. Separate seeds with commas.</p>
+              </div>
+            </div>
+            <div class="raised ws-out" id="descOut">
+              <div class="verdict" id="gVerdict"></div>
+              <ul class="ws-errors" id="gErrors"></ul>
+              <div class="ws-preview" id="gPreview" hidden></div>
+              <h4 class="ws-sub">hook.json</h4>
+              <pre id="gJson"></pre>
+              <div class="acts">
+                <button class="btn btn-primary" id="gDownload" type="button">Download hook.json</button>
+                <button class="btn" id="gCopy" type="button">Copy</button>
+                <button class="btn" id="gUpload" type="button" hidden>Upload to this site</button>
+              </div>
+              <p class="help" id="gHost"></p>
+              <p class="help" id="gUploadNote" hidden></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ws-step" id="step4">
+        <button class="ws-step-head" id="step4Head" type="button" aria-expanded="false" aria-controls="step4Body">
+          <span class="ws-step-n">04</span>
+          <span class="ws-step-title">Review, deploy, freeze</span>
+          <span class="ws-step-line">Get the code reviewed. Once it passes, deploy that commit frozen with its pin.</span>
+        </button>
+        <div class="ws-step-body" id="step4Body" role="region" aria-labelledby="step4Head" hidden>
+          <div class="ws-review" id="reviewFirst">
+            <div>
+              <h3>Get it reviewed first</h3>
+              <p>Put the code in a public repository and send a review request with its commit. You pay the review fee of 25 USD in SOL in the same step. Programmable reviews that commit against ten rules.</p>
+              <p>Once the code passes, deploy exactly that commit with the command below and freeze it. A change after the review is a new program and a new review.</p>
+            </div>
+            <a class="btn btn-primary" id="gReviewTop" href="review-hook.html">Get your hook reviewed</a>
+          </div>
+          <h3 class="ws-after">After the code passed</h3>
+          <div class="ws-two">
+            <div class="raised">
+              <h3>The address and the pin</h3>
+              <p class="help">Host hook.json at an address that ends in .json, will not change, and that other sites may read. Your manifest stores the link once, when you deploy. It holds 128 bytes.</p>
+              <p class="help">The link can pin your text. The deploy script adds a pin to the link. The pin is 22 characters made from the SHA-256 of the hosted file. From then on a site refuses any other file at that address. The pin takes 25 of the 128 bytes, so an address of up to 103 bytes can be pinned. A longer address works without the pin, and sites then say that you can still change the text.</p>
+              <p class="help">A pin proves that the file is the one you pinned. It is not a signature, and it says nothing about your code.</p>
+            </div>
+            <div class="raised">
+              <div class="row" style="align-items: flex-end">
+                <label class="field" style="flex: 3 1 240px"><span><span>Address of your hook.json</span><span class="dim" id="gUrlCount"></span></span><input class="input mono" id="gUrl" type="url" placeholder="https://" autocomplete="off" spellcheck="false"></label>
+                <div class="field" style="flex: 1 1 160px"><button class="btn btn-block" id="gRead" type="button">Read the address</button></div>
+              </div>
+              <p class="help" id="gDeployNote">Type the address and the deploy command appears here.</p>
+              <pre id="gDeploy" hidden></pre>
+              <p class="help" id="gPinNote" hidden></p>
+              <p class="help">The script reads the hosted file. It stops if the file names another program or is not the file the link pins. Then it deploys, publishes the manifest and removes the upgrade authority. Freezing cannot be undone, and the rent of a frozen program never comes back.</p>
+            </div>
+          </div>
+          <div class="ws-finish">
+            <p>Then give the program id on your request's page. Programmable checks on chain that the program is frozen and is the build of the reviewed commit, and puts it on the approved list. The hook is then listed in Custom hooks with the mark Reviewed by Programmable. The launch form reads your descriptor and offers your settings to every launcher.</p>
+            <div class="acts">
+              <a class="btn" id="gPage" href="workshop.html">See its page</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module" src="workshop-guide.js"></script>
+</body>
+</html>

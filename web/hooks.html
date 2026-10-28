@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hook checker</title>
+<meta name="description" content="Pick a hook for your coin, see what it may do, check any program id against the rules the pool enforces, and build your own.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .verdict { font-family: var(--font-display); font-size: var(--fs-md); font-weight: 700; margin-bottom: 10px; }
+  .check-list { margin: 0; padding: 0; list-style: none; }
+  .check-list li { display: flex; gap: 10px; padding: 7px 0; border-top: 1px solid var(--line); font-size: var(--fs-sm); }
+  .check-list li:first-child { border-top: 0; }
+  .check-list .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; margin-top: 7px; background: var(--dim); }
+  .check-list .yes .dot { background: var(--ok); }
+  .check-list .no .dot { background: var(--bad); }
+  .try { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; align-items: center; }
+</style>
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap">
+  <div class="page-top">
+    <h1>Hook checker</h1>
+    <p>Paste a program id and see whether a pool would take it. Under the checker are the hooks this platform keeps, and how a hook works.</p>
+  </div>
+
+  <section class="panel checker" id="checker">
+    <div class="checker-in">
+      <div>
+        <h2 class="panel-title">Check a hook</h2>
+        <p class="small muted">The page reads the program's loader state, its manifest and the platform whitelist, and says whether a pool would accept it.</p>
+        <label class="field"><span><span>Program id</span></span><input class="input mono" id="hookId" placeholder="program address" autocomplete="off" spellcheck="false"></label>
+        <button class="btn btn-primary btn-block" id="checkBtn" type="button">Check</button>
+        <div class="try" id="try"></div>
+      </div>
+      <div id="checkOut"></div>
+    </div>
+  </section>
+
+  <h2 class="section-title">The hooks of this platform</h2>
+  <section class="pick" id="pick">
+    <div class="pick-list" id="pickList">
+      <div class="eyebrow">Templates</div>
+      <button type="button" data-pick="rules" aria-pressed="true"><span>Launch rules</span><span class="n" data-count="rules"></span></button>
+      <button type="button" data-pick="tax" aria-pressed="false"><span>Tax to treasury</span><span class="n" data-count="tax"></span></button>
+      <button type="button" data-pick="launch_guard" aria-pressed="false"><span>Launch guard</span><span class="n" data-count="launch_guard"></span></button>
+      <button type="button" data-pick="buyback" aria-pressed="false"><span>Buyback and burn</span><span class="n" data-count="buyback"></span></button>
+      <button type="button" data-pick="collectible" aria-pressed="false"><span>Collectible per buy</span><span class="n" data-count="collectible"></span></button>
+      <div class="eyebrow">Custom</div>
+      <button type="button" data-pick="custom" aria-pressed="false"><span>Your own hook</span><span class="n" data-count="custom"></span></button>
+    </div>
+    <div class="pick-panel" id="pickPanel"><div class="inline-msg">Loading</div></div>
+  </section>
+
+  <section class="panel doc-panel hooks-doc">
+    <article class="doc">
+      <h2 id="what">What a hook is</h2>
+      <p>The pool program calls your program by CPI. Your program never moves tokens. It returns a decision, and the pool applies it. Solana forbids indirect reentrancy, so a hook cannot call the pool back during a callback. The runtime enforces this, not the pool.</p>
+      <p>Four constraints shape the design. Return data is 1,024 bytes, so the answer is a small struct. Every account must be declared up front, so a hook publishes an extra-accounts list and the SDK resolves it. CPI depth is limited, so router, pool, hook and one more call is the ceiling. Programs are upgradeable by default, so the pool refuses upgradeable third-party hooks.</p>
+
+      <h2 id="when">When the pool calls you</h2>
+      <p>Each callback is an ordinary Anchor-style instruction with an exact name. The pool only invokes a callback whose flag is set in your manifest. Swap callbacks are skipped on a direction whose flag is missing: a hook without <code>CALL_ON_SELL</code> is never called on a sell, so it can neither block nor tax a sell.</p>
+      <table>
+        <thead><tr><th>Instruction</th><th>When</th><th>Flag</th></tr></thead>
+        <tbody>
+          <tr><td><code>on_pool_create</code></td><td>once, inside create_pool</td><td><code>ON_POOL_CREATE</code></td></tr>
+          <tr><td><code>before_swap</code></td><td>before the curve runs, its return data is read</td><td><code>BEFORE_SWAP</code></td></tr>
+          <tr><td><code>after_swap</code></td><td>after the transfers</td><td><code>AFTER_SWAP</code></td></tr>
+          <tr><td><code>before_add_liquidity</code></td><td>before LP is minted, can refuse the deposit</td><td><code>BEFORE_ADD_LIQ</code></td></tr>
+          <tr><td><code>after_add_liquidity</code></td><td>after LP is minted</td><td><code>AFTER_ADD_LIQ</code></td></tr>
+          <tr><td><code>before_remove_liquidity</code></td><td>before a withdrawal is paid out</td><td><code>BEFORE_REMOVE_LIQ</code></td></tr>
+          <tr><td><code>after_remove_liquidity</code></td><td>after a withdrawal is paid out</td><td><code>AFTER_REMOVE_LIQ</code></td></tr>
+        </tbody>
+      </table>
+      <p>Every callback receives the pool account, the caller, the user, the quote mint, the base mint, then your extra accounts. The caller is an address of the pool program that belongs to your hook alone. Its seeds are <code>["caller", your program id]</code>, and the pool signs every callback with it. Check that the caller is a signer with that address. Without the check anyone can call your hook directly, and another hook could pass a call of the pool on to yours.</p>
+      <p>The five fixed accounts are read-only, and the user does not sign your callback. Your extra accounts come from the list you publish. The pool never passes one of them as a signer, whatever the list asks for. So a callback cannot move coins out of the user's wallet. What a hook can do to a trade is in its flags.</p>
+      <p>Only <code>before_swap</code> is read back. It may return a fee override in bps, a hook fee in bps (always in the quote token) and a curve output. Each field needs its flag, or the swap fails. A fee above the platform cap is cut down to the cap. Empty return data means no opinion. The trade then pays the pool fee and no hook fee, on x*y=k. A callback that fails stops the whole trade.</p>
+
+      <h3 id="order">The order of the fees</h3>
+      <p>On a buy the pool takes the protocol fee from the quote token paid in. Your hook fee comes out of what is left. The pool fee, or your override, comes out of what is left after that.</p>
+      <p>On a sell the protocol fee and the pool fee come out of the coins paid in. Your hook fee comes out of the quote token the curve pays, before the seller's minimum is checked. Every fee rounds up.</p>
+      <p>The hook fee goes to the treasury account fixed when the pool is created. If that account is missing, the trade still goes through. The fee waits in the pool, and the next trade that finds the account pays it. Anyone can also pay it out with <code>collect_hook_fees</code>.</p>
+
+      <h2 id="flags">Flags</h2>
+      <table>
+        <thead><tr><th>Flag</th><th>Bit</th><th>Means</th></tr></thead>
+        <tbody>
+          <tr><td><code>BEFORE_SWAP</code></td><td class="bit">1 &lt;&lt; 0</td><td>called before the curve</td></tr>
+          <tr><td><code>AFTER_SWAP</code></td><td class="bit">1 &lt;&lt; 1</td><td>called after the transfers</td></tr>
+          <tr><td><code>BEFORE_ADD_LIQ</code></td><td class="bit">1 &lt;&lt; 2</td><td>called before LP mint, can refuse</td></tr>
+          <tr><td><code>AFTER_ADD_LIQ</code></td><td class="bit">1 &lt;&lt; 3</td><td>called after LP mint</td></tr>
+          <tr><td><code>BEFORE_REMOVE_LIQ</code></td><td class="bit">1 &lt;&lt; 4</td><td>called before a withdrawal, can refuse</td></tr>
+          <tr><td><code>AFTER_REMOVE_LIQ</code></td><td class="bit">1 &lt;&lt; 5</td><td>called after a withdrawal</td></tr>
+          <tr><td><code>ON_POOL_CREATE</code></td><td class="bit">1 &lt;&lt; 6</td><td>called once at creation</td></tr>
+          <tr><td><code>OVERRIDE_FEE</code></td><td class="bit">1 &lt;&lt; 8</td><td>may return fee_override_bps, clamped to the platform cap</td></tr>
+          <tr><td><code>TAKE_HOOK_FEE</code></td><td class="bit">1 &lt;&lt; 9</td><td>may return hook_fee_bps, clamped to the platform cap, paid to a fixed treasury</td></tr>
+          <tr><td><code>OVERRIDE_CURVE</code></td><td class="bit">1 &lt;&lt; 10</td><td>may return the gross output, the pool skips x*y=k</td></tr>
+          <tr><td><code>CALL_ON_BUY</code></td><td class="bit">1 &lt;&lt; 12</td><td>swap callbacks run on buys</td></tr>
+          <tr><td><code>CALL_ON_SELL</code></td><td class="bit">1 &lt;&lt; 13</td><td>swap callbacks run on sells</td></tr>
+        </tbody>
+      </table>
+      <p>The pool copies the flags into its own account at creation and never reads the manifest again. A hook cannot grow powers after a pool exists. The coin page turns the flags into sentences, for example: Runs on buys and sells. Can take a fee in the quote token to its treasury, up to the platform cap.</p>
+
+      <h2 id="rule">The upgrade rule</h2>
+      <p>Your hook must be frozen, or the pool refuses it. At create_pool the pool reads the hook program and its loader state. It accepts an upgradeable-loader program whose upgrade authority is none. It accepts a loader-v4 program whose status is finalized. It accepts a program under a loader that never allowed upgrades. A whitelisted authority is the one exception, and the whitelist holds only platform keys. Everything else fails and the pool is never created.</p>
+      <p>The pool stores which case matched. The coin page shows it as a frozen custom hook or a platform template. A frozen hook stays frozen forever.</p>
+      <p>The platform can also require a review. While that rule is on, the pool takes a frozen hook only when its program is on Programmable's approved list. The checker above says where a program stands. <a class="link" href="review-hook.html">Get your hook reviewed</a> explains the rules.</p>
+      <p>Frozen means the code. What your program keeps in its own accounts can still change. A hook with a config account and an admin key can change its answers, inside its flags and the platform caps. The flags and the caps are the limits a trader can count on. Say what your hook can still change on the page your manifest links to.</p>
+
+      <h2 id="build">Build one</h2>
+      <ol>
+        <li>Start from the hook-template folder of the package. It has the callbacks with the right names, the manifest and the extra accounts list, a test, and scripts that build, deploy, publish and freeze.</li>
+        <li>Implement <code>before_swap</code> and whatever else you flag. The pool signs each callback with <code>["caller", your program id]</code>, an address under the pool program. Verify it in every callback. The template does it with <code>verify_caller</code> and your own program id.</li>
+        <li>Test on a local validator started from the package first. The README of the package starts the validator and sets up the platform. The pool program runs on mainnet. Deploy your hook there once its code passed the review.</li>
+        <li>Publish the manifest at <code>["manifest"]</code> and the extra accounts list at <code>["extra-metas"]</code> under your program.</li>
+        <li>Deploy, then remove the upgrade authority: <code>solana program set-upgrade-authority &lt;id&gt; --final</code>. Check it with the tool on this page.</li>
+        <li>Describe your hook in a <code>hook.json</code>, host it, and pass its address as <code>HOOK_URI</code> when you deploy. The manifest stores that link once. The <a class="link" href="workshop-guide.html">Build a hook</a> guide builds the file with you.</li>
+        <li>Before the deploy, put the code in a public repository and <a class="link" href="review-hook.html">get it reviewed</a>. Deploy and freeze exactly the commit that passed, then give its program id on your request's page. Programmable checks it on chain and puts it on the approved list.</li>
+        <li>Launch a coin with it from the launch page: pick Custom hook, paste the program id. With a <code>hook.json</code> the form offers your hook's settings and creates them. Without one, create your per-pool config yourself for the pool address the form shows, before the second signature. The launchpad does not take a hook that holds <code>OVERRIDE_CURVE</code>.</li>
+        <li>An approved hook is in <a class="link" href="workshop.html">Custom hooks</a>, with the mark Reviewed by Programmable and a page of its own.</li>
+      </ol>
+    </article>
+
+    
+  </section>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module" src="hooks.js"></script>
+</body>
+</html>

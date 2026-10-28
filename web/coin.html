@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coin</title>
+<meta name="description" content="Trade a coin and read what its hook can do before you do.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<script src="js/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap coin-page">
+  <a class="back" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Explore</a>
+  <div id="loadMsg"><div class="inline-msg">Loading the pool</div></div>
+
+  <div id="layout" hidden>
+    <!-- the coin: its name and figures, the chart, and the trade box -->
+    <section class="panel coin-top" aria-label="The coin">
+      <div id="head"></div>
+      <div class="coin-top-grid">
+        <div class="coin-chart" id="chartCard">
+          <div class="chart-tools">
+            <span class="small muted">Price in SOL</span>
+            <div class="seg" id="bucketSeg" role="group" aria-label="Candle size">
+              <button type="button" data-bucket="60" aria-pressed="true">1m</button>
+              <button type="button" data-bucket="300" aria-pressed="false">5m</button>
+            </div>
+          </div>
+          <div class="chart-wrap"><div class="chart" id="chart"></div><div class="chart-empty" id="chartEmpty" hidden></div></div>
+        </div>
+        <div class="trade" id="tradeCard"></div>
+      </div>
+    </section>
+
+    <!-- then one panel per thing the coin has, always in this order. A coin that does not have
+         a thing has no panel for it. -->
+    <section class="panel hook-card" id="hookCard"></section>
+    <!-- a strict coin: what applies to the connected wallet (max wallet, early lock, registration
+         for rewards without staking). Drawn once the SDK has strict coins (launch-strict.js). -->
+    <section class="panel" id="strictCard" hidden></section>
+    <!-- a coin with modules: Rewards, Burn and Creator, a panel each -->
+    <div class="coin-panels" id="rulesCard" hidden></div>
+    <section class="panel" id="liqCard"></section>
+    <section class="panel" id="colMine" hidden></section>
+    <section class="panel" id="colAll" hidden></section>
+    <section class="panel" id="colEdit" hidden></section>
+    <section class="panel" id="watchCard" hidden></section>
+    <section class="panel">
+      <div class="card-head"><h2 class="panel-title">Recent trades</h2><span class="small muted" id="tradesNote"></span></div>
+      <div class="table-scroll"><table class="table" id="trades"><thead><tr><th>Time</th><th>Side</th><th id="thQuote">SOL</th><th id="thBase">Coin</th><th>Price</th><th>Wallet</th><th>Tx</th></tr></thead><tbody></tbody></table></div>
+      <div class="inline-msg" id="tradesEmpty" hidden></div>
+    </section>
+    <section class="panel">
+      <h2 class="panel-title">Pool</h2>
+      <div class="stats" id="stats"></div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module" src="coin.js"></script>
+</body>
+</html>

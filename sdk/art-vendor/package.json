@@ -1,0 +1,23 @@
+{
+  "name": "programmable-art-vendor",
+  "private": true,
+  "type": "module",
+  "description": "Builds web/js/art-store-turbo.js and web/js/art-store-irys.js, the browser stores of the real storage services, from sdk/src/artstore-turbo.ts and sdk/src/artstore-irys.ts. Kept apart from the SDK workspace so their packages never reach the SDK, the site's other bundles or the server.",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@ardrive/turbo-sdk": "2.1.2",
+    "@irys/web-upload": "0.0.15",
+    "@irys/web-upload-solana": "0.1.8",
+    "assert": "2.1.0",
+    "buffer": "6.0.3",
+    "crypto-browserify": "3.12.1",
+    "events": "3.3.0",
+    "path-browserify": "1.0.1",
+    "process": "0.11.10",
+    "stream-browserify": "3.0.0",
+    "util": "0.12.5",
+    "vm-browserify": "1.1.2"
+  }
+}

@@ -1,0 +1,28 @@
+[package]
+name = "programmable-jupiter-adapter"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85.0"
+license = "Apache-2.0"
+description = "Jupiter Amm adapter for Programmable pools (the hookpool program) on Solana"
+publish = false
+
+# Its own workspace on purpose. Jupiter's interface and test kit are on a newer generation
+# of the Solana crates (solana-pubkey 4, LiteSVM 0.14) than the programs next door
+# (Anchor 1.2, Solana 3.x), and the two cannot share one lockfile. This crate therefore
+# depends on none of the program crates: it carries its own decoders and a copy of the
+# swap math, and the parity tests prove both against the real program binaries.
+[workspace]
+
+[dependencies]
+# The interface and the test kit must come from the same source, or the `Amm` trait the
+# kit asserts on is a different type from the one implemented here. 0.6.1 on crates.io is
+# this same commit's `interface/` crate.
+jupiter-amm-interface = { git = "https://github.com/jup-ag/jupiter-amm-interface", rev = "95bd18485e580625a39eb92a0c0ad2061579daad" }
+rust_decimal = "1.36"
+solana-account = "4"
+solana-instruction = "3"
+solana-pubkey = "4"
+
+[dev-dependencies]
+jupiter-amm-test-kit = { git = "https://github.com/jup-ag/jupiter-amm-interface", rev = "95bd18485e580625a39eb92a0c0ad2061579daad" }

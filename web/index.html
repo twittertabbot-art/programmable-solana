@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explore</title>
+<meta name="description" content="Every coin launched here, with what its pool runs on each trade: modules, a collectible, a custom hook, or nothing.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap">
+  <div class="page-top"><h1>Explore</h1></div>
+
+  <div class="explore-bar">
+    <label class="search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <span class="sr-only">Search coins by name, ticker or address</span>
+      <input class="input" id="search" type="search" placeholder="Search" autocomplete="off" spellcheck="false">
+    </label>
+    <button class="btn filters-btn" id="filtersBtn" type="button" aria-label="Filters" aria-expanded="false" aria-controls="filters"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1M15 5v4M9 10v4M17 15v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="word">Filters</span></button>
+    <button class="btn square" id="prevPage" type="button" aria-label="Previous page" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 7l-5 5 5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="btn square" id="nextPage" type="button" aria-label="Next page" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 7l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+
+  <div class="filters" id="filters" hidden>
+    <div class="group"><span id="sortLabel">Sort by</span>
+      <div class="chips" id="sort" role="group" aria-labelledby="sortLabel">
+        <button type="button" data-sort="newest" aria-pressed="true">Newest</button>
+        <button type="button" data-sort="mcap" aria-pressed="false">Market cap</button>
+        <button type="button" data-sort="volume" aria-pressed="false">Volume</button>
+        <button type="button" data-sort="liquidity" aria-pressed="false">Liquidity</button>
+      </div>
+    </div>
+    <div class="group"><span id="kindLabel">Kind</span>
+      <div class="chips" id="kind" role="group" aria-labelledby="kindLabel">
+        <button type="button" data-kind="all" aria-pressed="true">All</button>
+        <button type="button" data-kind="Modules" aria-pressed="false">Modules</button>
+        <button type="button" data-kind="Collectible" aria-pressed="false">Collectible</button>
+        <button type="button" data-kind="Custom hook" aria-pressed="false">Custom hook</button>
+        <button type="button" data-kind="Platform hook" aria-pressed="false">Platform hook</button>
+        <button type="button" data-kind="" aria-pressed="false">No hook</button>
+      </div>
+    </div>
+    <div class="group"><span id="startLabel">Pool</span>
+      <div class="chips" id="start" role="group" aria-labelledby="startLabel">
+        <button type="button" data-start="all" aria-pressed="true">All</button>
+        <button type="button" data-start="open" aria-pressed="false">On the curve</button>
+        <button type="button" data-start="graduated" aria-pressed="false">Graduated</button>
+        <button type="button" data-start="none" aria-pressed="false">Seeded</button>
+      </div>
+    </div>
+    <div class="status"><span id="updated"></span><button class="btn btn-sm" id="refresh" type="button">Refresh</button></div>
+  </div>
+
+  <p class="sr-only" id="pageSay" aria-live="polite"></p>
+  <div class="coin-grid" id="grid"></div>
+  <div class="explore-state" id="empty" hidden></div>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module" src="index.js"></script>
+</body>
+</html>

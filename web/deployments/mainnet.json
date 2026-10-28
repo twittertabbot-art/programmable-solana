@@ -1,0 +1,16 @@
+{
+  "cluster": "mainnet",
+  "rpc": "https://programmableonsol.com/rpc",
+  "rpcNote": "the site's own RPC proxy (rpc-proxy/); the provider's key stays on the server. deploy.sh rewrites this file: put this address back after a deploy",
+  "deployer": "4MF4aDGyfnYuRdPMiVw9EFqgBTKz7EgVnVuHpUChqj7w",
+  "programs": {
+    "hookpool": "7CL4KGeaZFsNYqEjErwTezMYuAE54185TieqLQnGjdgh",
+    "hooklaunch": "9cDfF7wD6EirDZbb5DWCw3HZ3ZPQ1oeh87YyMGvbPRxi",
+    "hook_tax": "jwdXDuSQ9pNV1pXj8BFvBb5fhqtTL3duQkwsTjXunhr",
+    "hook_launch_guard": "G59xnMnbenifbGR1y6QjaTRa6wa1FFfqZB3KZBUyckPW",
+    "hook_buyback": "3M824Hn8Z6S7r1t1zqpNQpioKFd31jrQwSN2oxV2ovo5",
+    "hook_collectible": "3WCHK9zmFdndiUMZmFcn7vBbTSdssduN9zuR6vfSFr9m",
+    "hook_rules": "3zSXfe6Wnt43h8ZZ1FkUmJo6rDqvQZX9sjYxHaHBTxAr"
+  },
+  "deployedAt": "2026-10-21T01:27:08Z"
+}

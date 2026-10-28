@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Custom hook</title>
+<meta name="description" content="One hook somebody else built: its rules in its author's words, what the pool lets it do, how it was checked, and the coins on it.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="workshop.css">
+<link rel="stylesheet" href="reviews/reviews.css">
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap">
+  <a class="back" href="workshop.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>Custom hooks</a>
+
+  <div id="state" class="explore-state ws-state">Reading the hook</div>
+
+  <div id="page" hidden>
+    <!-- the hook: who built it, its program, its totals, and the one action of the page -->
+    <section class="panel ws-hero" aria-labelledby="name">
+      <div class="ws-hero-main">
+        <div class="ws-hero-id">
+          <img class="ws-hero-art" id="art" alt="" width="72" height="72">
+          <div class="ws-hero-name">
+            <h1 id="name"></h1>
+            <p class="ws-by" id="by"></p>
+            <div class="ws-hero-mark" id="markRow" hidden></div>
+          </div>
+        </div>
+        <div class="ws-id" id="idRow"></div>
+        <dl class="ws-figs" id="totals"></dl>
+      </div>
+      <div class="ws-hero-side" id="launchBox"></div>
+    </section>
+
+    <div class="ws-panels">
+      <section class="panel" id="rulesCard" aria-labelledby="rulesTitle">
+        <span class="ws-voice author">The author says</span>
+        <h2 class="panel-title" id="rulesTitle">Its rules</h2>
+        <div id="rules"></div>
+      </section>
+      <section class="panel" id="powersCard" aria-labelledby="powersTitle">
+        <span class="ws-voice">From the chain</span>
+        <h2 class="panel-title" id="powersTitle">What the pool lets it do</h2>
+        <ul class="ws-sentences" id="sentences"></ul>
+        <dl class="kv ws-powers" id="powers"></dl>
+      </section>
+    </div>
+
+    <section class="panel" id="checked" aria-labelledby="checkedTitle">
+      <h2 class="panel-title" id="checkedTitle">How it was checked</h2>
+      <p class="lede">Your browser ran these checks just now, against the chain. They are not an audit. They say that the hook is wired the way the pool demands. They do not say that its code does what its author wrote.</p>
+      <ul class="ws-checks" id="checks"></ul>
+    </section>
+
+    <section class="panel" id="coinsSection" aria-labelledby="coinsTitle">
+      <h2 class="panel-title" id="coinsTitle">Coins on this hook</h2>
+      <p class="lede" id="coinsLede"></p>
+      <div class="ws-table" id="coinsWrap"><table class="grid" id="coins"><thead></thead><tbody></tbody></table></div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module" src="workshop-hook.js"></script>
+</body>
+</html>

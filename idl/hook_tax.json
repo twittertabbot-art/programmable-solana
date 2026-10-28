@@ -1,0 +1,607 @@
+{
+  "address": "jwdXDuSQ9pNV1pXj8BFvBb5fhqtTL3duQkwsTjXunhr",
+  "metadata": {
+    "name": "hook_tax",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "hookpool template: buy/sell tax in quote to a treasury, ceiling fixed at launch"
+  },
+  "instructions": [
+    {
+      "name": "before_swap",
+      "discriminator": [
+        227,
+        59,
+        240,
+        68,
+        164,
+        9,
+        29,
+        254
+      ],
+      "accounts": [
+        {
+          "name": "pool"
+        },
+        {
+          "name": "hook_caller",
+          "signer": true
+        },
+        {
+          "name": "user"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "cfg",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "payload",
+          "type": {
+            "defined": {
+              "name": "SwapPayload"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "init_manifest",
+      "docs": [
+        "One-time: publish the manifest and the extra-accounts list. Upgrade authority only."
+      ],
+      "discriminator": [
+        185,
+        170,
+        202,
+        228,
+        72,
+        6,
+        8,
+        106
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "program_data"
+        },
+        {
+          "name": "manifest",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  110,
+                  105,
+                  102,
+                  101,
+                  115,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "extra_metas",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  120,
+                  116,
+                  114,
+                  97,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  115
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "uri",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "init_pool_config",
+      "docs": [
+        "Called by the launcher BEFORE `create_pool`. The pool address is predictable."
+      ],
+      "discriminator": [
+        229,
+        200,
+        245,
+        211,
+        100,
+        33,
+        44,
+        79
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "pool",
+          "type": "pubkey"
+        },
+        {
+          "name": "buy_bps",
+          "type": "u16"
+        },
+        {
+          "name": "sell_bps",
+          "type": "u16"
+        },
+        {
+          "name": "max_bps",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "on_pool_create",
+      "discriminator": [
+        145,
+        87,
+        198,
+        141,
+        215,
+        104,
+        119,
+        28
+      ],
+      "accounts": [
+        {
+          "name": "pool"
+        },
+        {
+          "name": "hook_caller",
+          "signer": true
+        },
+        {
+          "name": "user"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "cfg",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "payload",
+          "type": {
+            "defined": {
+              "name": "PoolCreatePayload"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_owner",
+      "docs": [
+        "Pass Pubkey::default() to renounce forever."
+      ],
+      "discriminator": [
+        72,
+        202,
+        120,
+        52,
+        77,
+        128,
+        96,
+        197
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true,
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "TaxConfig"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_owner",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "set_tax",
+      "discriminator": [
+        81,
+        243,
+        108,
+        103,
+        179,
+        11,
+        88,
+        113
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true,
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "TaxConfig"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "buy_bps",
+          "type": "u16"
+        },
+        {
+          "name": "sell_bps",
+          "type": "u16"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "HookManifest",
+      "discriminator": [
+        41,
+        17,
+        255,
+        71,
+        98,
+        180,
+        87,
+        109
+      ]
+    },
+    {
+      "name": "TaxConfig",
+      "discriminator": [
+        38,
+        187,
+        35,
+        231,
+        115,
+        102,
+        30,
+        82
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "AboveCeiling",
+      "msg": "tax above the ceiling fixed at launch"
+    },
+    {
+      "code": 6001,
+      "name": "CeilingTooHigh",
+      "msg": "ceiling above the hard maximum"
+    },
+    {
+      "code": 6002,
+      "name": "NotOwner",
+      "msg": "only the config owner can do this"
+    },
+    {
+      "code": 6003,
+      "name": "Renounced",
+      "msg": "config is renounced"
+    },
+    {
+      "code": 6004,
+      "name": "WrongPool",
+      "msg": "config does not belong to this pool"
+    },
+    {
+      "code": 6005,
+      "name": "NoTreasury",
+      "msg": "pool has no hook treasury"
+    },
+    {
+      "code": 6006,
+      "name": "WrongCreator",
+      "msg": "config was not created by the pool creator"
+    }
+  ],
+  "types": [
+    {
+      "name": "HookManifest",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "flags",
+            "type": "u32"
+          },
+          {
+            "name": "admin",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "uri",
+            "type": {
+              "array": [
+                "u8",
+                128
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PoolCreatePayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "base_amount",
+            "type": "u64"
+          },
+          {
+            "name": "quote_amount",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SwapPayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "direction",
+            "type": "u8"
+          },
+          {
+            "name": "amount_in",
+            "type": "u64"
+          },
+          {
+            "name": "net_in",
+            "type": "u64"
+          },
+          {
+            "name": "amount_out",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_base",
+            "docs": [
+              "Reserves at the moment of the callback (before the swap in `before_swap`,",
+              "after it in `after_swap`)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "reserve_quote",
+            "type": "u64"
+          },
+          {
+            "name": "lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TaxConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "docs": [
+              "Pubkey::default() means renounced: taxes can never change again."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "buy_bps",
+            "type": "u16"
+          },
+          {
+            "name": "sell_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_bps",
+            "docs": [
+              "Fixed at creation. Neither buy_bps nor sell_bps may ever exceed it."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "creator",
+            "docs": [
+              "Who paid for this config. Must be the pool creator, so nobody can squat a future",
+              "pool's config with hostile parameters."
+            ],
+            "type": "pubkey"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="../">
+<title>Hook reports</title>
+<meta name="description" content="Every hook report: the platform's own hooks and the hooks Programmable approved. Each says what a hook takes, when it can refuse a trade and what can change after launch.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="reviews/reviews.css">
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap rv-page rv-report">
+  <a class="back" href="workshop.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>Custom hooks</a>
+
+  <div class="page-top">
+    <h1>Hook reports</h1>
+    <p>Each report says what a hook takes, when it can refuse a trade and what can change after launch. A review is not an audit and not a promise.</p>
+  </div>
+
+  <section class="panel" aria-labelledby="ownTitle">
+    <h2 class="panel-title" id="ownTitle">The platform's own hooks</h2>
+    <p class="rv-lede">Programmable maintains these five, and its key can still upgrade them. They need no approval. Each report sets the hook next to the review rules for outside hooks.</p>
+    <ul class="rv-list" id="ownList">
+      <li><a href="reviews/launch-rules.html"><b>Launch rules</b><span>The modules of Module Mode, from the sniper fee to the strict modules.</span><span class="mono">3zSXfe6Wnt43h8ZZ1FkUmJo6rDqvQZX9sjYxHaHBTxAr</span></a></li>
+      <li><a href="reviews/tax.html"><b>Tax to treasury</b><span>A share of every trade to a wallet the launcher chooses, under a ceiling fixed at launch.</span><span class="mono">jwdXDuSQ9pNV1pXj8BFvBb5fhqtTL3duQkwsTjXunhr</span></a></li>
+      <li><a href="reviews/launch-guard.html"><b>Launch guard</b><span>A falling buy fee in the first minutes. It stays in the pool.</span><span class="mono">G59xnMnbenifbGR1y6QjaTRa6wa1FFfqZB3KZBUyckPW</span></a></li>
+      <li><a href="reviews/buyback.html"><b>Buyback and burn</b><span>A share of every trade buys the coin and burns it.</span><span class="mono">3M824Hn8Z6S7r1t1zqpNQpioKFd31jrQwSN2oxV2ovo5</span></a></li>
+      <li><a href="reviews/collectible.html"><b>Collectible per buy</b><span>Every buy earns pieces, pegged to the coins a wallet holds.</span><span class="mono">3WCHK9zmFdndiUMZmFcn7vBbTSdssduN9zuR6vfSFr9m</span></a></li>
+    </ul>
+  </section>
+
+  <section class="panel" aria-labelledby="approvedTitle">
+    <h2 class="panel-title" id="approvedTitle">Approved hooks</h2>
+    <p class="rv-lede">Hooks from outside the platform that Programmable reviewed and put on the approved list, read from the chain on <span class="mono" id="approvedCluster"></span>.</p>
+    <ul class="rv-list" id="approvedList"></ul>
+    <p class="muted" id="approvedEmpty">No hook from outside the platform is approved yet. <a class="link" href="review-hook.html">Get your hook reviewed</a>.</p>
+  </section>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module" src="reviews/report.js"></script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="../">
+<title>Launch guard, report</title>
+<meta name="description" content="Report on the launch guard template, one of the platform's own hooks: the falling buy fee of the first minutes, when it refuses liquidity, and how it compares with the review rules.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="reviews/reviews.css">
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap rv-report">
+  <a class="back" href="reviews/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>All reports</a>
+
+  <div class="page-top">
+    <h1>Launch guard</h1>
+    <p>A report on one of the platform's own hooks, written from its code.</p>
+  </div>
+
+  <section class="panel rv-report-head" aria-label="The hook in short">
+    <div>
+      <p class="lead">For a window after launch, a buy pays a higher pool fee that falls every slot to the pool's own fee. The extra fee stays in the pool. Nobody collects it, and sells are never touched.</p>
+      <p class="help">Its code is <code>programs/hook_launch_guard/src/lib.rs</code> in the package.</p>
+    </div>
+    <dl class="kv">
+      <dt>Program</dt><dd data-program="G59xnMnbenifbGR1y6QjaTRa6wa1FFfqZB3KZBUyckPW" data-short="1">G59xnMnbenifbGR1y6QjaTRa6wa1FFfqZB3KZBUyckPW</dd>
+      <dt>Kind</dt><dd>One of the platform's own hooks</dd>
+      <dt>Approval</dt><dd>Not needed</dd>
+      <dt>Upgradeable</dt><dd>Yes, by Programmable's key</dd>
+      <dt>Report date</dt><dd>24 Oct 2026</dd>
+    </dl>
+  </section>
+
+  <div class="docs-layout">
+  <nav class="toc-col" aria-label="Sections"><ul class="toc" id="toc"></ul></nav>
+  <section class="panel doc-panel">
+    <article class="doc">
+      <h2 id="does">What it does</h2>
+      <p>The launcher sets a start fee and a window when the coin launches. While the window runs, the hook replaces the pool fee of every buy with a fee that starts at the start fee and falls in a straight line, slot by slot, to the pool's own fee. After the window the pool works as if it had no hook.</p>
+      <p>The extra fee is a pool fee, so it stays in the pool's reserves. On a launch of this site all of the pool's liquidity is locked, so the fee deepens the pool for every holder.</p>
+
+      <h2 id="control">Who controls the program</h2>
+      <p>This is one of the platform's own hooks. Its upgrade authority is a key of Programmable that the platform whitelists, so the pool takes it without approval.</p>
+      <p>Programmable's key can still upgrade it. An upgrade could change anything this report says. Programmable answers for it as it answers for the pool program itself.</p>
+
+      <h2 id="when">When it runs</h2>
+      <table>
+        <thead><tr><th>Moment</th><th>Called</th><th>What it does then</th></tr></thead>
+        <tbody>
+          <tr><td>A buy</td><td>yes, before the trade</td><td>While the window runs, answers the falling pool fee. After it, answers nothing.</td></tr>
+          <tr><td>A sell</td><td>never</td><td></td></tr>
+          <tr><td>Adding liquidity</td><td>yes, before the deposit</td><td>Refuses the deposit while the window runs.</td></tr>
+          <tr><td>Removing liquidity</td><td>never</td><td></td></tr>
+          <tr><td>Pool creation</td><td>once</td><td>Checks the pool, and starts the window in that slot.</td></tr>
+        </tbody>
+      </table>
+      <p>Its manifest flags are <code>BEFORE_SWAP</code>, <code>BEFORE_ADD_LIQ</code>, <code>ON_POOL_CREATE</code>, <code>OVERRIDE_FEE</code>, <code>CALL_ON_BUY</code>.</p>
+
+      <h2 id="takes">What it can take, and where it goes</h2>
+      <p>The hook takes nothing for any wallet. It only sets the pool fee of a buy during the window.</p>
+      <p>The program refuses a start fee above 50% and a window longer than 10,800 slots, about 72 minutes. The pool also cuts the fee to the platform's override cap, now <span class="mono" data-plat="maxFeeOverrideBps">50%</span>. The fee only falls. It reaches the pool's own fee when the window ends.</p>
+      <p>The fee stays in the pool's reserves, like any pool fee.</p>
+
+      <h2 id="refuse">Can it refuse a trade</h2>
+      <p>It never refuses a buy or a sell. The pool never calls it on a sell.</p>
+      <p>It refuses one thing, a deposit of liquidity while the window runs. A deposit in the launch slot could otherwise take most of a sniper's fee out again. Taking liquidity out is never refused.</p>
+
+      <h2 id="change">What can change after launch, and who changes it</h2>
+      <p>Nothing. The settings have no owner, and no instruction changes them after the pool exists.</p>
+      <table>
+        <thead><tr><th>Instruction</th><th>Who</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>init_pool_config</code></td><td>the launcher, once</td><td>Creates the settings, the start fee and the window, before the pool exists.</td></tr>
+          <tr><td><code>init_manifest</code></td><td>the upgrade authority, once</td><td>Writes the manifest and the list of extra accounts.</td></tr>
+          <tr><td><code>on_pool_create</code></td><td>the pool only, once</td><td>Records the slot the window starts in.</td></tr>
+          <tr><td><code>before_swap</code>, <code>before_add_liquidity</code></td><td>the pool only</td><td>The calls above. They change nothing.</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="manifest">Its manifest and its account list</h2>
+      <p><code>init_manifest</code> writes both once. It needs the program's upgrade authority, and an account that exists cannot be created again. No instruction rewrites either of them. The list names one account, the coin's guard settings, which the pool passes writable so that pool creation can record the start slot.</p>
+
+      <h2 id="calls">Programs it calls</h2>
+      <p>The system program, to create its accounts at setup. No other program.</p>
+
+      <h2 id="binary">The binary on mainnet</h2>
+      <p>The sha256 of the program that runs on mainnet today:</p>
+      <p class="rv-hash">0431d89acb5f73be49c30866a9177dd01a7ead3c35d84f7f8fb1b51fefec5e9a</p>
+      <p>An upgrade would change it.</p>
+
+      <h2 id="rules">Next to the review rules</h2>
+      <p>The review rules are for hooks from outside the platform. This is how this hook stands against each of them.</p>
+      <table>
+        <thead><tr><th>Rule</th><th>Here</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>1. Public source, pinned</td><td class="rv-not">not met</td><td>No public repository at a pinned commit is named for this code yet. This report was written from the platform's source.</td></tr>
+          <tr><td>2. Frozen, and the reviewed code</td><td class="rv-not">not met</td><td>Programmable's key can upgrade it.</td></tr>
+          <tr><td>3. Sells always go through</td><td class="rv-met">met</td><td>It is never called on a sell.</td></tr>
+          <tr><td>4. Fees bounded in code</td><td class="rv-met">met</td><td>It sets a pool fee only on a schedule in its code that goes down over time. The start fee and the window are fixed at launch.</td></tr>
+          <tr><td>5. No power that hurts holders</td><td class="rv-met">met</td><td>Nobody can change a setting after launch. It holds no funds.</td></tr>
+          <tr><td>6. Written once</td><td class="rv-met">met</td><td>No instruction rewrites the manifest or the list.</td></tr>
+          <tr><td>7. Asks only for what it uses</td><td class="rv-met">met</td><td>It sets the pool fee of a buy, refuses early deposits and starts its window at creation, which is what its flags allow.</td></tr>
+          <tr><td>8. Calls only what it names</td><td class="rv-met">met</td><td>The system program only.</td></tr>
+          <tr><td>9. Checks its caller and its settings</td><td class="rv-met">met</td><td>All three calls check the pool program's caller address. At creation it checks the pool, that the pool runs this hook, and that the pool's creator made the settings.</td></tr>
+          <tr><td>10. Fits</td><td class="rv-met">met</td><td>A trade reads one small account and writes none. Its accounts have a fixed size.</td></tr>
+        </tbody>
+      </table>
+
+      <p class="rv-not-promise">A review is not an audit and not a promise.</p>
+    </article>
+  </section>
+  </div>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module" src="reviews/report.js"></script>
+</body>
+</html>

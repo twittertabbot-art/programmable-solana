@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get your hook reviewed</title>
+<meta name="description" content="A hook from outside the platform opens a pool only after Programmable reviews its code and approves the program. The rules, the costs, the steps and the request form.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="reviews/reviews.css">
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap rv-page">
+  <a class="back" href="workshop.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>Custom hooks</a>
+
+  <!-- the page: what the review is, then the request form -->
+  <div id="intro">
+    <div class="page-top">
+      <h1>Get your hook reviewed</h1>
+      <p>A hook from outside the platform opens a pool here only after Programmable reviews its code and approves the program.</p>
+    </div>
+
+    <section class="panel" aria-labelledby="markTitle">
+      <h2 class="panel-title" id="markTitle">What the mark means</h2>
+      <p class="rv-lede">An approved hook carries this mark in Custom hooks and on its page.</p>
+      <div class="rv-cols">
+        <div>
+          <span class="rv-mark" id="markSample"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2.4"/></svg><span>Reviewed by Programmable</span></span>
+          <h3>What it says</h3>
+          <p>The hook passed the ten review rules below.</p>
+          <p>The program on chain is frozen. Its bytes are the build of the commit that was reviewed.</p>
+          <p>The mark carries the date of the review and links to its report.</p>
+        </div>
+        <div>
+          <h3>What it does not say</h3>
+          <p>A review is not an audit and not a promise.</p>
+          <p>It checks the ten rules and nothing else. It does not say that a coin on the hook is worth buying.</p>
+          <p>Read the hook's report before you trade or launch on it.</p>
+        </div>
+        <div>
+          <h3>When a hook breaks the rules later</h3>
+          <p>Programmable takes it off the approved list. No new coin can then launch on it.</p>
+          <p>Coins already on it keep it, because a pool's hook can never change. Their pages show a warning.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="rulesTitle">
+      <h2 class="panel-title" id="rulesTitle">The review rules</h2>
+      <p class="rv-lede">A hook must meet every one of them to be approved.</p>
+      <ol class="rv-rules" id="rules">
+        <li><div><b>Public source, pinned</b><p>The code is in a public repository at one commit. Its license lets anyone read it and build it.</p></div></li>
+        <li><div><b>Frozen, and the reviewed code</b><p>The program's upgrade authority is removed. Its bytes on chain are the verified build of the reviewed commit.</p></div></li>
+        <li><div><b>Sells always go through</b><p>If the hook runs on sells, nothing in it can fail a sell because of who sells, when or how much. Only the errors any trade can meet are allowed, such as wrong accounts, slippage or a paused platform.</p></div></li>
+        <li><div><b>Fees bounded in code</b><p>Every fee the hook can charge has a ceiling fixed when the pool is created, and the coin's page shows it. A fee someone can change after launch moves only between zero and that ceiling, and the report names who can change it. The hook may change the pool fee of a trade only on a schedule in its code that goes down over time, as a sniper fee does. No key can send the fees to another wallet after launch.</p></div></li>
+        <li><div><b>No power that hurts holders</b><p>The report names every setting someone can change after launch. None of them can block trades, lift a fee above its ceiling or take funds the hook holds for others, such as a buyback pot or rewards.</p></div></li>
+        <li><div><b>Written once</b><p>No instruction rewrites the hook's manifest or its list of extra accounts after setup. A rewritten list could stop every pool on the hook at once.</p></div></li>
+        <li><div><b>Asks only for what it uses</b><p>The permission flags in its manifest match what the code does.</p></div></li>
+        <li><div><b>Calls only what it names</b><p>The report names every program the hook calls.</p></div></li>
+        <li><div><b>Checks its caller and its settings</b><p>It accepts a call only from the pool program's caller address for its own id. A pool's settings belong to the wallet that created that pool.</p></div></li>
+        <li><div><b>Fits</b><p>A trade with the hook stays well inside the compute budget. The hook does not grow its accounts without bound.</p></div></li>
+      </ol>
+      <p class="rv-foot">A hook that fails any rule is not approved. The platform's own hooks have reports of their own, <a class="link" href="reviews/index.html">written the same way</a>.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="costTitle">
+      <h2 class="panel-title" id="costTitle">What it costs</h2>
+      <p class="rv-lede">Two costs, paid to two different places.</p>
+      <div class="rv-costs">
+        <div class="rv-cost">
+          <h3>Deploying your program</h3>
+          <div class="rv-big">About 1 to 4 SOL</div>
+          <p class="rv-sub">depends on the size of the program</p>
+          <p>Solana keeps this as rent for the program's bytes. You pay it to the network from your own wallet when you deploy.</p>
+          <p>A frozen program never gives its rent back.</p>
+        </div>
+        <div class="rv-cost">
+          <h3>The review fee</h3>
+          <div class="rv-big"><span id="feeUsd">25</span> USD</div>
+          <p class="rv-sub" id="feeSol">Reading the SOL price</p>
+          <p>You pay it to Programmable, in SOL, when you send the request.</p>
+          <p>It pays for the review whatever the outcome. A changed program is a new request with a new fee.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="stepsTitle">
+      <h2 class="panel-title" id="stepsTitle">From your code to an approved hook</h2>
+      <p class="rv-lede">Six steps. The kit in <code>hook-template</code> of the package builds, tests, deploys and freezes a hook.</p>
+      <ol class="rv-steps">
+        <li class="rv-step"><span class="n">01</span><b>Build and test</b><p>Build the hook with the kit and test it on your own machine.</p></li>
+        <li class="rv-step"><span class="n">02</span><b>Publish the code</b><p>Put the code in a public repository and note the commit.</p></li>
+        <li class="rv-step"><span class="n">03</span><b>Send a request</b><p>Fill in the form below and pay the review fee from your wallet. Then open a ticket in Programmable's Discord with the request id the page gives you.</p></li>
+        <li class="rv-step"><span class="n">04</span><b>The review</b><p>Programmable reviews that commit and answers in your Discord ticket. Your request's page shows the status.</p></li>
+        <li class="rv-step"><span class="n">05</span><b>Deploy and freeze</b><p>Once the code passes, deploy exactly that commit with the kit's release steps. Write the verified build record, then freeze the program. Give its program id on your request's page.</p></li>
+        <li class="rv-step"><span class="n">06</span><b>Approved</b><p>Programmable checks on chain that the program is frozen and is the build of that commit. It then goes on the approved list, and anyone can launch a coin on it.</p></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="formTitle" style="margin-bottom: 0">
+      <h2 class="section-title" id="formTitle">Send a review request</h2>
+      <div class="rv-pending" id="pending" hidden></div>
+      <div class="launch-cols">
+        <div class="panel rv-form" id="form">
+          <label class="field"><span><span>Hook name</span><span class="dim" id="nameCount">at most 32 characters</span></span><input class="input" id="fName" maxlength="64" autocomplete="off" spellcheck="false" placeholder="Fixed fee"><span class="rv-field-err" id="eName" aria-live="polite"></span></label>
+          <label class="field"><span><span>Repository</span><span class="dim">github.com, gitlab.com or codeberg.org</span></span><input class="input mono" id="fRepo" type="url" maxlength="240" autocomplete="off" spellcheck="false" placeholder="https://github.com/you/your-hook"><span class="rv-field-err" id="eRepo" aria-live="polite"></span></label>
+          <label class="field"><span><span>Commit</span><span class="dim">the full hash, 40 characters</span></span><input class="input mono" id="fCommit" maxlength="64" autocomplete="off" spellcheck="false" placeholder="0123456789abcdef0123456789abcdef01234567"><span class="rv-field-err" id="eCommit" aria-live="polite"></span></label>
+          <label class="field"><span><span>What it does</span><span class="dim" id="descCount">at most 2,000 characters</span></span><textarea id="fDesc" maxlength="2400" rows="6" placeholder="What the hook does on a buy and a sell, what it charges, and what someone can change after launch."></textarea><span class="rv-field-err" id="eDesc" aria-live="polite"></span></label>
+          <div class="rv-handles">
+            <label class="field"><span><span>Your X handle</span><span class="dim">optional</span></span><input class="input" id="fX" maxlength="60" autocomplete="off" spellcheck="false" placeholder="@yourname"><span class="rv-field-err" id="eX" aria-live="polite"></span></label>
+            <label class="field"><span><span>Your Telegram handle</span><span class="dim">optional</span></span><input class="input" id="fTg" maxlength="60" autocomplete="off" spellcheck="false" placeholder="@yourname"><span class="rv-field-err" id="eTg" aria-live="polite"></span></label>
+          </div>
+          <div class="note rv-ticket-note" id="ticketNote">
+            <b>Then open a ticket in Programmable's Discord</b>
+            <p>Once the fee is paid, this page gives you your request id. Open a ticket in <a class="link" href="https://discord.com/invite/programmable" target="_blank" rel="noopener">Programmable's Discord</a> and paste that id. The reviewer talks to you there.</p>
+            <p class="help">Your handles go to Programmable only. They are not shown on any page.</p>
+          </div>
+        </div>
+
+        <aside class="launch-review rv-aside">
+          <div class="panel">
+            <h3 style="margin-bottom: 12px">Your request</h3>
+            <dl class="kv" id="sum">
+              <dt>Wallet</dt><dd id="sWallet">not connected</dd>
+              <dt>Review fee</dt><dd id="sUsd">25 USD</dd>
+              <dt>In SOL now</dt><dd id="sSol"></dd>
+              <dt>Paid to</dt><dd id="sTo"></dd>
+            </dl>
+            <p class="rv-pay off" id="payLine" aria-live="polite">Reading the price</p>
+            <button class="btn btn-primary btn-main btn-block" id="payBtn" type="button">Connect wallet</button>
+            <p class="help">Your wallet signs one transaction. It sends the fee to Programmable's treasury with a note that names your request. The fee is not refunded, whatever the outcome.</p>
+            <div class="rv-result" id="result" aria-live="polite"></div>
+          </div>
+        </aside>
+      </div>
+      <div class="panel rv-mine" id="mine" hidden>
+        <h3>Requests sent from this browser</h3>
+        <ul id="mineList"></ul>
+      </div>
+    </section>
+  </div>
+
+  <!-- one request, with review-hook.html?id=<id> -->
+  <div id="status" hidden>
+    <div class="page-top">
+      <h1 id="stName">Review request</h1>
+      <p id="stSub"></p>
+    </div>
+    <div class="explore-state" id="stState" hidden></div>
+    <section class="panel rv-status" id="stPanel" hidden aria-labelledby="stTitle">
+      <div class="rv-status-grid">
+        <div>
+          <div class="rv-status-head">
+            <h2 class="panel-title" id="stTitle" style="margin: 0">Status</h2>
+            <span class="badge rv-st" id="stBadge"></span>
+          </div>
+          <p class="rv-status-text" id="stText"></p>
+          <div class="note rv-note" id="stNote" hidden><b>Note from Programmable</b><p id="stNoteText"></p></div>
+          <dl class="kv" id="stFacts"></dl>
+          <div class="rv-acts">
+            <button class="btn" id="stRefresh" type="button">Check again</button>
+            <a class="btn" href="review-hook.html">Read the review rules</a>
+          </div>
+        </div>
+        <aside class="rv-next" aria-labelledby="nextTitle">
+          <h3 id="nextTitle">What happens next</h3>
+          <div class="rv-ticket" id="stTicket">
+            <p>Open a ticket in Programmable's Discord and paste your request id:</p>
+            <div class="rv-ticket-id"><span class="mono" id="stTicketId"></span><span id="stTicketCopy"></span></div>
+            <a class="btn btn-primary btn-block" id="stDiscord" href="https://discord.com/invite/programmable" target="_blank" rel="noopener">Open Programmable's Discord</a>
+          </div>
+          <p id="stNext"></p>
+          <p class="help rv-keep">Keep this page's address. It is the only way back to your request.</p>
+        </aside>
+      </div>
+    </section>
+    <section class="panel rv-status" id="progPanel" hidden aria-labelledby="progTitle">
+      <h2 class="panel-title" id="progTitle">Give your program id</h2>
+      <p class="rv-lede" id="progLede">Deploy exactly the reviewed commit with the kit's release steps. Write the verified build record, then freeze the program. Then give its program id here.</p>
+      <div class="launch-cols" style="gap: 20px">
+        <div>
+          <label class="field"><span><span>Program id</span><span class="dim">the frozen program</span></span><input class="input mono" id="fProgram" autocomplete="off" spellcheck="false" placeholder="program address"><span class="rv-field-err" id="eProgram" aria-live="polite"></span></label>
+          <p class="help">Your wallet signs this message. It is not a transaction and costs nothing. Sign with the wallet that paid the review fee.</p>
+          <pre class="rv-msg" id="progMsg"></pre>
+        </div>
+        <div>
+          <button class="btn btn-primary btn-main btn-block" id="progBtn" type="button">Sign and send</button>
+          <div class="rv-result" id="progResult" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module" src="review-hook.js"></script>
+</body>
+</html>

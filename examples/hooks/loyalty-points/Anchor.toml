@@ -1,0 +1,20 @@
+skip_local_validator = true
+
+[toolchain]
+anchor_version = "1.2.0"
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.localnet]
+loyalty_points = "3MF6PYZy24HWM35KpjF7sw7jED73nzkzW5MfxDgCGf8C"
+
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "bash scripts/test.sh"
+
+[hooks]

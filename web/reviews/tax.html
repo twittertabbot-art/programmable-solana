@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="../">
+<title>Tax to treasury, report</title>
+<meta name="description" content="Report on the tax template, one of the platform's own hooks: what it takes, when it runs, what its owner can change after launch, and how it compares with the review rules.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="reviews/reviews.css">
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap rv-report">
+  <a class="back" href="reviews/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>All reports</a>
+
+  <div class="page-top">
+    <h1>Tax to treasury</h1>
+    <p>A report on one of the platform's own hooks, written from its code.</p>
+  </div>
+
+  <section class="panel rv-report-head" aria-label="The hook in short">
+    <div>
+      <p class="lead">A share of every buy and every sell goes to a wallet the launcher chooses. The launcher sets a buy tax, a sell tax and a ceiling at launch. The owner of the tax can move both taxes between zero and the ceiling.</p>
+      <p class="help">Its code is <code>programs/hook_tax/src/lib.rs</code> in the package.</p>
+    </div>
+    <dl class="kv">
+      <dt>Program</dt><dd data-program="jwdXDuSQ9pNV1pXj8BFvBb5fhqtTL3duQkwsTjXunhr" data-short="1">jwdXDuSQ9pNV1pXj8BFvBb5fhqtTL3duQkwsTjXunhr</dd>
+      <dt>Kind</dt><dd>One of the platform's own hooks</dd>
+      <dt>Approval</dt><dd>Not needed</dd>
+      <dt>Upgradeable</dt><dd>Yes, by Programmable's key</dd>
+      <dt>Report date</dt><dd>24 Oct 2026</dd>
+    </dl>
+  </section>
+
+  <div class="docs-layout">
+  <nav class="toc-col" aria-label="Sections"><ul class="toc" id="toc"></ul></nav>
+  <section class="panel doc-panel">
+    <article class="doc">
+      <h2 id="does">What it does</h2>
+      <p>On every buy the hook asks for the buy tax. On every sell it asks for the sell tax. The pool takes the tax in the quote token, SOL on this site, and pays it to the coin's treasury.</p>
+      <p>The launcher creates the coin's tax settings before the pool exists. They hold the buy tax, the sell tax, the ceiling, the owner, and the wallet that created them.</p>
+
+      <h2 id="control">Who controls the program</h2>
+      <p>This is one of the platform's own hooks. Its upgrade authority is a key of Programmable that the platform whitelists, so the pool takes it without approval.</p>
+      <p>Programmable's key can still upgrade it. An upgrade could change anything this report says. Programmable answers for it as it answers for the pool program itself.</p>
+
+      <h2 id="when">When it runs</h2>
+      <table>
+        <thead><tr><th>Moment</th><th>Called</th><th>What it does then</th></tr></thead>
+        <tbody>
+          <tr><td>A buy</td><td>yes, before the trade</td><td>Answers the buy tax.</td></tr>
+          <tr><td>A sell</td><td>yes, before the trade</td><td>Answers the sell tax.</td></tr>
+          <tr><td>Adding liquidity</td><td>never</td><td></td></tr>
+          <tr><td>Removing liquidity</td><td>never</td><td></td></tr>
+          <tr><td>Pool creation</td><td>once</td><td>Checks that the settings were made for this pool, by the wallet that creates the pool.</td></tr>
+        </tbody>
+      </table>
+      <p>Its manifest flags are <code>BEFORE_SWAP</code>, <code>ON_POOL_CREATE</code>, <code>TAKE_HOOK_FEE</code>, <code>CALL_ON_BUY</code>, <code>CALL_ON_SELL</code>.</p>
+
+      <h2 id="takes">What it can take, and where it goes</h2>
+      <p>A buy pays the buy tax. A sell pays the sell tax. Each tax is at most the ceiling.</p>
+      <p>The ceiling is fixed when the settings are created. The program refuses a ceiling above 10%. The pool also cuts any hook fee to the platform's cap, now <span class="mono" data-plat="maxHookFeeBps">10%</span>.</p>
+      <p>The tax goes to the pool's hook treasury. It is the wrapped SOL account of a wallet the launcher chooses at launch. The pool fixes it when the pool is created, and the hook cannot send the tax anywhere else.</p>
+      <p>The hook holds no funds of its own.</p>
+
+      <h2 id="refuse">Can it refuse a trade</h2>
+      <p>No. Its answer before a trade only names the tax. It refuses no buy and no sell because of who trades, when or how much.</p>
+      <p>A trade fails only for reasons any trade meets, such as wrong accounts or slippage. The hook never runs when liquidity is added or removed.</p>
+
+      <h2 id="change">What can change after launch, and who changes it</h2>
+      <table>
+        <thead><tr><th>Instruction</th><th>Who</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>set_tax</code></td><td>the owner of the tax</td><td>Sets the buy tax and the sell tax, each anywhere from zero up to the ceiling. It can raise them up to the ceiling.</td></tr>
+          <tr><td><code>set_owner</code></td><td>the owner of the tax</td><td>Hands the tax to another wallet, or renounces it. After a renounce the taxes can never change again.</td></tr>
+          <tr><td><code>init_pool_config</code></td><td>the launcher, once</td><td>Creates the settings before the pool exists. On this site the launcher is also the owner.</td></tr>
+          <tr><td><code>init_manifest</code></td><td>the upgrade authority, once</td><td>Writes the manifest and the list of extra accounts.</td></tr>
+          <tr><td><code>on_pool_create</code>, <code>before_swap</code></td><td>the pool only</td><td>The calls above. They change nothing.</td></tr>
+        </tbody>
+      </table>
+      <p>Nothing else can change. The ceiling has no instruction that changes it. The treasury belongs to the pool, not to the hook. The coin's page shows both taxes, the ceiling and the owner, or that the owner renounced.</p>
+      <p>The owner raising a tax up to the ceiling is within the review rules. The ceiling is fixed at launch and shown on the coin's page, and this report names who can change the tax.</p>
+
+      <h2 id="manifest">Its manifest and its account list</h2>
+      <p><code>init_manifest</code> writes both once. It needs the program's upgrade authority, and an account that exists cannot be created again. No instruction rewrites either of them. The list names one account, the coin's tax settings, which the pool passes read only.</p>
+
+      <h2 id="calls">Programs it calls</h2>
+      <p>The system program, to create its accounts at setup. No other program.</p>
+
+      <h2 id="binary">The binary on mainnet</h2>
+      <p>The sha256 of the program that runs on mainnet today:</p>
+      <p class="rv-hash">589f17b9ce54db4a76518eee7a1d39bed8bf314115422cdde955c01091ec9e7a</p>
+      <p>An upgrade would change it.</p>
+
+      <h2 id="rules">Next to the review rules</h2>
+      <p>The review rules are for hooks from outside the platform. This is how this hook stands against each of them.</p>
+      <table>
+        <thead><tr><th>Rule</th><th>Here</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>1. Public source, pinned</td><td class="rv-not">not met</td><td>No public repository at a pinned commit is named for this code yet. This report was written from the platform's source.</td></tr>
+          <tr><td>2. Frozen, and the reviewed code</td><td class="rv-not">not met</td><td>Programmable's key can upgrade it.</td></tr>
+          <tr><td>3. Sells always go through</td><td class="rv-met">met</td><td>It never refuses a sell.</td></tr>
+          <tr><td>4. Fees bounded in code</td><td class="rv-met">met</td><td>The ceiling is fixed at launch and shown on the coin's page. The owner moves the taxes between zero and the ceiling. The treasury is fixed by the pool.</td></tr>
+          <tr><td>5. No power that hurts holders</td><td class="rv-met">met</td><td>The owner's two powers are named above. Neither can pass the ceiling, block a trade or move funds.</td></tr>
+          <tr><td>6. Written once</td><td class="rv-met">met</td><td>No instruction rewrites the manifest or the list.</td></tr>
+          <tr><td>7. Asks only for what it uses</td><td class="rv-met">met</td><td>It answers a fee on buys and sells and checks the pool at creation, which is what its flags allow.</td></tr>
+          <tr><td>8. Calls only what it names</td><td class="rv-met">met</td><td>The system program only.</td></tr>
+          <tr><td>9. Checks its caller and its settings</td><td class="rv-met">met</td><td>Both calls check the pool program's caller address. At creation it checks that the settings belong to this pool and that the pool's creator made them.</td></tr>
+          <tr><td>10. Fits</td><td class="rv-met">met</td><td>A trade reads one small account and writes none. Its accounts have a fixed size.</td></tr>
+        </tbody>
+      </table>
+
+      <p class="rv-not-promise">A review is not an audit and not a promise.</p>
+    </article>
+  </section>
+  </div>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module" src="reviews/report.js"></script>
+</body>
+</html>

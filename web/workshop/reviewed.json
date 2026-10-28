@@ -1,0 +1,5 @@
+{
+  "about": "The registry of review reports for hooks from outside the platform. The approved list on chain decides which hooks carry the mark 'Reviewed by Programmable'. This file only gives each approved hook the link to its report and the date of its review; an approved hook without an entry shows 'Report coming'. Add one entry per approved program: { \"program\": \"<program id>\", \"name\": \"<name of the hook>\", \"repo\": \"<https address of the repository>\", \"commit\": \"<40 hex characters>\", \"buildHash\": \"<sha256 of the verified build>\", \"reviewedAt\": \"2026-10-24\", \"report\": \"reviews/<page>.html or an https address\" }. A review is not an audit and not a promise. The list ships empty.",
+  "schema": 2,
+  "hooks": []
+}

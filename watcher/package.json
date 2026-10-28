@@ -1,0 +1,16 @@
+{
+  "name": "hookpool-watcher",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Watches every hookpool pool with a hook: simulates buys and sells, diffs hook configs, publishes status JSON, alerts on Telegram.",
+  "main": "index.mjs",
+  "scripts": {
+    "start": "node index.mjs",
+    "once": "node index.mjs --once",
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

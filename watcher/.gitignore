@@ -1,0 +1,5 @@
+.env
+state/
+status/
+*.log
+node_modules/

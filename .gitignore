@@ -1,0 +1,29 @@
+# secrets never belong in this folder. Program keypairs and deployer keys live in
+# $SOLHOOKS_SECRETS, by default ~/sol-secrets
+.env
+*.env
+*-keypair.json
+deployer*.json
+
+# build output lives outside the repository (see build.sh)
+target/
+.anchor/
+node_modules/
+web/node_modules/
+sdk/node_modules/
+sdk/dist/
+web/vendor/*.map
+test-ledger/
+*.log
+hook-template/target/
+hook-template/.anchor/
+web/uploads/
+web/review/*.png
+web/review/*.log
+web/review/*.webm
+watcher/state/
+watcher/status/
+watcher/.env
+examples/hooks/*/target/
+examples/hooks/*/.anchor/
+jupiter-adapter/target/

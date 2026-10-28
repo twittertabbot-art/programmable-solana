@@ -1,0 +1,584 @@
+{
+  "address": "G59xnMnbenifbGR1y6QjaTRa6wa1FFfqZB3KZBUyckPW",
+  "metadata": {
+    "name": "hook_launch_guard",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "hookpool template: high buy fee decaying over the first slots after launch, paid to the pool"
+  },
+  "instructions": [
+    {
+      "name": "before_add_liquidity",
+      "docs": [
+        "No liquidity is added while the guard window runs. Removing is never refused: this",
+        "hook has no callback for it."
+      ],
+      "discriminator": [
+        114,
+        27,
+        123,
+        181,
+        200,
+        252,
+        178,
+        240
+      ],
+      "accounts": [
+        {
+          "name": "pool"
+        },
+        {
+          "name": "hook_caller",
+          "signer": true
+        },
+        {
+          "name": "user"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "payload",
+          "type": {
+            "defined": {
+              "name": "LiquidityPayload"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "before_swap",
+      "discriminator": [
+        227,
+        59,
+        240,
+        68,
+        164,
+        9,
+        29,
+        254
+      ],
+      "accounts": [
+        {
+          "name": "pool"
+        },
+        {
+          "name": "hook_caller",
+          "signer": true
+        },
+        {
+          "name": "user"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "payload",
+          "type": {
+            "defined": {
+              "name": "SwapPayload"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "init_manifest",
+      "discriminator": [
+        185,
+        170,
+        202,
+        228,
+        72,
+        6,
+        8,
+        106
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "program_data"
+        },
+        {
+          "name": "manifest",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  110,
+                  105,
+                  102,
+                  101,
+                  115,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "extra_metas",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  120,
+                  116,
+                  114,
+                  97,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  115
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "uri",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "init_pool_config",
+      "discriminator": [
+        229,
+        200,
+        245,
+        211,
+        100,
+        33,
+        44,
+        79
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "pool",
+          "type": "pubkey"
+        },
+        {
+          "name": "guard_slots",
+          "type": "u64"
+        },
+        {
+          "name": "start_fee_bps",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "on_pool_create",
+      "discriminator": [
+        145,
+        87,
+        198,
+        141,
+        215,
+        104,
+        119,
+        28
+      ],
+      "accounts": [
+        {
+          "name": "pool"
+        },
+        {
+          "name": "hook_caller",
+          "signer": true
+        },
+        {
+          "name": "user"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "payload",
+          "type": {
+            "defined": {
+              "name": "PoolCreatePayload"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "GuardConfig",
+      "discriminator": [
+        95,
+        175,
+        118,
+        50,
+        193,
+        113,
+        37,
+        250
+      ]
+    },
+    {
+      "name": "HookManifest",
+      "discriminator": [
+        41,
+        17,
+        255,
+        71,
+        98,
+        180,
+        87,
+        109
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "StartFeeTooHigh",
+      "msg": "start fee above the maximum"
+    },
+    {
+      "code": 6001,
+      "name": "WindowTooLong",
+      "msg": "guard window too long"
+    },
+    {
+      "code": 6002,
+      "name": "WindowTooShort",
+      "msg": "guard window must be at least one slot"
+    },
+    {
+      "code": 6003,
+      "name": "WrongPool",
+      "msg": "config does not belong to this pool"
+    },
+    {
+      "code": 6004,
+      "name": "AlreadyArmed",
+      "msg": "config already armed"
+    },
+    {
+      "code": 6005,
+      "name": "WrongCreator",
+      "msg": "config was not created by the pool creator"
+    },
+    {
+      "code": 6006,
+      "name": "WrongHook",
+      "msg": "this pool does not run this hook"
+    },
+    {
+      "code": 6007,
+      "name": "LiquidityInGuardWindow",
+      "msg": "liquidity cannot be added while the guard window runs"
+    }
+  ],
+  "types": [
+    {
+      "name": "GuardConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "start_slot",
+            "docs": [
+              "Set by on_pool_create. 0 until then."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "guard_slots",
+            "type": "u64"
+          },
+          {
+            "name": "start_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "creator",
+            "docs": [
+              "Who paid for this config. Must be the pool creator."
+            ],
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HookManifest",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "flags",
+            "type": "u32"
+          },
+          {
+            "name": "admin",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "uri",
+            "type": {
+              "array": [
+                "u8",
+                128
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "LiquidityPayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "base_amount",
+            "type": "u64"
+          },
+          {
+            "name": "quote_amount",
+            "type": "u64"
+          },
+          {
+            "name": "lp_amount",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_base",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_quote",
+            "type": "u64"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PoolCreatePayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "base_amount",
+            "type": "u64"
+          },
+          {
+            "name": "quote_amount",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SwapPayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "direction",
+            "type": "u8"
+          },
+          {
+            "name": "amount_in",
+            "type": "u64"
+          },
+          {
+            "name": "net_in",
+            "type": "u64"
+          },
+          {
+            "name": "amount_out",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_base",
+            "docs": [
+              "Reserves at the moment of the callback (before the swap in `before_swap`,",
+              "after it in `after_swap`)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "reserve_quote",
+            "type": "u64"
+          },
+          {
+            "name": "lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}

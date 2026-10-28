@@ -1,0 +1,13 @@
+{
+  "name": "sol-hooks",
+  "private": true,
+  "type": "module",
+  "workspaces": ["sdk", "watcher"],
+  "scripts": {
+    "sdk": "npm run build -w sdk",
+    "web": "node web/serve.js"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.99.0"
+  }
+}

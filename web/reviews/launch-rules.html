@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="../">
+<title>Launch rules, report</title>
+<meta name="description" content="Report on the launch rules template behind Module Mode, one of the platform's own hooks: its shares and their ceilings, when it refuses a trade, what can change after launch, and how it compares with the review rules.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="reviews/reviews.css">
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap rv-report">
+  <a class="back" href="reviews/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>All reports</a>
+
+  <div class="page-top">
+    <h1>Launch rules</h1>
+    <p>A report on one of the platform's own hooks, written from its code. It runs every coin of Module Mode.</p>
+  </div>
+
+  <section class="panel rv-report-head" aria-label="The hook in short">
+    <div>
+      <p class="lead">The launcher picks the modules of a coin at launch. They are a sniper fee, a creator fee, rewards, a burn, a buy limit and a creator lock. A strict coin can also have a max wallet, an early lock and rewards without staking. No rate and no rule changes after launch.</p>
+      <p class="help">Its code is <code>programs/hook_rules/src/lib.rs</code> in the package. RULES.md in the package describes every rule.</p>
+    </div>
+    <dl class="kv">
+      <dt>Program</dt><dd data-program="3zSXfe6Wnt43h8ZZ1FkUmJo6rDqvQZX9sjYxHaHBTxAr" data-short="1">3zSXfe6Wnt43h8ZZ1FkUmJo6rDqvQZX9sjYxHaHBTxAr</dd>
+      <dt>Kind</dt><dd>One of the platform's own hooks</dd>
+      <dt>Approval</dt><dd>Not needed</dd>
+      <dt>Upgradeable</dt><dd>Yes, by Programmable's key</dd>
+      <dt>Report date</dt><dd>24 Oct 2026</dd>
+    </dl>
+  </section>
+
+  <div class="docs-layout">
+  <nav class="toc-col" aria-label="Sections"><ul class="toc" id="toc"></ul></nav>
+  <section class="panel doc-panel">
+    <article class="doc">
+      <h2 id="does">What it does</h2>
+      <p>The launcher writes the coin's rules once, before the pool exists. On every buy and every sell the hook asks for one fee in the quote token. It is the sum of that side's creator share, rewards share and burn share. A trade later the hook splits what it collected into the creator's balance, the rewards and the burn pot.</p>
+      <p>In the first minutes a buy can also pay a sniper fee, a higher pool fee that falls to the pool's own fee. A buy limit can cap one buy in that time. A creator lock can hold the launcher's first buy until a date.</p>
+      <p>A coin with a strict module is a Token-2022 coin whose transfer hook is this program. The program then runs inside every transfer of the coin, for a max wallet, an early lock, the creator lock and rewards for registered holders.</p>
+
+      <h2 id="control">Who controls the program</h2>
+      <p>This is one of the platform's own hooks. Its upgrade authority is a key of Programmable that the platform whitelists, so the pool takes it without approval. Only a hook of the platform's own can be the transfer hook of a coin.</p>
+      <p>Programmable's key can still upgrade it. An upgrade could change anything this report says. Programmable answers for it as it answers for the pool program itself.</p>
+
+      <h2 id="when">When it runs</h2>
+      <table>
+        <thead><tr><th>Moment</th><th>Called</th><th>What it does then</th></tr></thead>
+        <tbody>
+          <tr><td>A buy</td><td>yes, before the trade</td><td>Answers the buy shares, and the sniper fee while it runs. Refuses a buy above the buy limit while the limit runs.</td></tr>
+          <tr><td>A sell</td><td>yes, before the trade</td><td>Answers the sell shares.</td></tr>
+          <tr><td>Adding liquidity</td><td>yes, before the deposit</td><td>Refuses the deposit while the sniper fee runs, and on a strict coin while the max wallet runs.</td></tr>
+          <tr><td>Removing liquidity</td><td>never</td><td></td></tr>
+          <tr><td>Pool creation</td><td>once</td><td>Checks the pool, its creator, its mints and its treasury, and starts the clock of the rules.</td></tr>
+          <tr><td>A transfer of the coin</td><td>strict coin only</td><td>Runs inside the transfer, for the strict rules below.</td></tr>
+        </tbody>
+      </table>
+      <p>Its manifest flags are <code>BEFORE_SWAP</code>, <code>BEFORE_ADD_LIQ</code>, <code>ON_POOL_CREATE</code>, <code>OVERRIDE_FEE</code>, <code>TAKE_HOOK_FEE</code>, <code>CALL_ON_BUY</code>, <code>CALL_ON_SELL</code>.</p>
+
+      <h2 id="takes">What it can take, and where it goes</h2>
+      <p>Each share is at most 5%, and the three shares of one side at most 10% together. The pool also cuts the sum to the platform's cap, now <span class="mono" data-plat="maxHookFeeBps">10%</span>. All shares are fixed at launch.</p>
+      <p>The sniper fee starts at most at 50% and falls in a straight line to the pool's own fee within at most 10,800 slots, about 72 minutes. The pool cuts it to the override cap, now <span class="mono" data-plat="maxFeeOverrideBps">50%</span>. It stays in the pool's reserves, like any pool fee.</p>
+      <p>The shares go to the hook's treasury for this coin, a token account of an address that only the hook signs for. The pool checks at creation that its hook treasury is this account. From there:</p>
+      <ul>
+        <li>The creator share waits as the creator's balance. Only the creator claims it.</li>
+        <li>The rewards share goes to the wallets that stake the coin, or on a strict coin to the holders that registered. Each wallet claims only its own part. While less than 0.1% of the supply is staked or registered, this share goes to the burn pot.</li>
+        <li>The burn share collects in the burn pot. Anyone can spend the pot, only on a buy of the coin through the pool that burns what it buys. A run buys against a record of the pool at least 25 slots old and spends a slice of at most 0.5% of the pool's quote reserve.</li>
+      </ul>
+
+      <h2 id="refuse">Can it refuse a trade</h2>
+      <table>
+        <thead><tr><th>What</th><th>Refused when</th><th>Depends on</th></tr></thead>
+        <tbody>
+          <tr><td>A buy above the buy limit</td><td>while the limit runs, at most 9,000 slots after launch</td><td>how much, when</td></tr>
+          <tr><td>A deposit of liquidity</td><td>while the sniper fee runs, and on a strict coin while the max wallet runs</td><td>when</td></tr>
+          <tr><td>A sell of a plain coin</td><td>never</td><td></td></tr>
+          <tr><td>A buy or a send that passes the max wallet</td><td>strict coin, while the max wallet runs</td><td>who, how much, when</td></tr>
+          <tr><td>A sell or a send of coins bought in the early window</td><td>strict coin, before the early unlock</td><td>who, how much, when</td></tr>
+          <tr><td>A sell or a send of the creator's locked coins</td><td>strict coin, before the lock's date</td><td>who, how much, when</td></tr>
+          <tr><td>An early buy by a wallet without a holder record</td><td>strict coin, in the early window</td><td>who, when</td></tr>
+          <tr><td>A transfer into any account but the wallet's standard token account</td><td>strict coin, always</td><td>which account</td></tr>
+        </tbody>
+      </table>
+      <p>The coin's page tells a buyer before a buy what applies to it. Removing liquidity is never refused.</p>
+
+      <h2 id="change">What can change after launch, and who changes it</h2>
+      <p>No rate, no window, no limit and no recipient changes after launch. No instruction rewrites the coin's rules, and the creator has no setter.</p>
+      <table>
+        <thead><tr><th>Instruction</th><th>Who</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>claim_creator</code></td><td>the creator</td><td>Pays out the creator's balance, to an account the creator names.</td></tr>
+          <tr><td><code>lock_creator</code>, <code>lock_creator_strict</code></td><td>the creator</td><td>Locks the creator's own coins until a date, at least the lock declared at launch and at most 365 days ahead. The date can only move later. On a strict coin the locked coins stay in the creator's wallet, which cannot sell or send them before the date.</td></tr>
+          <tr><td><code>unlock_creator</code>, <code>unlock_creator_strict</code></td><td>the creator, after the date</td><td>Frees the locked coins.</td></tr>
+          <tr><td><code>run_burn</code>, <code>run_burn_strict</code></td><td>anyone</td><td>Spends a slice of the burn pot on a buy that burns the coin, within the limits above.</td></tr>
+          <tr><td><code>sync_holder</code></td><td>anyone</td><td>Lowers a holder record to the wallet's real balance. It cannot raise it.</td></tr>
+          <tr><td><code>stake</code>, <code>unstake</code>, <code>claim_rewards</code></td><td>the wallet itself</td><td>Stakes its own coins, takes them back about one hour after its last stake, and claims its own rewards.</td></tr>
+          <tr><td><code>open_holder</code>, <code>claim_holder</code>, <code>close_holder</code></td><td>the wallet itself</td><td>Registers the wallet for rewards on a strict coin, claims them, and closes its record for its rent.</td></tr>
+          <tr><td><code>init_pool_config</code>, <code>init_strict_config</code></td><td>the launcher, once</td><td>Write the coin's rules before the pool exists.</td></tr>
+          <tr><td><code>init_manifest</code></td><td>the upgrade authority, once</td><td>Writes the manifest and the list of extra accounts.</td></tr>
+          <tr><td><code>on_pool_create</code>, <code>before_swap</code>, <code>before_add_liquidity</code>, <code>execute</code></td><td>the pool, or the token program in a transfer</td><td>The calls above.</td></tr>
+        </tbody>
+      </table>
+      <p>A wallet's first stake opens a small record whose rent does not come back. A holder record gives its rent back when it is closed.</p>
+
+      <h2 id="manifest">Its manifest and its account lists</h2>
+      <p><code>init_manifest</code> writes the manifest and the pool's list of extra accounts once. It needs the program's upgrade authority, and an account that exists cannot be created again. The list names one account, the coin's rules. A strict coin also has the list a token transfer reads, created once by <code>init_strict_config</code>. No instruction rewrites any of them.</p>
+
+      <h2 id="calls">Programs it calls</h2>
+      <p>The token program, to move and burn coins. The pool program, for the buy of a burn. The system program and the associated token program, to create its accounts. Itself, to record each burn as an event. Inside a transfer of a strict coin it calls nothing.</p>
+
+      <h2 id="binary">The binary on mainnet</h2>
+      <p>The sha256 of the program that runs on mainnet today:</p>
+      <p class="rv-hash">6d9014c41c10a3cb9c9be5dbf6ea6c292f4a6f2ec1205064c6243a47fdb4b84b</p>
+      <p>An upgrade would change it.</p>
+
+      <h2 id="rules">Next to the review rules</h2>
+      <p>The review rules are for hooks from outside the platform. This is how this hook stands against each of them.</p>
+      <table>
+        <thead><tr><th>Rule</th><th>Here</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>1. Public source, pinned</td><td class="rv-not">not met</td><td>No public repository at a pinned commit is named for this code yet. This report was written from the platform's source.</td></tr>
+          <tr><td>2. Frozen, and the reviewed code</td><td class="rv-not">not met</td><td>Programmable's key can upgrade it.</td></tr>
+          <tr><td>3. Sells always go through</td><td class="rv-not">not met on a strict coin</td><td>On a plain coin it never refuses a sell. On a strict coin the early lock and the creator lock refuse a sell because of who sells, when and how much. Buyers are told before they buy.</td></tr>
+          <tr><td>4. Fees bounded in code</td><td class="rv-met">met</td><td>Every share is fixed at launch under its ceiling and shown on the coin's page. The sniper fee only falls. No recipient can change.</td></tr>
+          <tr><td>5. No power that hurts holders</td><td class="rv-met">met</td><td>The powers left after launch are named above. The creator's lock binds only the creator's own coins. The burn pot is spent only on a buy and a burn, and each wallet claims only its own rewards.</td></tr>
+          <tr><td>6. Written once</td><td class="rv-met">met</td><td>No instruction rewrites the manifest or the lists.</td></tr>
+          <tr><td>7. Asks only for what it uses</td><td class="rv-met">met</td><td>It answers fees and a falling pool fee, refuses early deposits and checks the pool at creation, which is what its flags allow.</td></tr>
+          <tr><td>8. Calls only what it names</td><td class="rv-met">met</td><td>The programs are named above.</td></tr>
+          <tr><td>9. Checks its caller and its settings</td><td class="rv-met">met</td><td>All three pool calls check the pool program's caller address. At creation it checks that the rules belong to this pool, that the pool's creator wrote them, and the mints and the treasury.</td></tr>
+          <tr><td>10. Fits</td><td class="rv-met">met</td><td>Its accounts have a fixed size. A wallet's stake or holder record is one small account.</td></tr>
+        </tbody>
+      </table>
+
+      <p class="rv-not-promise">A review is not an audit and not a promise.</p>
+    </article>
+  </section>
+  </div>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module" src="reviews/report.js"></script>
+</body>
+</html>

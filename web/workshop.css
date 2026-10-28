@@ -1,0 +1,232 @@
+/* The Custom hooks pages: workshop.html (the list), workshop-hook.html (one hook) and
+   workshop-guide.html (Build a hook). Loaded after styles.css and built only from its tokens
+   and components. What styles.css lacks is here, every name starting with ws-, so it can move
+   into styles.css later as it is.
+
+   ws-bar ws-status        the bar over the list and the line that counts the hooks
+   ws-grid ws-card         the grid of hooks: .coin-grid and .coin-card of Explore, four across
+   ws-says ws-desc         a card's line in its author's words, and the state of that text
+   ws-means                the panel under the list that says what a listing means
+   ws-hero                 a hook's one large panel: name, author, program, figures, the action
+   ws-figs                 a row of figures, each a label over a value
+   ws-panels               the panels under it, two side by side from 1024 px
+   ws-voice                the small label that says whose words a panel holds
+   ws-rules ws-sentences   numbered rules; sentences in rows
+   ws-checks               the checks, each a result chip and two lines
+   ws-steps ws-step-head ws-step-body    numbered blocks, each opens its detail under the row
+   ws-two ws-desc-cols     two columns inside an open step
+   ws-mark ws-acts         the mark of an approved hook on its card, and the card's actions
+   ws-unreviewed           the closed section of outside hooks that are not approved
+   ws-hero-mark            the mark under a hook's name on its page
+   ws-review ws-after      step 4 of the guide: the review before the deploy
+   The mark itself (rv-mark) is in reviews/reviews.css. */
+
+/* ---- the list ---- */
+.ws-bar .btn-primary { background: var(--accent-fill); color: var(--accent-ink); font-weight: 600; }
+/* on a phone the search takes a row of its own, the two buttons share the next one */
+@media (max-width: 479px) {
+  .ws-bar { flex-wrap: wrap; }
+  .ws-bar .search { flex: 1 1 100%; }
+  .ws-bar .btn { flex: 1 1 auto; }
+}
+@media (hover: hover) and (pointer: fine) { .ws-bar .btn-primary:hover:not(:disabled) { background: var(--accent-fill-hover); } }
+.ws-status { display: flex; justify-content: center; align-items: baseline; gap: 12px; flex-wrap: wrap; max-width: 1184px; margin: 0 auto 16px; font-size: var(--fs-sm); color: var(--muted); }
+.ws-status #count { color: var(--text-soft); font-weight: 600; }
+@media (min-width: 1180px) { .ws-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; } }
+.ws-grid { margin-bottom: 44px; }
+.ws-card .coin-pair { font-size: var(--fs-xs); }
+/* two cards across a phone leave no room for the program id: the name keeps it, the id is on the hook page */
+@media (max-width: 639px) { .ws-card .coin-pair { display: none; } }
+.ws-card .coin-kind { margin-top: 2px; }
+.ws-card .coin-kind b { margin-right: 0; }
+/* what the pool lets a hook do wraps on a narrow card instead of losing its end */
+.ws-card .ws-power { white-space: normal; overflow: visible; }
+.ws-card .ws-says { margin: 8px 0 0; font-size: var(--fs-sm); line-height: 1.45; color: var(--text-soft); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: calc(2 * 1.45em); }
+.ws-card .ws-says.none { color: var(--dim); }
+.ws-card .ws-desc { margin: 6px 0 0; font-size: var(--fs-xs); line-height: 1.5; color: var(--muted); }
+.ws-desc[data-pin="yes"] { color: var(--ok); }
+.ws-desc[data-state="refused"], .ws-desc[data-state="unreachable"] { color: var(--bad); }
+/* the figures sit at the foot of every card of a row, whatever the text above them */
+.ws-card .coin-body { flex: 1 1 auto; }
+.ws-card .coin-figs { margin-top: auto; padding-top: 12px; }
+.ws-collected { text-align: right; }
+.ws-empty { grid-column: 1 / -1; }
+.ws-empty p { margin: 0 auto; max-width: 52ch; }
+/* the mark of an approved hook on its card, and the card's actions under its figures */
+.ws-card .ws-mark { margin-top: 8px; }
+.ws-card .ws-acts { display: flex; align-items: center; justify-content: space-between; gap: 8px 12px; flex-wrap: wrap; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--hair); font-size: var(--fs-sm); }
+.ws-card .ws-acts .btn-sm { background: var(--accent-fill); color: var(--accent-ink); }
+@media (hover: hover) and (pointer: fine) { .ws-card .ws-acts .btn-sm:hover { background: var(--accent-fill-hover); } }
+
+/* outside hooks with coins that are not on the approved list: a closed section under the grid */
+.ws-unreviewed { max-width: 1184px; margin: 0 auto 44px; padding: 0; }
+.ws-unreviewed > summary { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 0 20px; cursor: pointer; list-style: none; border-radius: var(--r-panel); font-size: var(--fs-md); font-weight: 600; color: var(--text); transition: background-color 150ms ease; }
+.ws-unreviewed > summary::-webkit-details-marker { display: none; }
+.ws-unreviewed > summary::after { content: ""; width: 8px; height: 8px; margin-left: auto; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); transition: transform 180ms var(--ease-out); }
+.ws-unreviewed[open] > summary::after { transform: rotate(-135deg); }
+@media (hover: hover) and (pointer: fine) { .ws-unreviewed > summary:hover { background: var(--raised); } }
+.ws-unrev-n { font-family: var(--font-mono); letter-spacing: 0; font-size: var(--fs-sm); color: var(--muted); font-weight: 500; }
+.ws-unreviewed .note { margin: 0 20px 16px; }
+.ws-unreviewed .ws-grid { margin: 0; padding: 0 20px 20px; }
+
+.ws-means { max-width: 1184px; margin: 0 auto; }
+.ws-means-cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+@media (min-width: 900px) { .ws-means-cols { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; } }
+.ws-means h3 { font-size: var(--fs-base); margin-bottom: 6px; }
+.ws-means p { margin: 0; color: var(--muted); font-size: 0.9375rem; line-height: 1.55; }
+.ws-means .ws-means-foot { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--hair); font-size: var(--fs-sm); }
+
+/* ---- one hook ---- */
+.ws-state { margin-top: 16px; }
+.ws-state .btn { margin: 16px 6px 0; }
+.ws-hero { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; margin-top: 8px; }
+@media (min-width: 768px) { .ws-hero { padding: 24px; } }
+@media (min-width: 1024px) { .ws-hero { grid-template-columns: minmax(0, 1fr) 380px; gap: 32px; align-items: start; } }
+.ws-hero-id { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.ws-hero-art { flex: none; width: 64px; height: 64px; border-radius: var(--r-card); background: var(--raised); object-fit: cover; }
+@media (min-width: 768px) { .ws-hero-art { width: 72px; height: 72px; } }
+.ws-hero-name { min-width: 0; }
+.ws-hero h1 { font-size: clamp(1.75rem, 2.2vw + 1.1rem, 2.5rem); font-weight: 600; letter-spacing: -0.035em; line-height: 1.1; overflow-wrap: anywhere; }
+.ws-by { margin: 6px 0 0; color: var(--muted); font-size: 0.9375rem; overflow-wrap: anywhere; }
+.ws-by b { color: var(--text-soft); font-weight: 600; }
+/* the mark of an approved hook under its name, with its report */
+.ws-hero-mark { display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; margin-top: 12px; font-size: var(--fs-sm); }
+#toReview { margin-top: 12px; background: var(--raised-hover); }
+.ws-id { display: flex; align-items: center; gap: 4px 10px; flex-wrap: wrap; margin-top: 16px; font-size: var(--fs-sm); color: var(--muted); }
+/* a program id is 44 characters: on a phone it takes a line of its own and wraps, never below 13 px */
+.ws-id .mono { color: var(--text-soft); overflow-wrap: anywhere; min-width: 0; }
+@media (max-width: 480px) { .ws-id .mono { flex: 1 1 100%; line-height: 1.4; } }
+.ws-figs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; margin: 24px 0 0; }
+@media (min-width: 640px) { .ws-figs { grid-template-columns: repeat(4, max-content); column-gap: 44px; } }
+.ws-figs dt { font-size: var(--fs-sm); color: var(--muted); }
+.ws-figs dd { margin: 2px 0 0; font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: 0; font-size: var(--fs-md); font-weight: 500; color: var(--text); white-space: nowrap; }
+.ws-hero-side { background: var(--raised); border-radius: var(--r-card); padding: 16px; }
+.ws-hero-side .help { margin: 12px 0 0; }
+.ws-hero-side .help + .help { margin-top: 8px; }
+#firstLaunch { color: var(--warn); }
+
+.ws-panels { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 16px; }
+@media (min-width: 1024px) { .ws-panels { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; } }
+.ws-panels > .panel, #checked, #coinsSection { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+#checked, #coinsSection { margin-top: 16px; }
+.ws-voice { display: block; margin-bottom: 4px; font-size: var(--fs-xs); font-weight: 600; color: var(--muted); }
+.ws-voice.author { color: var(--accent); }
+.ws-panels .panel-title, #checked .panel-title, #coinsSection .panel-title { font-size: var(--fs-lg); margin-bottom: 14px; }
+.panel .lede { margin: -6px 0 16px; max-width: 72ch; color: var(--muted); font-size: 0.9375rem; }
+#summary { font-size: var(--fs-md); color: var(--text-soft); margin-bottom: 14px; }
+#pinNote, #pinMeans { margin: 10px 0 0; }
+#pinNote.ok { color: var(--ok); }
+#rules > .small.dim { margin-top: 12px; }
+#noRules.bad { color: var(--bad); }
+
+/* an author's rules, numbered */
+.ws-rules { margin: 0; padding: 0; list-style: none; counter-reset: rule; }
+.ws-rules li { counter-increment: rule; display: grid; grid-template-columns: 1.8em minmax(0, 1fr); gap: 0 6px; padding: 10px 0; border-top: 1px solid var(--hair); font-size: var(--fs-base); line-height: 1.5; overflow-wrap: anywhere; }
+.ws-rules li:first-child { border-top: 0; padding-top: 0; }
+.ws-rules li::before { content: counter(rule); font-family: var(--font-mono); letter-spacing: 0; color: var(--accent); font-variant-numeric: tabular-nums; }
+.ws-sentences { margin: 0 0 16px; padding: 0; list-style: none; }
+.ws-sentences li { padding: 8px 0; border-top: 1px solid var(--hair); font-size: 0.9375rem; line-height: 1.5; }
+.ws-sentences li:first-child { border-top: 0; padding-top: 0; }
+/* the label may wrap, the value never breaks into letters */
+.ws-powers { grid-template-columns: minmax(0, 1fr) max-content; padding: 12px; background: var(--raised); border-radius: var(--r-card); }
+.ws-powers dt { white-space: normal; }
+.ws-powers dd { white-space: nowrap; overflow-wrap: normal; color: var(--text-soft); }
+.ws-powers dd.bad { color: var(--bad); }
+
+/* the checks: a result on the left, what was checked and what it means on the right */
+.ws-checks { margin: 0; padding: 0; list-style: none; }
+.ws-checks li { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; padding: 14px 0; border-top: 1px solid var(--hair); }
+.ws-checks li:first-child { border-top: 0; padding-top: 0; }
+@media (min-width: 640px) { .ws-checks li { grid-template-columns: 128px minmax(0, 1fr); gap: 16px; } }
+.ws-checks .res { justify-self: start; }
+.ws-checks .what { font-weight: 600; color: var(--text); }
+.ws-checks .means { margin: 4px 0 0; font-size: var(--fs-sm); line-height: 1.5; color: var(--muted); }
+.ws-checks [data-result="running"] .res { animation: pulse 1.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .ws-checks [data-result="running"] .res { animation: none; } }
+.ws-table { overflow-x: auto; margin: 0 -4px; }
+.ws-table .grid th:first-child, .ws-table .grid td:first-child { padding-left: 4px; }
+.ws-table .grid .btn-sm { background: var(--raised); }
+
+/* ---- the guide: four numbered blocks; the one that is open shows its detail under the row ---- */
+.ws-guide { margin-top: 4px; }
+.ws-steps { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.ws-step { display: grid; gap: 8px; min-width: 0; }
+.ws-step-head { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; min-height: 44px; padding: 14px 16px 16px; border: 0; border-radius: var(--r-card); background: var(--raised); color: var(--text-soft); text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform 160ms var(--ease-out), background-color 150ms ease, box-shadow 150ms ease; }
+.ws-step-head:active { transform: scale(0.98); }
+.ws-step-head[aria-expanded="true"] { background: var(--raised-hover); box-shadow: inset 0 0 0 2px var(--accent-fill); }
+@media (hover: hover) and (pointer: fine) { .ws-step-head:hover { background: var(--raised-hover); } }
+.ws-step-n { font-size: var(--fs-sm); color: var(--muted); font-variant-numeric: tabular-nums; }
+.ws-step-title { margin-top: 8px; font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; color: var(--text); }
+.ws-step-line { font-size: var(--fs-sm); line-height: 1.45; color: var(--muted); }
+.ws-step-body { min-width: 0; padding: 8px 0 16px; }
+@starting-style { .ws-step-body { opacity: 0; transform: translateY(4px); } }
+.ws-step-body { transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out); }
+@media (prefers-reduced-motion: reduce) { .ws-step-body { transition: opacity 180ms ease; transform: none; } }
+@media (min-width: 900px) {
+  .ws-steps { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .ws-step { display: contents; }
+  .ws-step-head { grid-row: 1; }
+  .ws-step-body { grid-row: 2; grid-column: 1 / -1; padding: 12px 0 0; }
+}
+.ws-lede { max-width: 80ch; margin: 0 0 14px; color: var(--muted); font-size: 0.9375rem; line-height: 1.55; }
+.ws-two { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+@media (min-width: 900px) { .ws-two { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
+.ws-desc-cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+@media (min-width: 1024px) {
+  .ws-desc-cols { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: start; }
+  /* the file stays in view beside a long form */
+  .ws-out { position: sticky; top: calc(var(--header-h) + 8px); }
+  #gJson { max-height: calc(100vh - var(--header-h) - 260px); }
+}
+.ws-step-body .raised { padding: 16px; }
+.ws-step-body .raised h3 { font-size: 0.9375rem; margin-bottom: 10px; }
+.ws-step-body .raised .ws-gap { margin-top: 20px; }
+.ws-step-body .raised .input, .ws-step-body .raised select, .ws-step-body .raised textarea { background: var(--field); }
+.ws-sub { margin: 18px 0 8px; font-size: var(--fs-sm); color: var(--muted); }
+.ws-step-body pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+#gJson { max-height: 460px; overflow: auto; }
+.ws-warn { margin-top: 12px; }
+.ws-finish { margin-top: 12px; padding: 16px; background: var(--raised); border-radius: var(--r-card); }
+/* step 4: the review comes before the deploy */
+.ws-review { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-items: center; padding: 16px; margin-bottom: 20px; background: var(--raised); border-radius: var(--r-card); }
+@media (min-width: 900px) { .ws-review { grid-template-columns: minmax(0, 1fr) auto; gap: 24px; } }
+.ws-review h3 { font-size: var(--fs-base); margin-bottom: 6px; }
+.ws-review p { margin: 0 0 6px; max-width: 80ch; color: var(--muted); font-size: 0.9375rem; line-height: 1.55; }
+.ws-after { margin: 0 0 10px; font-size: var(--fs-sm); color: var(--muted); }
+.ws-finish p { margin: 0; color: var(--muted); font-size: 0.9375rem; max-width: 80ch; }
+/* a secondary button on a raised part takes the fill one step up, as styles.css does inside .raised */
+.ws-finish .btn:not(.btn-primary) { background: var(--raised-hover); }
+.acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+
+/* step 1: the flags, each a row with its checkbox */
+.flag-list { margin: 0; padding: 0; list-style: none; }
+.flag-list li + li { border-top: 1px solid var(--hair); }
+.flag-list label { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; padding: 10px 0; cursor: pointer; font-size: 0.9375rem; line-height: 1.45; }
+.flag-list label > span { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.flag-list code { align-self: flex-start; font-size: 0.75rem; background: var(--raised-hover); color: var(--muted); overflow-wrap: anywhere; }
+.flag-list input, .check-row input { flex: none; width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--accent-fill); cursor: pointer; }
+.check-row { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; padding: 10px 0 2px; cursor: pointer; font-size: 0.9375rem; line-height: 1.45; color: var(--text-soft); }
+
+/* step 3: rows of arguments and accounts, the output beside the form */
+.rows { display: grid; gap: 8px; margin-bottom: 10px; }
+.rowbox { background: var(--panel); border-radius: var(--r-control); padding: 12px 12px 4px; min-width: 0; }
+.rowbox .tools { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.rowbox .tools .cap { flex: 1; font-size: var(--fs-sm); font-weight: 600; color: var(--text-soft); }
+.rowbox .btn-sm { background: var(--raised); }
+.rowbox .check-row { padding-top: 0; }
+.row > .field.narrow { flex: 1 1 88px; }
+.row > .field.wide { flex: 3 1 220px; }
+.ws-out .verdict { font-weight: 600; font-size: 0.9375rem; }
+/* the sample before the reader has touched the form: a plain sentence, no judgement yet */
+.ws-out .verdict:not(.ok):not(.bad) { font-weight: 400; color: var(--muted); }
+.ws-out .verdict.ok { color: var(--ok); }
+.ws-out .verdict.bad { color: var(--warn); }
+.ws-errors { margin: 8px 0 0; padding-left: 18px; font-size: var(--fs-sm); line-height: 1.5; color: var(--bad); }
+.ws-errors:empty { display: none; }
+.ws-errors li + li { margin-top: 4px; }
+.ws-preview { margin-top: 12px; padding: 12px 12px 2px; background: var(--panel); border-radius: var(--r-control); }
+.ws-preview .ws-sub { margin-top: 0; }
+.ws-file:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+#gUploadNote.error-text { color: var(--bad); }
+#gPinNote.error-text { color: var(--bad); }
+#gDeploy { margin-top: 4px; }

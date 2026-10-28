@@ -1,0 +1,59 @@
+# Programmable RPC proxy, as a service that starts at boot and restarts if it ever stops.
+#
+# Install (as root on the server), one line at a time:
+#   cp /home/programmable/sol-hooks/rpc-proxy/programmable-rpc.service /etc/systemd/system/
+#   systemctl daemon-reload
+#   systemctl enable --now programmable-rpc
+#
+# Watch it:    journalctl -u programmable-rpc -f
+# Stop it:     systemctl stop programmable-rpc
+# Restart it:  systemctl restart programmable-rpc
+#
+# Configuration comes from /etc/programmable/rpc.env (owner root, mode 600): the provider's address
+# with its key, and the limits. README.md has the whole setup.
+
+[Unit]
+Description=Programmable RPC proxy: the site's browsers read the chain through it, the provider's key stays here
+Documentation=file:///home/programmable/sol-hooks/rpc-proxy/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# A user made for this service at each start, with no files of its own and no other process (DynamicUser).
+# systemd reads the EnvironmentFile as root before it drops to that user, so the file stays root 600 and
+# the process gets the values all the same.
+DynamicUser=yes
+WorkingDirectory=/home/programmable/sol-hooks/rpc-proxy
+EnvironmentFile=/etc/programmable/rpc.env
+ExecStart=/usr/bin/node --max-old-space-size=96 index.mjs
+Restart=always
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=15
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=programmable-rpc
+
+# The process holds one secret, the provider's address, and writes no file. It is boxed in anyway.
+# /home is an empty read-only folder for it, with two folders put back read-only: the proxy's own code
+# and the one package it loads (ws). It sees nothing else of the server's home folders: not the
+# watcher's .env, not a key. The two folders must be readable by everyone (README.md, "Install").
+ProtectHome=tmpfs
+BindReadOnlyPaths=/home/programmable/sol-hooks/rpc-proxy /home/programmable/sol-hooks/node_modules/ws
+ProtectSystem=strict
+PrivateTmp=true
+PrivateDevices=true
+ProtectProc=invisible
+NoNewPrivileges=true
+CapabilityBoundingSet=
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryMax=150M
+
+[Install]
+WantedBy=multi-user.target

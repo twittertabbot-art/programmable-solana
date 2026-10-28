@@ -1,0 +1,1072 @@
+{
+  "address": "3M824Hn8Z6S7r1t1zqpNQpioKFd31jrQwSN2oxV2ovo5",
+  "metadata": {
+    "name": "hook_buyback",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "hookpool template: accrues quote fees, anyone triggers a buyback and burn through hook_swap"
+  },
+  "instructions": [
+    {
+      "name": "before_swap",
+      "discriminator": [
+        227,
+        59,
+        240,
+        68,
+        164,
+        9,
+        29,
+        254
+      ],
+      "accounts": [
+        {
+          "name": "pool"
+        },
+        {
+          "name": "hook_caller",
+          "signer": true
+        },
+        {
+          "name": "user"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "payload",
+          "type": {
+            "defined": {
+              "name": "SwapPayload"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "execute_buyback",
+      "docs": [
+        "Permissionless: anyone may call it and choose `min_amount_out`. It buys against",
+        "an observation of the pool at least BURN_INTERVAL_SLOTS old (`burn_step`):",
+        "",
+        "* the first call of a pool only records the observation;",
+        "* a call that comes too soon fails with `TooSoon` and writes nothing;",
+        "* when the price is above the observed one by more than twice the cap, it buys",
+        "nothing and records the reserves as the new observation;",
+        "* otherwise it spends the treasury, at most `cap_bps` of the smaller of the quote",
+        "reserve now and the observed one, burns what it bought and records the reserves",
+        "after the buy;",
+        "* between calls, every trade that starts below the observed price lowers the",
+        "observed price to the one it started at, without raising the observed depth",
+        "(`before_swap`, `burn_lowered`).",
+        "",
+        "Every call that returns Ok emits `BuybackExecuted` with its outcome and sets",
+        "return data: the outcome byte, then quote spent and coins burned."
+      ],
+      "discriminator": [
+        47,
+        32,
+        19,
+        100,
+        184,
+        96,
+        144,
+        49
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "BuybackConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "hook_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  111,
+                  107,
+                  45,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "BuybackConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "platform",
+          "docs": [
+            "The platform: its protocol fee and its hook fee cap decide how much a buyback may spend."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                92,
+                13,
+                14,
+                246,
+                180,
+                121,
+                87,
+                217,
+                161,
+                82,
+                235,
+                200,
+                145,
+                186,
+                157,
+                24,
+                2,
+                235,
+                121,
+                21,
+                68,
+                207,
+                75,
+                17,
+                157,
+                133,
+                57,
+                36,
+                56,
+                163,
+                218,
+                238
+              ]
+            }
+          }
+        },
+        {
+          "name": "pool",
+          "writable": true
+        },
+        {
+          "name": "base_mint",
+          "writable": true,
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "base_vault",
+          "writable": true
+        },
+        {
+          "name": "quote_vault",
+          "writable": true
+        },
+        {
+          "name": "treasury_quote",
+          "writable": true
+        },
+        {
+          "name": "authority_base",
+          "writable": true
+        },
+        {
+          "name": "hookpool_program",
+          "address": "7CL4KGeaZFsNYqEjErwTezMYuAE54185TieqLQnGjdgh"
+        },
+        {
+          "name": "hookpool_event_authority"
+        },
+        {
+          "name": "base_token_program"
+        },
+        {
+          "name": "quote_token_program"
+        },
+        {
+          "name": "event_authority"
+        },
+        {
+          "name": "program"
+        }
+      ],
+      "args": [
+        {
+          "name": "min_amount_out",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "init_manifest",
+      "discriminator": [
+        185,
+        170,
+        202,
+        228,
+        72,
+        6,
+        8,
+        106
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "program_data"
+        },
+        {
+          "name": "manifest",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  110,
+                  105,
+                  102,
+                  101,
+                  115,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "extra_metas",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  120,
+                  116,
+                  114,
+                  97,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  115
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "uri",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "init_pool_config",
+      "docs": [
+        "Before `create_pool`. Also creates the two token accounts the authority PDA needs.",
+        "The pool's `hook_quote_treasury` must be `cfg.treasury`."
+      ],
+      "discriminator": [
+        229,
+        200,
+        245,
+        211,
+        100,
+        33,
+        44,
+        79
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "hook_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  111,
+                  107,
+                  45,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "treasury_quote",
+          "docs": [
+            "`init_if_needed`: anyone can create an associated token account for any owner, and",
+            "a plain `init` would let a stranger block this instruction by creating one of these",
+            "two first. An account that is already there is the same account."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "hook_authority"
+              },
+              {
+                "kind": "account",
+                "path": "quote_token_program"
+              },
+              {
+                "kind": "account",
+                "path": "quote_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "authority_base",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "hook_authority"
+              },
+              {
+                "kind": "account",
+                "path": "base_token_program"
+              },
+              {
+                "kind": "account",
+                "path": "base_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "base_token_program"
+        },
+        {
+          "name": "quote_token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "pool",
+          "type": "pubkey"
+        },
+        {
+          "name": "buy_bps",
+          "type": "u16"
+        },
+        {
+          "name": "sell_bps",
+          "type": "u16"
+        },
+        {
+          "name": "min_quote",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "on_pool_create",
+      "discriminator": [
+        145,
+        87,
+        198,
+        141,
+        215,
+        104,
+        119,
+        28
+      ],
+      "accounts": [
+        {
+          "name": "pool"
+        },
+        {
+          "name": "hook_caller",
+          "signer": true
+        },
+        {
+          "name": "user"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "pool"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "payload",
+          "type": {
+            "defined": {
+              "name": "PoolCreatePayload"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BuybackConfig",
+      "discriminator": [
+        226,
+        30,
+        39,
+        139,
+        66,
+        159,
+        153,
+        171
+      ]
+    },
+    {
+      "name": "HookManifest",
+      "discriminator": [
+        41,
+        17,
+        255,
+        71,
+        98,
+        180,
+        87,
+        109
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "BuybackExecuted",
+      "discriminator": [
+        150,
+        109,
+        157,
+        10,
+        124,
+        24,
+        38,
+        189
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "TaxTooHigh",
+      "msg": "tax above the hard maximum"
+    },
+    {
+      "code": 6001,
+      "name": "WrongPool",
+      "msg": "config does not belong to this pool"
+    },
+    {
+      "code": 6002,
+      "name": "WrongTreasury",
+      "msg": "pool treasury is not this hook's treasury"
+    },
+    {
+      "code": 6003,
+      "name": "WrongMints",
+      "msg": "pool mints do not match the config"
+    },
+    {
+      "code": 6004,
+      "name": "BelowThreshold",
+      "msg": "treasury below min_quote, nothing to buy back yet"
+    },
+    {
+      "code": 6005,
+      "name": "NothingBought",
+      "msg": "nothing was bought"
+    },
+    {
+      "code": 6006,
+      "name": "WrongCreator",
+      "msg": "config was not created by the pool creator"
+    },
+    {
+      "code": 6007,
+      "name": "TooSoon",
+      "msg": "the buyback's observation of the pool is less than 25 slots old"
+    },
+    {
+      "code": 6008,
+      "name": "MinQuoteTooHigh",
+      "msg": "min_quote above the maximum"
+    }
+  ],
+  "types": [
+    {
+      "name": "BuybackConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "authority_bump",
+            "type": "u8"
+          },
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "base_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "docs": [
+              "ATA of the authority PDA for the quote mint. Must be the pool's hook treasury."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "buy_bps",
+            "type": "u16"
+          },
+          {
+            "name": "sell_bps",
+            "type": "u16"
+          },
+          {
+            "name": "min_quote",
+            "type": "u64"
+          },
+          {
+            "name": "total_quote_spent",
+            "type": "u64"
+          },
+          {
+            "name": "total_base_burned",
+            "type": "u64"
+          },
+          {
+            "name": "buybacks",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "docs": [
+              "Who paid for this config. Must be the pool creator."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "obs_slot",
+            "docs": [
+              "The observation `execute_buyback` buys against (`burn_step` of the interface",
+              "crate): the slot it was taken in and the pool's reserves then. No observation yet",
+              "while a reserve is zero. `before_swap` lowers the observed price, never raises",
+              "the observed depth, and leaves the slot, when a trade starts below the observed",
+              "price (`burn_lowered`)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "obs_reserve_base",
+            "type": "u64"
+          },
+          {
+            "name": "obs_reserve_quote",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BuybackExecuted",
+      "docs": [
+        "Emitted through event CPI by every `execute_buyback` that returns Ok. `outcome` says",
+        "what it did: `BURN_OBSERVED` (1, the first observation, nothing bought), `BURN_WAITED`",
+        "(2, the price was above the observation by more than the tolerance, nothing bought)",
+        "or `BURN_BOUGHT` (3). The observation is the one the call left in the config."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_spent",
+            "type": "u64"
+          },
+          {
+            "name": "base_burned",
+            "type": "u64"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          },
+          {
+            "name": "outcome",
+            "type": "u8"
+          },
+          {
+            "name": "obs_reserve_base",
+            "type": "u64"
+          },
+          {
+            "name": "obs_reserve_quote",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HookManifest",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "flags",
+            "type": "u32"
+          },
+          {
+            "name": "admin",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "uri",
+            "type": {
+              "array": [
+                "u8",
+                128
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Platform",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "protocol_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_hook_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_fee_override_bps",
+            "type": "u16"
+          },
+          {
+            "name": "launch_fee_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          },
+          {
+            "name": "whitelist_len",
+            "type": "u8"
+          },
+          {
+            "name": "whitelist",
+            "type": {
+              "array": [
+                "pubkey",
+                8
+              ]
+            }
+          },
+          {
+            "name": "pool_count",
+            "type": "u64"
+          },
+          {
+            "name": "curve_virtual_quote",
+            "docs": [
+              "The curve launch (HOOKS.md section 2): the quote counted in the price of a new curve",
+              "pool without being there, and the real quote reserve at which it graduates. Copied",
+              "into each curve pool at creation; a later change does not touch running curves.",
+              "Either one at 0 switches curve launches off (`CurveDisabled`)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "curve_graduation_target",
+            "type": "u64"
+          },
+          {
+            "name": "curve_graduation_fee_bps",
+            "docs": [
+              "Share of the target taken for the platform at graduation, at most",
+              "`HARD_MAX_GRADUATION_FEE_BPS`."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "reserved",
+            "type": {
+              "array": [
+                "u8",
+                46
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PoolCreatePayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "base_amount",
+            "type": "u64"
+          },
+          {
+            "name": "quote_amount",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SwapPayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "direction",
+            "type": "u8"
+          },
+          {
+            "name": "amount_in",
+            "type": "u64"
+          },
+          {
+            "name": "net_in",
+            "type": "u64"
+          },
+          {
+            "name": "amount_out",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_base",
+            "docs": [
+              "Reserves at the moment of the callback (before the swap in `before_swap`,",
+              "after it in `after_swap`)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "reserve_quote",
+            "type": "u64"
+          },
+          {
+            "name": "lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}

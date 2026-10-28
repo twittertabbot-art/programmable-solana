@@ -1,0 +1,4059 @@
+{
+  "address": "3zSXfe6Wnt43h8ZZ1FkUmJo6rDqvQZX9sjYxHaHBTxAr",
+  "metadata": {
+    "name": "hook_rules",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "hookpool template: launch rules fixed at launch (sniper fee, creator fee, holder rewards, burn, buy limit, creator lock)"
+  },
+  "instructions": [
+    {
+      "name": "before_add_liquidity",
+      "docs": [
+        "No liquidity is added while the sniper fee runs. The sniper fee is a pool fee: it",
+        "goes to every LP share. Without this, a wallet could add liquidity in the launch",
+        "slot and take most of a sniper's fee out again with it. Removing is never refused:",
+        "this hook has no callback for it."
+      ],
+      "discriminator": [
+        114,
+        27,
+        123,
+        181,
+        200,
+        252,
+        178,
+        240
+      ],
+      "accounts": [
+        {
+          "name": "pool"
+        },
+        {
+          "name": "hook_caller",
+          "signer": true
+        },
+        {
+          "name": "user"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "cfg",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "payload",
+          "type": {
+            "defined": {
+              "name": "LiquidityPayload"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "before_swap",
+      "discriminator": [
+        227,
+        59,
+        240,
+        68,
+        164,
+        9,
+        29,
+        254
+      ],
+      "accounts": [
+        {
+          "name": "pool"
+        },
+        {
+          "name": "hook_caller",
+          "signer": true
+        },
+        {
+          "name": "user"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "cfg",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "payload",
+          "type": {
+            "defined": {
+              "name": "SwapPayload"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "claim_creator",
+      "docs": [
+        "Pay `creator_owed` to the quote token account the creator names."
+      ],
+      "discriminator": [
+        231,
+        240,
+        197,
+        249,
+        244,
+        10,
+        21,
+        59
+      ],
+      "accounts": [
+        {
+          "name": "creator",
+          "signer": true,
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool"
+        },
+        {
+          "name": "hook_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  111,
+                  107,
+                  45,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "treasury_quote",
+          "writable": true
+        },
+        {
+          "name": "creator_quote",
+          "docs": [
+            "Where the fee goes. Any token account of the quote mint the creator names."
+          ],
+          "writable": true
+        },
+        {
+          "name": "quote_token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim_holder",
+      "docs": [
+        "Pay a holder what it is owed, in the quote token, to the token account it names."
+      ],
+      "discriminator": [
+        155,
+        200,
+        53,
+        56,
+        103,
+        22,
+        12,
+        161
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool"
+        },
+        {
+          "name": "holder",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "hook_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  111,
+                  107,
+                  45,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "treasury_quote",
+          "writable": true
+        },
+        {
+          "name": "owner_quote",
+          "docs": [
+            "Where the rewards go. Any token account of the quote mint the holder names."
+          ],
+          "writable": true
+        },
+        {
+          "name": "quote_token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim_rewards",
+      "docs": [
+        "Pay the staker's rewards, in the quote token, to the token account it names."
+      ],
+      "discriminator": [
+        4,
+        144,
+        132,
+        71,
+        116,
+        23,
+        151,
+        80
+      ],
+      "accounts": [
+        {
+          "name": "staker",
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool"
+        },
+        {
+          "name": "stake",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  107,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              },
+              {
+                "kind": "account",
+                "path": "staker"
+              }
+            ]
+          }
+        },
+        {
+          "name": "hook_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  111,
+                  107,
+                  45,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "treasury_quote",
+          "writable": true
+        },
+        {
+          "name": "staker_quote",
+          "docs": [
+            "Where the rewards go. Any token account of the quote mint the staker names."
+          ],
+          "writable": true
+        },
+        {
+          "name": "quote_token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "close_holder",
+      "docs": [
+        "Close a holder record that holds nothing and get its rent back: no coins, nothing",
+        "owed, nothing locked, and no early coins still under their lock."
+      ],
+      "discriminator": [
+        88,
+        22,
+        239,
+        228,
+        245,
+        64,
+        37,
+        78
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "holder",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "execute",
+      "docs": [
+        "Token-2022 calls this on every transfer of a strict coin, after the balances",
+        "moved. It refuses the transfer when a rule says so, and keeps the holder records",
+        "of both wallets equal to what they hold.",
+        "",
+        "It takes effect only in the middle of a real transfer of this coin: both token",
+        "accounts must carry Token-2022's \"transferring\" flag, which only the token program",
+        "sets, for the length of its call into the hook. It makes no CPI."
+      ],
+      "discriminator": [
+        105,
+        37,
+        101,
+        197,
+        75,
+        251,
+        102,
+        26
+      ],
+      "accounts": [
+        {
+          "name": "source"
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "destination"
+        },
+        {
+          "name": "authority",
+          "docs": [
+            "owns the token account, whoever signs."
+          ]
+        },
+        {
+          "name": "validation"
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "source_holder",
+          "writable": true
+        },
+        {
+          "name": "dest_holder",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "init_manifest",
+      "docs": [
+        "One-time: publish the manifest and the extra-accounts list. Upgrade authority only."
+      ],
+      "discriminator": [
+        185,
+        170,
+        202,
+        228,
+        72,
+        6,
+        8,
+        106
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "program_data"
+        },
+        {
+          "name": "manifest",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  97,
+                  110,
+                  105,
+                  102,
+                  101,
+                  115,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "extra_metas",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  120,
+                  116,
+                  114,
+                  97,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  115
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "uri",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "init_pool_config",
+      "docs": [
+        "By the launcher, before `create_pool`. Writes the rules, once, and creates the",
+        "treasury, the burn account and the stake vault. The pool's `hook_quote_treasury`",
+        "must be `cfg.treasury`."
+      ],
+      "discriminator": [
+        229,
+        200,
+        245,
+        211,
+        100,
+        33,
+        44,
+        79
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "hook_authority",
+          "docs": [
+            "no data. The pool's `hook_swap` can spend only from accounts of this PDA, which is",
+            "why the two vaults do NOT belong to it: they belong to the config."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  111,
+                  107,
+                  45,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "treasury_quote",
+          "docs": [
+            "`init_if_needed`: anyone can create an associated token account for any owner, and",
+            "a plain `init` would let a stranger block this instruction by creating one of these",
+            "two first. An account that is already there is the same account: its owner is the",
+            "authority, and the mint and the owner are checked."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "hook_authority"
+              },
+              {
+                "kind": "account",
+                "path": "quote_token_program"
+              },
+              {
+                "kind": "account",
+                "path": "quote_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "authority_base",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "hook_authority"
+              },
+              {
+                "kind": "account",
+                "path": "base_token_program"
+              },
+              {
+                "kind": "account",
+                "path": "base_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "stake_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  107,
+                  101,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_token_program"
+        },
+        {
+          "name": "quote_token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "pool",
+          "type": "pubkey"
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "RulesArgs"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "init_strict_config",
+      "docs": [
+        "By the launcher of a strict coin, before `create_pool`, in place of",
+        "`init_pool_config`. The coin must be a Token-2022 mint whose transfer hook is this",
+        "program and can never be changed. The mint signs: only whoever creates the coin can",
+        "bind it to its rules, and only once. Writes the rules, creates the treasury, and",
+        "creates the account list Token-2022 passes to `execute` on every transfer.",
+        "",
+        "A strict coin has every rate of a plain coin, the burn included. Its burn runs",
+        "through `run_burn_strict`. It has no burn account, no stake vault and no lock vault."
+      ],
+      "discriminator": [
+        75,
+        34,
+        171,
+        72,
+        212,
+        105,
+        211,
+        38
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "base_mint",
+          "docs": [
+            "The coin. It signs, so only whoever creates the mint can bind it to its rules."
+          ],
+          "signer": true
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "hook_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  111,
+                  107,
+                  45,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "pool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury_quote",
+          "docs": [
+            "`init_if_needed` for the reason given at `InitPoolConfig`."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "hook_authority"
+              },
+              {
+                "kind": "account",
+                "path": "quote_token_program"
+              },
+              {
+                "kind": "account",
+                "path": "quote_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "validation",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  120,
+                  116,
+                  114,
+                  97,
+                  45,
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  45,
+                  109,
+                  101,
+                  116,
+                  97,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "base_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "quote_token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "pool",
+          "type": "pubkey"
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "RulesArgs"
+            }
+          }
+        },
+        {
+          "name": "strict",
+          "type": {
+            "defined": {
+              "name": "StrictArgs"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "lock_creator",
+      "docs": [
+        "Move coins from the creator's wallet to the lock vault, or move the date later.",
+        "The date never moves earlier, is never before the launch plus the lock declared",
+        "in the config, is always in the future and at most MAX_LOCK_SECONDS ahead.",
+        "",
+        "`amount == u64::MAX` (`LOCK_WHOLE_BALANCE`) locks everything `creator_base` holds",
+        "when the instruction runs. A launch uses it for \"what the first buy bought\": the",
+        "client then does not have to know that amount to the unit before the transaction",
+        "lands."
+      ],
+      "discriminator": [
+        68,
+        25,
+        135,
+        252,
+        161,
+        20,
+        52,
+        207
+      ],
+      "accounts": [
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "cfg",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lock",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  111,
+                  99,
+                  107
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint",
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "lock_vault",
+          "docs": [
+            "Owned by the config. Created by the first lock."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  111,
+                  99,
+                  107,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator_base",
+          "docs": [
+            "The coins to lock. The token program checks that `creator` may spend it."
+          ],
+          "writable": true
+        },
+        {
+          "name": "base_token_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "unlock_at",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "lock_creator_strict",
+      "docs": [
+        "The creator lock of a strict coin. The coins stay in the creator's own wallet and",
+        "the transfer hook refuses every transfer that would leave it with less than the",
+        "locked amount before `unlock_at`. (A vault, as on a plain coin, is impossible here:",
+        "this program would have to move the coin, and the token program would call this",
+        "program's own `execute` from inside that instruction.) The creator needs a holder",
+        "record. The rules of `lock_creator` hold: more coins or a later date, never an",
+        "earlier one; `amount == u64::MAX` locks everything the wallet holds."
+      ],
+      "discriminator": [
+        95,
+        63,
+        12,
+        246,
+        255,
+        133,
+        33,
+        131
+      ],
+      "accounts": [
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "cfg",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lock",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  111,
+                  99,
+                  107
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "holder",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              },
+              {
+                "kind": "account",
+                "path": "creator"
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator_base",
+          "docs": [
+            "in the handler."
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "unlock_at",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "on_pool_create",
+      "discriminator": [
+        145,
+        87,
+        198,
+        141,
+        215,
+        104,
+        119,
+        28
+      ],
+      "accounts": [
+        {
+          "name": "pool"
+        },
+        {
+          "name": "hook_caller",
+          "signer": true
+        },
+        {
+          "name": "user"
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "base_mint"
+        },
+        {
+          "name": "cfg",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "payload",
+          "type": {
+            "defined": {
+              "name": "PoolCreatePayload"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "open_holder",
+      "docs": [
+        "A wallet asks for its share of the holders' rate on a strict coin. Signed and paid",
+        "by the wallet itself. From here on its balance counts. Opening twice does nothing.",
+        "It can be opened before the pool exists."
+      ],
+      "discriminator": [
+        138,
+        210,
+        211,
+        159,
+        140,
+        172,
+        28,
+        65
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "docs": [
+            "The wallet. It signs and pays: nobody registers somebody else."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool"
+        },
+        {
+          "name": "holder",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner_base",
+          "docs": [
+            "Its address is checked in the handler."
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "run_burn",
+      "docs": [
+        "Buy the coin from the pool with the burn pot and burn what was bought. Anyone may",
+        "call it, and whoever calls it chooses `min_amount_out`. So a run never buys at a",
+        "price or on a depth its caller just made (`burn_step` of the interface crate):",
+        "",
+        "* it buys against an OBSERVATION of the pool that is at least BURN_INTERVAL_SLOTS",
+        "old. The first call of a pool only records one. A call that comes too soon fails",
+        "with `BurnTooSoon` and writes nothing.",
+        "* when the price is above the observed one by more than twice the cap, it buys",
+        "nothing and records the reserves as the new observation.",
+        "* otherwise it spends at most `burn_cap_bps` of the SMALLER of the quote reserve",
+        "now and the observed one, and records the reserves after the buy.",
+        "* between calls, every trade that starts below the observed price lowers the",
+        "observed price to the one it started at, without raising the observed depth",
+        "(`before_swap`, `burn_lowered`). So a price is bought at only when no trade",
+        "started below it for the whole interval.",
+        "",
+        "Every call that returns Ok emits `BurnExecuted` with its outcome and sets return",
+        "data: the outcome byte, then quote spent and coins burned (`set_burn_result`)."
+      ],
+      "discriminator": [
+        28,
+        101,
+        229,
+        246,
+        103,
+        87,
+        18,
+        16
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "hook_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  111,
+                  107,
+                  45,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "platform",
+          "docs": [
+            "The platform: its protocol fee and its hook fee cap decide how much a run may spend."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                92,
+                13,
+                14,
+                246,
+                180,
+                121,
+                87,
+                217,
+                161,
+                82,
+                235,
+                200,
+                145,
+                186,
+                157,
+                24,
+                2,
+                235,
+                121,
+                21,
+                68,
+                207,
+                75,
+                17,
+                157,
+                133,
+                57,
+                36,
+                56,
+                163,
+                218,
+                238
+              ]
+            }
+          }
+        },
+        {
+          "name": "pool",
+          "writable": true
+        },
+        {
+          "name": "base_mint",
+          "writable": true,
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "base_vault",
+          "writable": true
+        },
+        {
+          "name": "quote_vault",
+          "writable": true
+        },
+        {
+          "name": "treasury_quote",
+          "writable": true
+        },
+        {
+          "name": "authority_base",
+          "docs": [
+            "The burn account: the authority's ASSOCIATED token account of the coin and no",
+            "other, because everything in this account is burned. (The stake vault and the lock",
+            "vault belong to the config, not to this authority, so they could not pass here or",
+            "in the pool's `hook_swap` in any case.)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "hook_authority"
+              },
+              {
+                "kind": "account",
+                "path": "base_token_program"
+              },
+              {
+                "kind": "account",
+                "path": "base_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "hookpool_program",
+          "address": "7CL4KGeaZFsNYqEjErwTezMYuAE54185TieqLQnGjdgh"
+        },
+        {
+          "name": "hookpool_event_authority"
+        },
+        {
+          "name": "base_token_program"
+        },
+        {
+          "name": "quote_token_program"
+        },
+        {
+          "name": "event_authority"
+        },
+        {
+          "name": "program"
+        }
+      ],
+      "args": [
+        {
+          "name": "min_amount_out",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "run_burn_strict",
+      "docs": [
+        "`run_burn` for a strict coin: the same instruction in every respect but one. The",
+        "observation, the age it needs, the tolerance, the cap on the smaller depth, the",
+        "lowering in `before_swap`, the event and the return data are those of `run_burn`.",
+        "The one difference: the coins are bought through the pool's `hook_buy_burn`, which",
+        "burns them in the pool's vault. They are never transferred, so the token program",
+        "never calls `execute` of this program from inside this instruction, which the",
+        "runtime would refuse. A strict coin therefore has no burn account, and nothing a",
+        "stranger sends anywhere is burned with a run."
+      ],
+      "discriminator": [
+        159,
+        241,
+        149,
+        218,
+        41,
+        46,
+        171,
+        38
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "hook_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  111,
+                  107,
+                  45,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "platform",
+          "docs": [
+            "The platform: its protocol fee and its hook fee cap decide how much a run may spend."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                92,
+                13,
+                14,
+                246,
+                180,
+                121,
+                87,
+                217,
+                161,
+                82,
+                235,
+                200,
+                145,
+                186,
+                157,
+                24,
+                2,
+                235,
+                121,
+                21,
+                68,
+                207,
+                75,
+                17,
+                157,
+                133,
+                57,
+                36,
+                56,
+                163,
+                218,
+                238
+              ]
+            }
+          }
+        },
+        {
+          "name": "pool",
+          "writable": true
+        },
+        {
+          "name": "base_mint",
+          "docs": [
+            "Writable: the burn lowers the supply."
+          ],
+          "writable": true,
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "quote_mint",
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "base_vault",
+          "writable": true
+        },
+        {
+          "name": "quote_vault",
+          "writable": true
+        },
+        {
+          "name": "treasury_quote",
+          "writable": true
+        },
+        {
+          "name": "hookpool_program",
+          "address": "7CL4KGeaZFsNYqEjErwTezMYuAE54185TieqLQnGjdgh"
+        },
+        {
+          "name": "hookpool_event_authority"
+        },
+        {
+          "name": "base_token_program"
+        },
+        {
+          "name": "quote_token_program"
+        },
+        {
+          "name": "event_authority"
+        },
+        {
+          "name": "program"
+        }
+      ],
+      "args": [
+        {
+          "name": "min_amount_out",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "stake",
+      "docs": [
+        "Move coins from the wallet to the stake vault. Restarts the unstake delay of the",
+        "whole record."
+      ],
+      "discriminator": [
+        206,
+        176,
+        202,
+        18,
+        200,
+        209,
+        179,
+        108
+      ],
+      "accounts": [
+        {
+          "name": "staker",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool"
+        },
+        {
+          "name": "stake",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  107,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              },
+              {
+                "kind": "account",
+                "path": "staker"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint",
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "stake_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  107,
+                  101,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "staker_base",
+          "docs": [
+            "The coins to stake. The token program checks that `staker` may spend it."
+          ],
+          "writable": true
+        },
+        {
+          "name": "base_token_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "sync_holder",
+      "docs": [
+        "Anyone: lower a holder record to what the wallet really holds. A token Burn does",
+        "not call a transfer hook, so after a burn a record stands above the balance until",
+        "the wallet's next transfer, or until somebody sends this. It never raises a record."
+      ],
+      "discriminator": [
+        33,
+        218,
+        181,
+        194,
+        137,
+        165,
+        224,
+        210
+      ],
+      "accounts": [
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool"
+        },
+        {
+          "name": "holder",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              },
+              {
+                "kind": "account",
+                "path": "holder.owner",
+                "account": "HolderRecord"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner_base",
+          "docs": [
+            "in the handler."
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "unlock_creator",
+      "docs": [
+        "From `unlock_at` on: move everything in the lock vault back to the creator and",
+        "zero the record."
+      ],
+      "discriminator": [
+        27,
+        121,
+        55,
+        205,
+        155,
+        241,
+        167,
+        230
+      ],
+      "accounts": [
+        {
+          "name": "creator",
+          "signer": true,
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "cfg",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lock",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  111,
+                  99,
+                  107
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint",
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "lock_vault",
+          "docs": [
+            "Owned by the config, which signs the transfer."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  111,
+                  99,
+                  107,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "creator_base",
+          "docs": [
+            "Where the coins go. Any token account of the coin the creator names."
+          ],
+          "writable": true
+        },
+        {
+          "name": "base_token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "unlock_creator_strict",
+      "docs": [
+        "From `unlock_at` on: zero the creator lock of a strict coin. The coins were free",
+        "from that moment already; this clears the record."
+      ],
+      "discriminator": [
+        165,
+        65,
+        106,
+        11,
+        205,
+        9,
+        40,
+        136
+      ],
+      "accounts": [
+        {
+          "name": "creator",
+          "signer": true,
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "cfg",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "lock",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  111,
+                  99,
+                  107
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "holder",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  104,
+                  111,
+                  108,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              },
+              {
+                "kind": "account",
+                "path": "creator"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "unstake",
+      "docs": [
+        "Move coins back to the wallet. Refused until UNSTAKE_DELAY_SLOTS after the",
+        "record's last stake."
+      ],
+      "discriminator": [
+        90,
+        95,
+        107,
+        42,
+        205,
+        124,
+        50,
+        225
+      ],
+      "accounts": [
+        {
+          "name": "staker",
+          "signer": true
+        },
+        {
+          "name": "cfg",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  102,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool"
+        },
+        {
+          "name": "stake",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  107,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              },
+              {
+                "kind": "account",
+                "path": "staker"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint",
+          "relations": [
+            "cfg"
+          ]
+        },
+        {
+          "name": "stake_vault",
+          "docs": [
+            "Owned by the config, which signs the transfer."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  107,
+                  101,
+                  45,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "cfg.pool",
+                "account": "RulesConfig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "staker_base",
+          "docs": [
+            "Where the coins go. Any token account of the coin the staker names."
+          ],
+          "writable": true
+        },
+        {
+          "name": "base_token_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "HolderRecord",
+      "discriminator": [
+        215,
+        67,
+        31,
+        41,
+        155,
+        251,
+        178,
+        128
+      ]
+    },
+    {
+      "name": "HookManifest",
+      "discriminator": [
+        41,
+        17,
+        255,
+        71,
+        98,
+        180,
+        87,
+        109
+      ]
+    },
+    {
+      "name": "LockRecord",
+      "discriminator": [
+        157,
+        145,
+        17,
+        26,
+        171,
+        35,
+        61,
+        131
+      ]
+    },
+    {
+      "name": "RulesConfig",
+      "discriminator": [
+        187,
+        99,
+        136,
+        70,
+        234,
+        55,
+        67,
+        212
+      ]
+    },
+    {
+      "name": "StakeRecord",
+      "discriminator": [
+        174,
+        163,
+        11,
+        208,
+        150,
+        236,
+        11,
+        205
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "BurnExecuted",
+      "discriminator": [
+        148,
+        9,
+        16,
+        114,
+        196,
+        85,
+        217,
+        2
+      ]
+    },
+    {
+      "name": "CreatorClaimed",
+      "discriminator": [
+        118,
+        206,
+        30,
+        219,
+        62,
+        164,
+        54,
+        200
+      ]
+    },
+    {
+      "name": "CreatorLocked",
+      "discriminator": [
+        236,
+        6,
+        11,
+        225,
+        235,
+        131,
+        19,
+        250
+      ]
+    },
+    {
+      "name": "CreatorUnlocked",
+      "discriminator": [
+        123,
+        215,
+        182,
+        89,
+        245,
+        169,
+        75,
+        154
+      ]
+    },
+    {
+      "name": "HolderClaimed",
+      "discriminator": [
+        135,
+        192,
+        236,
+        75,
+        181,
+        166,
+        203,
+        87
+      ]
+    },
+    {
+      "name": "HolderClosed",
+      "discriminator": [
+        75,
+        130,
+        114,
+        152,
+        178,
+        171,
+        89,
+        93
+      ]
+    },
+    {
+      "name": "HolderOpened",
+      "discriminator": [
+        133,
+        172,
+        228,
+        247,
+        214,
+        213,
+        195,
+        160
+      ]
+    },
+    {
+      "name": "HolderSynced",
+      "discriminator": [
+        65,
+        47,
+        59,
+        202,
+        75,
+        82,
+        26,
+        121
+      ]
+    },
+    {
+      "name": "RewardsClaimed",
+      "discriminator": [
+        75,
+        98,
+        88,
+        18,
+        219,
+        112,
+        88,
+        121
+      ]
+    },
+    {
+      "name": "Staked",
+      "discriminator": [
+        11,
+        146,
+        45,
+        205,
+        230,
+        58,
+        213,
+        240
+      ]
+    },
+    {
+      "name": "Unstaked",
+      "discriminator": [
+        27,
+        179,
+        156,
+        215,
+        47,
+        71,
+        195,
+        7
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "CreatorFeeTooHigh",
+      "msg": "creator fee above the maximum"
+    },
+    {
+      "code": 6001,
+      "name": "HoldersFeeTooHigh",
+      "msg": "holder rewards above the maximum"
+    },
+    {
+      "code": 6002,
+      "name": "BurnFeeTooHigh",
+      "msg": "burn rate above the maximum"
+    },
+    {
+      "code": 6003,
+      "name": "SideTooHigh",
+      "msg": "the three rates of one side together are above the maximum"
+    },
+    {
+      "code": 6004,
+      "name": "StartFeeTooHigh",
+      "msg": "sniper start fee above the maximum"
+    },
+    {
+      "code": 6005,
+      "name": "SniperWindowTooLong",
+      "msg": "sniper window too long"
+    },
+    {
+      "code": 6006,
+      "name": "SniperIncomplete",
+      "msg": "a sniper fee needs both a window and a start fee"
+    },
+    {
+      "code": 6007,
+      "name": "LimitWindowTooLong",
+      "msg": "buy limit window too long"
+    },
+    {
+      "code": 6008,
+      "name": "LimitIncomplete",
+      "msg": "a buy limit needs both an amount and a window"
+    },
+    {
+      "code": 6009,
+      "name": "LockTooLong",
+      "msg": "creator lock longer than the maximum"
+    },
+    {
+      "code": 6010,
+      "name": "WrongPool",
+      "msg": "config does not belong to this pool"
+    },
+    {
+      "code": 6011,
+      "name": "WrongHook",
+      "msg": "this pool does not run this hook"
+    },
+    {
+      "code": 6012,
+      "name": "WrongCreator",
+      "msg": "config was not created by the pool creator"
+    },
+    {
+      "code": 6013,
+      "name": "WrongMints",
+      "msg": "pool mints do not match the config"
+    },
+    {
+      "code": 6014,
+      "name": "WrongTreasury",
+      "msg": "pool treasury is not this hook's treasury"
+    },
+    {
+      "code": 6015,
+      "name": "AlreadyStarted",
+      "msg": "the pool of this config already exists"
+    },
+    {
+      "code": 6016,
+      "name": "NotStarted",
+      "msg": "the pool of this config does not exist yet"
+    },
+    {
+      "code": 6017,
+      "name": "BuyTooLarge",
+      "msg": "buy above the limit of the launch window"
+    },
+    {
+      "code": 6018,
+      "name": "ZeroAmount",
+      "msg": "amount must be greater than zero"
+    },
+    {
+      "code": 6019,
+      "name": "UnstakeTooEarly",
+      "msg": "unstake is not open yet: the delay runs from the last stake"
+    },
+    {
+      "code": 6020,
+      "name": "InsufficientStake",
+      "msg": "more than this record has staked"
+    },
+    {
+      "code": 6021,
+      "name": "NothingToClaim",
+      "msg": "nothing to claim"
+    },
+    {
+      "code": 6022,
+      "name": "NotCreator",
+      "msg": "only the creator of the config can do this"
+    },
+    {
+      "code": 6023,
+      "name": "NothingToBurn",
+      "msg": "the burn pot is empty"
+    },
+    {
+      "code": 6024,
+      "name": "NothingBought",
+      "msg": "nothing was bought"
+    },
+    {
+      "code": 6025,
+      "name": "UnlockEarlier",
+      "msg": "the unlock time can only move later"
+    },
+    {
+      "code": 6026,
+      "name": "UnlockBeforeDeclared",
+      "msg": "unlock time is before the lock declared at launch"
+    },
+    {
+      "code": 6027,
+      "name": "UnlockTooFar",
+      "msg": "unlock time is too far ahead"
+    },
+    {
+      "code": 6028,
+      "name": "UnlockInPast",
+      "msg": "unlock time is not in the future"
+    },
+    {
+      "code": 6029,
+      "name": "StillLocked",
+      "msg": "the creator lock is not over yet"
+    },
+    {
+      "code": 6030,
+      "name": "NothingLocked",
+      "msg": "nothing is locked"
+    },
+    {
+      "code": 6031,
+      "name": "MathOverflow",
+      "msg": "arithmetic overflow"
+    },
+    {
+      "code": 6032,
+      "name": "BurnTooSoon",
+      "msg": "the burn's observation of the pool is less than 25 slots old"
+    },
+    {
+      "code": 6033,
+      "name": "LiquidityInSniperWindow",
+      "msg": "liquidity cannot be added while the sniper fee runs"
+    },
+    {
+      "code": 6034,
+      "name": "StrictCoin",
+      "msg": "this instruction is not for a strict coin"
+    },
+    {
+      "code": 6035,
+      "name": "NotStrict",
+      "msg": "this instruction is only for a strict coin"
+    },
+    {
+      "code": 6036,
+      "name": "WrongKind",
+      "msg": "the coin's transfer hook and the kind of its config do not agree"
+    },
+    {
+      "code": 6037,
+      "name": "StrictNoBurn",
+      "msg": "not used any more: a strict coin can have a burn rate"
+    },
+    {
+      "code": 6038,
+      "name": "MaxWalletOutOfBounds",
+      "msg": "max wallet outside its bounds"
+    },
+    {
+      "code": 6039,
+      "name": "MaxWalletIncomplete",
+      "msg": "max wallet needs both a share and a window"
+    },
+    {
+      "code": 6040,
+      "name": "EarlyOutOfBounds",
+      "msg": "early lock outside its bounds"
+    },
+    {
+      "code": 6041,
+      "name": "EarlyIncomplete",
+      "msg": "early lock needs both a window and an unlock"
+    },
+    {
+      "code": 6042,
+      "name": "NotATransfer",
+      "msg": "the transfer hook runs only inside a transfer of this coin"
+    },
+    {
+      "code": 6043,
+      "name": "NotAssociatedAccount",
+      "msg": "the receiving account is not the associated token account of its wallet"
+    },
+    {
+      "code": 6044,
+      "name": "MaxWallet",
+      "msg": "this transfer would leave the wallet above the max wallet"
+    },
+    {
+      "code": 6045,
+      "name": "EarlyLocked",
+      "msg": "coins bought early are locked until the unlock"
+    },
+    {
+      "code": 6046,
+      "name": "CreatorLocked",
+      "msg": "the creator's locked coins cannot move before the unlock time"
+    },
+    {
+      "code": 6047,
+      "name": "HolderRecordRequired",
+      "msg": "a buy in the early window needs the wallet's holder record: open it first"
+    },
+    {
+      "code": 6048,
+      "name": "LiquidityInMaxWalletWindow",
+      "msg": "liquidity cannot be added while the max wallet runs"
+    },
+    {
+      "code": 6049,
+      "name": "HolderNotEmpty",
+      "msg": "the holder record still holds something"
+    },
+    {
+      "code": 6050,
+      "name": "WrongHolder",
+      "msg": "not the associated token account of this wallet for this coin"
+    },
+    {
+      "code": 6051,
+      "name": "LockAboveBalance",
+      "msg": "cannot lock more than the wallet holds"
+    }
+  ],
+  "types": [
+    {
+      "name": "BurnExecuted",
+      "docs": [
+        "Emitted through event CPI by every `run_burn` that returns Ok. `outcome` says what it",
+        "did: `BURN_OBSERVED` (1, the first observation, nothing bought), `BURN_WAITED` (2, the",
+        "price was above the observation by more than the tolerance, nothing bought) or",
+        "`BURN_BOUGHT` (3). The observation is the one the call left in the config."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_spent",
+            "type": "u64"
+          },
+          {
+            "name": "base_burned",
+            "type": "u64"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          },
+          {
+            "name": "outcome",
+            "type": "u8"
+          },
+          {
+            "name": "obs_reserve_base",
+            "type": "u64"
+          },
+          {
+            "name": "obs_reserve_quote",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreatorClaimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreatorLocked",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "docs": [
+              "Coins added by this call."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "locked",
+            "docs": [
+              "Coins in the lock record after this call."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "unlock_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreatorUnlocked",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HolderClaimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HolderClosed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HolderOpened",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "balance",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HolderRecord",
+      "docs": [
+        "A wallet that holds a strict coin and asked for its share. PDA [\"holder\", pool, wallet].",
+        "The first six fields are the ones of a stake record, with the wallet's balance of the",
+        "coin where a stake record has the staked amount."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "balance",
+            "docs": [
+              "What the wallet's associated token account held after its last transfer. The",
+              "holders' share is paid on this."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "acc_snapshot",
+            "docs": [
+              "`acc_per_share` when this record was last brought up to date."
+            ],
+            "type": "u128"
+          },
+          {
+            "name": "owed",
+            "docs": [
+              "Rewards settled into this record and not paid yet."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "early_bought",
+            "docs": [
+              "Coins this wallet bought from the pool inside the early window. Until the unlock",
+              "its balance cannot go below this."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "locked",
+            "docs": [
+              "The creator lock of a strict coin: the creator's balance cannot go below this ..."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "locked_until",
+            "docs": [
+              "... before this unix time. Both zero for every other wallet."
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HolderSynced",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "balance",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "HookManifest",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "flags",
+            "type": "u32"
+          },
+          {
+            "name": "admin",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "name",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "uri",
+            "type": {
+              "array": [
+                "u8",
+                128
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "LiquidityPayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "base_amount",
+            "type": "u64"
+          },
+          {
+            "name": "quote_amount",
+            "type": "u64"
+          },
+          {
+            "name": "lp_amount",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_base",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_quote",
+            "type": "u64"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LockRecord",
+      "docs": [
+        "The creator lock of one pool. PDA [\"lock\", pool]."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "docs": [
+              "Coins the creator put in the lock vault and has not taken back."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "unlock_at",
+            "docs": [
+              "Unix time from which `unlock_creator` works. Zero when nothing is locked."
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Platform",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "protocol_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_hook_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_fee_override_bps",
+            "type": "u16"
+          },
+          {
+            "name": "launch_fee_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          },
+          {
+            "name": "whitelist_len",
+            "type": "u8"
+          },
+          {
+            "name": "whitelist",
+            "type": {
+              "array": [
+                "pubkey",
+                8
+              ]
+            }
+          },
+          {
+            "name": "pool_count",
+            "type": "u64"
+          },
+          {
+            "name": "curve_virtual_quote",
+            "docs": [
+              "The curve launch (HOOKS.md section 2): the quote counted in the price of a new curve",
+              "pool without being there, and the real quote reserve at which it graduates. Copied",
+              "into each curve pool at creation; a later change does not touch running curves.",
+              "Either one at 0 switches curve launches off (`CurveDisabled`)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "curve_graduation_target",
+            "type": "u64"
+          },
+          {
+            "name": "curve_graduation_fee_bps",
+            "docs": [
+              "Share of the target taken for the platform at graduation, at most",
+              "`HARD_MAX_GRADUATION_FEE_BPS`."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "reserved",
+            "type": {
+              "array": [
+                "u8",
+                46
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PoolCreatePayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "base_amount",
+            "type": "u64"
+          },
+          {
+            "name": "quote_amount",
+            "type": "u64"
+          },
+          {
+            "name": "creator",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Rates",
+      "docs": [
+        "The three shares of a trade, in basis points."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "creator_bps",
+            "type": "u16"
+          },
+          {
+            "name": "holders_bps",
+            "type": "u16"
+          },
+          {
+            "name": "burn_bps",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RewardsClaimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "staker",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RulesArgs",
+      "docs": [
+        "What the launcher chooses. The same fields, in the same order, as the rule part of",
+        "`RulesConfig`."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "sniper_slots",
+            "type": "u64"
+          },
+          {
+            "name": "sniper_start_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "buy",
+            "type": {
+              "defined": {
+                "name": "Rates"
+              }
+            }
+          },
+          {
+            "name": "sell",
+            "type": {
+              "defined": {
+                "name": "Rates"
+              }
+            }
+          },
+          {
+            "name": "max_buy_quote",
+            "type": "u64"
+          },
+          {
+            "name": "limit_slots",
+            "type": "u64"
+          },
+          {
+            "name": "creator_lock_seconds",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RulesConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "authority_bump",
+            "type": "u8"
+          },
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "base_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "docs": [
+              "ATA of the authority PDA for the quote mint. Must be the pool's hook treasury."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "creator",
+            "docs": [
+              "Who paid for this config. Must be the pool creator. Receives the creator fee."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "sniper_slots",
+            "type": "u64"
+          },
+          {
+            "name": "sniper_start_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "buy",
+            "type": {
+              "defined": {
+                "name": "Rates"
+              }
+            }
+          },
+          {
+            "name": "sell",
+            "type": {
+              "defined": {
+                "name": "Rates"
+              }
+            }
+          },
+          {
+            "name": "max_buy_quote",
+            "type": "u64"
+          },
+          {
+            "name": "limit_slots",
+            "type": "u64"
+          },
+          {
+            "name": "creator_lock_seconds",
+            "type": "u64"
+          },
+          {
+            "name": "start_slot",
+            "type": "u64"
+          },
+          {
+            "name": "start_time",
+            "type": "i64"
+          },
+          {
+            "name": "min_eligible",
+            "docs": [
+              "Never zero once the pool exists, so it also tells whether the pool was created."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "fees_seen",
+            "docs": [
+              "The pool's hook fees paid to the treasury, as of the last settlement."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "last_split",
+            "docs": [
+              "The three rates of the last trade's side: what its fee is split by."
+            ],
+            "type": {
+              "defined": {
+                "name": "Rates"
+              }
+            }
+          },
+          {
+            "name": "creator_owed",
+            "type": "u64"
+          },
+          {
+            "name": "burn_pot",
+            "type": "u64"
+          },
+          {
+            "name": "acc_per_share",
+            "type": "u128"
+          },
+          {
+            "name": "reward_rem",
+            "type": "u64"
+          },
+          {
+            "name": "total_staked",
+            "type": "u64"
+          },
+          {
+            "name": "rewards_owed_total",
+            "type": "u64"
+          },
+          {
+            "name": "total_creator_paid",
+            "type": "u64"
+          },
+          {
+            "name": "total_rewards_paid",
+            "type": "u64"
+          },
+          {
+            "name": "total_quote_burned",
+            "type": "u64"
+          },
+          {
+            "name": "total_base_burned",
+            "type": "u64"
+          },
+          {
+            "name": "burns",
+            "type": "u64"
+          },
+          {
+            "name": "obs_slot",
+            "docs": [
+              "The observation `run_burn` buys against (`burn_step` of the interface crate): the",
+              "slot it was taken in and the pool's reserves then. No observation yet while a",
+              "reserve is zero. `before_swap` lowers the observed price, never raises the",
+              "observed depth, and leaves the slot, when a trade starts below the observed price",
+              "(`burn_lowered`)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "obs_reserve_base",
+            "type": "u64"
+          },
+          {
+            "name": "obs_reserve_quote",
+            "type": "u64"
+          },
+          {
+            "name": "kind",
+            "docs": [
+              "`KIND_PLAIN` or `KIND_STRICT`. Written by the instruction that creates the config."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "buy_mark",
+            "docs": [
+              "1 between `before_swap` of a buy and the transfer that pays that buy out. That",
+              "transfer, and any other transfer of the coin, sets it back to 0."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "vault_bump",
+            "docs": [
+              "Bump of the pool's vault of the coin. Written by `on_pool_create`."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "max_wallet_bps",
+            "type": "u16"
+          },
+          {
+            "name": "early_slots",
+            "type": "u16"
+          },
+          {
+            "name": "max_wallet_slots",
+            "type": "u32"
+          },
+          {
+            "name": "early_unlock_slots",
+            "type": "u32"
+          },
+          {
+            "name": "max_wallet_amount",
+            "docs": [
+              "The max wallet in units of the coin, from the supply when the pool was created."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "reserved",
+            "type": {
+              "array": [
+                "u8",
+                17
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "StakeRecord",
+      "docs": [
+        "One per staker and pool. PDA [\"stake\", pool, wallet]."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "staker",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "acc_snapshot",
+            "docs": [
+              "`acc_per_share` when this record was last brought up to date."
+            ],
+            "type": "u128"
+          },
+          {
+            "name": "owed",
+            "docs": [
+              "Rewards settled into this record and not paid yet."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "since_slot",
+            "docs": [
+              "Slot of the last stake. `unstake` waits UNSTAKE_DELAY_SLOTS from here."
+            ],
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Staked",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "staker",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "staked",
+            "type": "u64"
+          },
+          {
+            "name": "total_staked",
+            "type": "u64"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "StrictArgs",
+      "docs": [
+        "The rules of one pool and the running numbers. PDA [\"cfg\", pool]. This account is also",
+        "the owner of the stake vault and of the lock vault, and signs when coins leave them.",
+        "The three numbers of a strict coin, fixed at launch like the rest."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "max_wallet_bps",
+            "docs": [
+              "Max wallet, in basis points of the supply. 0 = off."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "max_wallet_slots",
+            "docs": [
+              "For how many slots after launch the max wallet holds."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "early_slots",
+            "docs": [
+              "Buys from the pool in the first `early_slots` slots are \"early\". 0 = off."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "early_unlock_slots",
+            "docs": [
+              "Early coins unlock at `start_slot + early_unlock_slots`."
+            ],
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SwapPayload",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "direction",
+            "type": "u8"
+          },
+          {
+            "name": "amount_in",
+            "type": "u64"
+          },
+          {
+            "name": "net_in",
+            "type": "u64"
+          },
+          {
+            "name": "amount_out",
+            "type": "u64"
+          },
+          {
+            "name": "reserve_base",
+            "docs": [
+              "Reserves at the moment of the callback (before the swap in `before_swap`,",
+              "after it in `after_swap`)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "reserve_quote",
+            "type": "u64"
+          },
+          {
+            "name": "lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Unstaked",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "staker",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "staked",
+            "type": "u64"
+          },
+          {
+            "name": "total_staked",
+            "type": "u64"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}

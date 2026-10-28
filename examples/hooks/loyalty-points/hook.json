@@ -1,0 +1,28 @@
+{
+  "programmable_hook": 1,
+  "program": "3MF6PYZy24HWM35KpjF7sw7jED73nzkzW5MfxDgCGf8C",
+  "name": "Loyalty points",
+  "summary": "Counts points for every buy. It takes no fee and changes no price.",
+  "rules": [
+    "After every buy the buyer earns one point for each set amount of SOL sent.",
+    "A buyer opens a points account once and pays its rent. A buy without one goes through and earns nothing.",
+    "It takes no fee and cannot change the price or the pool fee.",
+    "The pool never calls it on a sell.",
+    "The SOL per point is set at launch. Nobody can change it afterwards.",
+    "The points are a counter on chain. This hook gives them no other use."
+  ],
+  "source": "https://example.com/examples/hooks/loyalty-points/programs/loyalty_points/src/lib.rs",
+  "author": "The hook kit",
+  "setup": {
+    "instruction": "init_pool_config",
+    "args": [
+      { "name": "pool", "type": "pool" },
+      { "name": "quote_per_point", "type": "u64", "label": "SOL a buyer sends per point", "unit": "SOL", "decimals": 9, "min": "0.000000001", "max": 1000, "default": 0.01, "help": "With 0.01 here, a buy of 0.1 SOL earns 10 points." }
+    ],
+    "accounts": [
+      { "role": "launcher" },
+      { "role": "pda", "seeds": ["cfg", { "key": "pool" }], "writable": true },
+      { "role": "system_program" }
+    ]
+  }
+}

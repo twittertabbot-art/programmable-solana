@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liquidity</title>
+<meta name="description" content="Add or remove liquidity in a pool.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .pool-head { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
+  .pool-head h1 { font-size: clamp(1.8rem, 3.4vw, 2.4rem); }
+  .pool-head .sym { font-family: var(--font-mono); font-weight: 400; letter-spacing: 0; color: var(--muted); margin-left: 10px; font-size: var(--fs-md); }
+  .pct { display: flex; align-items: center; gap: 12px; }
+  .pct output { font-family: var(--font-mono); min-width: 4ch; text-align: right; }
+  .pool-pick a { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .pool-pick a:first-child { border-top: 0; }
+  .pool-pick > a > span:nth-child(2) { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .pool-pick .sym { color: var(--muted); font-family: var(--font-mono); font-size: var(--fs-xs); margin-left: 6px; }
+  #addMsg:empty, #removeMsg:empty { display: none; }
+</style>
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap pool-page">
+  <div id="head"><div class="inline-msg">Loading</div></div>
+  <div class="layout-doc" id="layout" hidden>
+    <div class="stack">
+      <div class="card" id="addCard">
+        <h3>Add liquidity</h3>
+        <p class="note curve-shut" id="addCurve" hidden>Liquidity opens at graduation. Until then nobody can add to this pool.</p>
+        <div class="seg" id="addMode" role="group" aria-label="Enter by">
+          <button type="button" data-mode="sol" aria-pressed="true">By SOL</button>
+          <button type="button" data-mode="lp" aria-pressed="false">By LP amount</button>
+        </div>
+        <label class="field" style="margin-top:14px"><span><span id="addLabel">SOL to add</span></span><div class="input-wrap"><input class="input num" id="addAmount" inputmode="decimal" placeholder="0.0"><span class="suffix" id="addSuffix">SOL</span></div></label>
+        <dl class="kv" id="addKv"></dl>
+        <p class="note" id="addWindow" style="margin: 12px 0 0" aria-live="polite" hidden></p>
+        <p class="help" id="addMsg" aria-live="polite"></p>
+        <div class="earn-line cost" id="addCost" aria-live="polite"></div>
+        <button class="btn btn-primary btn-block" id="addBtn" type="button" style="margin-top:14px">Add liquidity</button>
+        <div class="tx-result" id="addResult"></div>
+      </div>
+      <div class="card" id="removeCard">
+        <h3>Remove liquidity</h3>
+        <p class="note curve-shut" id="removeCurve" hidden>Liquidity opens at graduation. Until then nobody can take any out.</p>
+        <div class="pct"><input type="range" id="removePct" min="0" max="100" step="1" value="0" aria-label="Percent of your LP to remove"><output id="removeOut">0%</output></div>
+        <div class="quick" id="removeQuick"></div>
+        <dl class="kv" id="removeKv" style="margin-top:12px"></dl>
+        <p class="help" id="removeMsg" aria-live="polite"></p>
+        <button class="btn btn-block" id="removeBtn" type="button" style="margin-top:14px">Remove liquidity</button>
+        <div class="tx-result" id="removeResult"></div>
+      </div>
+    </div>
+    <aside class="stack">
+      <div class="card">
+        <h3>Your position</h3>
+        <dl class="kv lg" id="position"></dl>
+        <div class="wrapped" id="wrapped" hidden></div>
+      </div>
+      <div class="card">
+        <h3>Locked forever</h3>
+        <dl class="kv" id="locked"></dl>
+        <p class="help" id="lockedNote"></p>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module" src="pool.js"></script>
+</body>
+</html>

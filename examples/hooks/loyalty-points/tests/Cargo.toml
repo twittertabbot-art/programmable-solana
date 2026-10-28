@@ -1,0 +1,29 @@
+# Tests of this hook against the REAL pool program, in process (LiteSVM): no validator,
+# no deploy, nothing frozen forever. Run them with:
+#
+#   bash scripts/test.sh
+#
+# They use the Programmable repository's own test harness (the tests/ folder at the root of
+# the repository) and the pool binaries that `bash build.sh build` leaves in the
+# repository's target/deploy folder, both found by the relative paths below.
+[package]
+name = "hook-tests"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# A workspace of its own: these tests run on your machine and must not become part of
+# the hook's on-chain workspace one folder up.
+[workspace]
+
+[dependencies]
+# The hook under test, as a library: its id, account structs and instruction builders.
+# The test code calls it `hook`, whatever the program is named.
+hook = { package = "loyalty_points", path = "../programs/loyalty_points", features = ["no-entrypoint"] }
+# The harness and the interface crate. The hook and the harness must use the SAME copy of
+# the interface crate.
+hookpool-tests = { path = "../../../../tests" }
+hookpool-interface = { path = "../../../../crates/hookpool-interface" }
+anchor-lang = "1.2.0"
+solana-keypair = "3.1"
+solana-signer = "3.0"

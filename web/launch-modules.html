@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Module Mode</title>
+<meta name="description" content="Launch a coin and choose its modules: a sniper fee, a creator fee, rewards, a burn, a buy limit and a creator lock. They are fixed at launch.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap">
+  <div class="page-top">
+    <h1>Module Mode</h1>
+    <p>Switch on what your coin should do on every trade. Nobody can change a module after the launch.</p>
+  </div>
+
+  <div class="seg studio-tabs" id="studioTabs" role="tablist" aria-label="Parts of this form">
+    <button type="button" role="tab" data-view="modules" aria-selected="true">Modules</button>
+    <button type="button" role="tab" data-view="coin" aria-selected="false">Your coin</button>
+    <button type="button" role="tab" data-view="details" aria-selected="false">Details</button>
+  </div>
+
+  <div class="studio" id="studio" data-view="modules">
+    <!-- 1. the modules: a toggle each, in two groups -->
+    <section class="panel studio-col" data-col="modules" aria-labelledby="modsTitle">
+      <h2 class="panel-title" id="modsTitle">Modules</h2>
+      <div class="field presets">
+        <span class="label"><span>Start from</span></span>
+        <div class="quick" id="rulePresets" role="group" aria-label="Presets"></div>
+      </div>
+      <div class="module-group">
+        <div id="ruleList"></div>
+        <p class="error-text" id="ruleSides" aria-live="polite"></p>
+      </div>
+      <!-- the strict modules and what a strict coin costs: drawn by launch-strict.js while its switch is on -->
+      <div class="module-group" id="strictList" hidden></div>
+      <div class="note warn" id="strictPanel" hidden style="margin-top: 12px"></div>
+    </section>
+
+    <!-- 2. the coin as its card will show it, and the review -->
+    <section class="studio-col" data-col="coin" aria-label="Your coin">
+      <div id="mPreview"></div>
+      <div class="panel review" id="reviewCard"><div id="mReview"></div></div>
+    </section>
+
+    <!-- 3. the coin's details, the launch settings and the one button -->
+    <section class="panel studio-col" data-col="details" aria-labelledby="detTitle">
+      <h2 class="panel-title" id="detTitle">Coin details</h2>
+      <div id="mDetails"></div>
+      <div class="go" id="mGo"></div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module" src="launch-modules.js"></script>
+</body>
+</html>

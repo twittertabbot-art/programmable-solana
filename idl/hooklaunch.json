@@ -1,0 +1,1179 @@
+{
+  "address": "9cDfF7wD6EirDZbb5DWCw3HZ3ZPQ1oeh87YyMGvbPRxi",
+  "metadata": {
+    "name": "hooklaunch",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "hookpool launchpad: token + metadata, then pool + burned LP + hook in one transaction"
+  },
+  "instructions": [
+    {
+      "name": "create_pegged_mint",
+      "docs": [
+        "Step 1 of a pegged coin: a Token-2022 mint whose transfer hook is `hook_program`,",
+        "with no authority left that could point it at another program, and a metadata",
+        "pointer to the mint itself. No freeze authority. The dev is still the mint",
+        "authority: the token program wants its signature to write the name, and it writes",
+        "it only at the top level, so the client sends that between this and step 2.",
+        "`metadata_len`: the bytes the name, symbol and uri will add to the mint; this pays",
+        "their rent up front, because the token program grows the account without paying."
+      ],
+      "discriminator": [
+        163,
+        222,
+        93,
+        251,
+        182,
+        137,
+        74,
+        82
+      ],
+      "accounts": [
+        {
+          "name": "dev",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "Fresh keypair generated client-side. Token-2022, no freeze authority, a transfer",
+            "hook with no authority (the hook program can never be changed) and a metadata",
+            "pointer to the mint itself, also with no authority."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "dev_ata",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "dev"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "hook_program",
+          "docs": [
+            "checks later that it is the pool's own hook and that the platform runs it."
+          ]
+        },
+        {
+          "name": "token_program",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "decimals",
+          "type": "u8"
+        },
+        {
+          "name": "metadata_len",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "create_token",
+      "discriminator": [
+        84,
+        52,
+        204,
+        228,
+        24,
+        140,
+        234,
+        75
+      ],
+      "accounts": [
+        {
+          "name": "dev",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "Fresh keypair generated client-side. No freeze authority, ever."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "dev_ata",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "dev"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "metadata",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "token_metadata_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "account",
+              "path": "token_metadata_program"
+            }
+          }
+        },
+        {
+          "name": "token_metadata_program",
+          "address": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "CreateTokenArgs"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "finish_pegged_token",
+      "docs": [
+        "Step 2 of a pegged coin: the whole supply to the dev, mint authority revoked. The",
+        "name must be written and final by now (Token-2022 metadata in the mint, no update",
+        "authority), like the Metaplex metadata of a plain coin."
+      ],
+      "discriminator": [
+        83,
+        58,
+        194,
+        66,
+        183,
+        191,
+        151,
+        52
+      ],
+      "accounts": [
+        {
+          "name": "dev",
+          "docs": [
+            "Still the mint authority; this is the last thing it signs."
+          ],
+          "signer": true
+        },
+        {
+          "name": "mint",
+          "writable": true
+        },
+        {
+          "name": "dev_ata",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"
+        }
+      ],
+      "args": [
+        {
+          "name": "total_supply",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "launch",
+      "discriminator": [
+        153,
+        241,
+        93,
+        225,
+        22,
+        69,
+        74,
+        61
+      ],
+      "accounts": [
+        {
+          "name": "dev",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "platform",
+          "docs": [
+            "Writable: the pool program bumps pool_count."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                92,
+                13,
+                14,
+                246,
+                180,
+                121,
+                87,
+                217,
+                161,
+                82,
+                235,
+                200,
+                145,
+                186,
+                157,
+                24,
+                2,
+                235,
+                121,
+                21,
+                68,
+                207,
+                75,
+                17,
+                157,
+                133,
+                57,
+                36,
+                56,
+                163,
+                218,
+                238
+              ]
+            }
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "launch",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  97,
+                  117,
+                  110,
+                  99,
+                  104
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "base_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint",
+          "docs": [
+            "Checked here: no mint authority, no freeze authority."
+          ]
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "pool",
+          "writable": true
+        },
+        {
+          "name": "base_vault",
+          "writable": true
+        },
+        {
+          "name": "quote_vault",
+          "writable": true
+        },
+        {
+          "name": "lp_mint",
+          "writable": true
+        },
+        {
+          "name": "lp_lock",
+          "writable": true
+        },
+        {
+          "name": "dev_base",
+          "writable": true
+        },
+        {
+          "name": "dev_quote",
+          "writable": true
+        },
+        {
+          "name": "dev_lp",
+          "writable": true
+        },
+        {
+          "name": "hook_program"
+        },
+        {
+          "name": "hook_program_data"
+        },
+        {
+          "name": "hook_manifest"
+        },
+        {
+          "name": "hook_extra_metas"
+        },
+        {
+          "name": "hook_quote_treasury",
+          "writable": true
+        },
+        {
+          "name": "hook_caller"
+        },
+        {
+          "name": "hookpool_program",
+          "address": "7CL4KGeaZFsNYqEjErwTezMYuAE54185TieqLQnGjdgh"
+        },
+        {
+          "name": "hookpool_event_authority"
+        },
+        {
+          "name": "base_token_program"
+        },
+        {
+          "name": "quote_token_program"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "event_authority"
+        },
+        {
+          "name": "program"
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "LaunchArgs"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "launch_curve",
+      "docs": [
+        "The curve launch (HOOKS.md section 2, \"A pool on the curve\"): the same coin checks",
+        "as `launch`, the whole supply of the coin into a pool that holds no quote, priced",
+        "with the platform's virtual quote. No LP goes to the dev and none has to be locked",
+        "here: the pool program minted every share into its own lock account. A pegged coin",
+        "(a Token-2022 coin whose transfer hook is the collectible template) is refused; a",
+        "strict coin (the rules template as its transfer hook) is allowed."
+      ],
+      "discriminator": [
+        109,
+        19,
+        238,
+        79,
+        112,
+        150,
+        113,
+        219
+      ],
+      "accounts": [
+        {
+          "name": "dev",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "platform",
+          "docs": [
+            "Writable: the pool program bumps pool_count."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  108,
+                  97,
+                  116,
+                  102,
+                  111,
+                  114,
+                  109
+                ]
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                92,
+                13,
+                14,
+                246,
+                180,
+                121,
+                87,
+                217,
+                161,
+                82,
+                235,
+                200,
+                145,
+                186,
+                157,
+                24,
+                2,
+                235,
+                121,
+                21,
+                68,
+                207,
+                75,
+                17,
+                157,
+                133,
+                57,
+                36,
+                56,
+                163,
+                218,
+                238
+              ]
+            }
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "launch",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  97,
+                  117,
+                  110,
+                  99,
+                  104
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "base_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "base_mint",
+          "docs": [
+            "Checked here: no mint authority, no freeze authority."
+          ]
+        },
+        {
+          "name": "quote_mint"
+        },
+        {
+          "name": "pool",
+          "writable": true
+        },
+        {
+          "name": "base_vault",
+          "writable": true
+        },
+        {
+          "name": "quote_vault",
+          "writable": true
+        },
+        {
+          "name": "lp_mint",
+          "writable": true
+        },
+        {
+          "name": "lp_lock",
+          "writable": true
+        },
+        {
+          "name": "dev_base",
+          "writable": true
+        },
+        {
+          "name": "dev_quote",
+          "writable": true
+        },
+        {
+          "name": "dev_lp",
+          "writable": true
+        },
+        {
+          "name": "hook_program"
+        },
+        {
+          "name": "hook_program_data"
+        },
+        {
+          "name": "hook_manifest"
+        },
+        {
+          "name": "hook_extra_metas"
+        },
+        {
+          "name": "hook_quote_treasury",
+          "writable": true
+        },
+        {
+          "name": "hook_caller"
+        },
+        {
+          "name": "hookpool_program",
+          "address": "7CL4KGeaZFsNYqEjErwTezMYuAE54185TieqLQnGjdgh"
+        },
+        {
+          "name": "hookpool_event_authority"
+        },
+        {
+          "name": "base_token_program"
+        },
+        {
+          "name": "quote_token_program"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "event_authority"
+        },
+        {
+          "name": "program"
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "LaunchCurveArgs"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Launch",
+      "discriminator": [
+        144,
+        51,
+        51,
+        163,
+        206,
+        85,
+        213,
+        38
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "Launched",
+      "discriminator": [
+        209,
+        127,
+        29,
+        152,
+        129,
+        212,
+        189,
+        183
+      ]
+    },
+    {
+      "name": "TokenCreated",
+      "discriminator": [
+        236,
+        19,
+        41,
+        255,
+        130,
+        78,
+        147,
+        172
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "NameTooLong",
+      "msg": "name longer than 32 bytes"
+    },
+    {
+      "code": 6001,
+      "name": "SymbolTooLong",
+      "msg": "symbol longer than 10 bytes"
+    },
+    {
+      "code": 6002,
+      "name": "UriTooLong",
+      "msg": "uri longer than 200 bytes"
+    },
+    {
+      "code": 6003,
+      "name": "ZeroSupply",
+      "msg": "total supply must be greater than zero"
+    },
+    {
+      "code": 6004,
+      "name": "NoLp",
+      "msg": "no LP was minted"
+    },
+    {
+      "code": 6005,
+      "name": "LpAccount",
+      "msg": "LP token account could not be read"
+    },
+    {
+      "code": 6006,
+      "name": "MintAuthority",
+      "msg": "launch mint must have no mint authority and no freeze authority"
+    },
+    {
+      "code": 6007,
+      "name": "CurveHook",
+      "msg": "launches do not accept hooks that own the price curve"
+    },
+    {
+      "code": 6008,
+      "name": "MetadataMissing",
+      "msg": "the coin has no name yet: write its Token-2022 metadata first"
+    },
+    {
+      "code": 6009,
+      "name": "MetadataNotFinal",
+      "msg": "the coin's metadata still has an update authority: remove it first"
+    },
+    {
+      "code": 6010,
+      "name": "SupplyNotZero",
+      "msg": "coins of this mint already exist: the supply would not be the one stated"
+    },
+    {
+      "code": 6011,
+      "name": "CurvePegged",
+      "msg": "a pegged coin cannot launch on the curve"
+    }
+  ],
+  "types": [
+    {
+      "name": "CreateTokenArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "decimals",
+            "type": "u8"
+          },
+          {
+            "name": "total_supply",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Launch",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "dev",
+            "type": "pubkey"
+          },
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "base_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "hook_program",
+            "type": "pubkey"
+          },
+          {
+            "name": "lp_locked",
+            "docs": [
+              "LP the launch minted to the dev and moved to the pool's lock account, forever."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "launch_fee_paid",
+            "type": "u64"
+          },
+          {
+            "name": "dev_buy_quote",
+            "type": "u64"
+          },
+          {
+            "name": "created_slot",
+            "type": "u64"
+          },
+          {
+            "name": "reserved",
+            "docs": [
+              "`reserved[0]`: 0 for a seeded launch, `LAUNCH_KIND_CURVE` (1) for a launch on the",
+              "curve. The rest is zero."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "LaunchArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "base_amount",
+            "type": "u64"
+          },
+          {
+            "name": "quote_amount",
+            "type": "u64"
+          },
+          {
+            "name": "dev_buy_quote",
+            "docs": [
+              "0 = no dev buy."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "min_dev_buy_out",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "LaunchCurveArgs",
+      "docs": [
+        "A launch on the curve: no quote from the dev, the whole supply into the pool",
+        "(`base_amount` is the mint's supply), an optional first buy at the curve price."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "dev_buy_quote",
+            "docs": [
+              "0 = no dev buy."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "min_dev_buy_out",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Launched",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "launch",
+            "type": "pubkey"
+          },
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "dev",
+            "type": "pubkey"
+          },
+          {
+            "name": "base_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "quote_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "hook_program",
+            "type": "pubkey"
+          },
+          {
+            "name": "lp_locked",
+            "type": "u64"
+          },
+          {
+            "name": "launch_fee_paid",
+            "type": "u64"
+          },
+          {
+            "name": "dev_buy_quote",
+            "type": "u64"
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Platform",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "protocol_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_lp_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_hook_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_fee_override_bps",
+            "type": "u16"
+          },
+          {
+            "name": "launch_fee_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          },
+          {
+            "name": "whitelist_len",
+            "type": "u8"
+          },
+          {
+            "name": "whitelist",
+            "type": {
+              "array": [
+                "pubkey",
+                8
+              ]
+            }
+          },
+          {
+            "name": "pool_count",
+            "type": "u64"
+          },
+          {
+            "name": "curve_virtual_quote",
+            "docs": [
+              "The curve launch (HOOKS.md section 2): the quote counted in the price of a new curve",
+              "pool without being there, and the real quote reserve at which it graduates. Copied",
+              "into each curve pool at creation; a later change does not touch running curves.",
+              "Either one at 0 switches curve launches off (`CurveDisabled`)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "curve_graduation_target",
+            "type": "u64"
+          },
+          {
+            "name": "curve_graduation_fee_bps",
+            "docs": [
+              "Share of the target taken for the platform at graduation, at most",
+              "`HARD_MAX_GRADUATION_FEE_BPS`."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "reserved",
+            "type": {
+              "array": [
+                "u8",
+                46
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TokenCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "dev",
+            "type": "pubkey"
+          },
+          {
+            "name": "decimals",
+            "type": "u8"
+          },
+          {
+            "name": "total_supply",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}

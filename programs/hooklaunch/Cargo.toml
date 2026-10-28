@@ -1,0 +1,29 @@
+[package]
+name = "hooklaunch"
+version = "0.1.0"
+description = "hookpool launchpad: token + metadata, then pool + burned LP + hook in one transaction"
+edition.workspace = true
+rust-version.workspace = true
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "hooklaunch"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build", "hookpool/idl-build", "hookpool-interface/idl-build"]
+anchor-debug = []
+custom-heap = []
+custom-panic = []
+
+[dependencies]
+anchor-lang = { workspace = true }
+anchor-spl = { workspace = true, features = ["metadata"] }
+hookpool = { path = "../hookpool", features = ["cpi"] }
+hookpool-interface = { workspace = true }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }

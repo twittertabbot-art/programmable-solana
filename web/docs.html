@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How it works</title>
+<meta name="description" content="Fees, how a launch starts, the order of a swap, frozen hooks versus platform templates, the hook card, launch rules and the other templates, buybacks, liquidity and the trade API.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34'/%3E%3Ccircle cx='17' cy='17' r='10' fill='none' stroke='%23F8F0E9' stroke-width='3.4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .page-head { margin-bottom: 28px; }
+  .page-head h1 { font-size: clamp(2rem, 4.2vw, 3rem); }
+  .page-head p { max-width: 62ch; margin-top: 12px; color: var(--muted); }
+  .order { list-style: none; padding: 0; margin: 0 0 1.2em; counter-reset: step; }
+  .order li { display: grid; grid-template-columns: 28px 1fr; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); counter-increment: step; }
+  .order li:first-child { border-top: 0; }
+  .order li::before { content: counter(step); font-family: var(--font-mono); color: var(--text-3); font-size: var(--fs-sm); padding-top: 2px; }
+  .order code { white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<header class="site-header" id="siteHeader"></header>
+
+<main class="wrap">
+  <div class="page-top">
+    <h1>How it works</h1>
+    <p>For traders and for the people launching coins. Numbers that come from the chain are read live from the platform account on <span id="clusterName" class="mono"></span>.</p>
+  </div>
+
+  <div class="docs-layout">
+    <nav class="toc-col" aria-label="Sections">
+      <ul class="toc">
+    <li><a href="#fees">Fees</a></li>
+    <li><a href="#start">How a launch starts</a></li>
+    <li><a href="#swap">A swap, step by step</a></li>
+    <li><a href="#kinds">Frozen hook or platform template</a></li>
+    <li><a href="#card">The hook panel</a></li>
+    <li><a href="#workshop">Custom hooks</a></li>
+    <li><a href="#review">Custom hooks and the review</a></li>
+    <li><a href="#rules">Launch rules</a></li>
+    <li><a href="#templates">The other templates</a></li>
+    <li><a href="#buyback">Running a buyback or a burn</a></li>
+    <li><a href="#liquidity">Liquidity</a></li>
+    <li><a href="#api">Trade API</a></li>
+    <li><a href="#programs">Programs</a></li>
+  </ul>
+    </nav>
+    <section class="panel doc-panel">
+  <article class="doc">
+    <h2 id="fees">Fees</h2>
+    <p>Three fees can touch a trade. All of them are in basis points, where 100 bps is 1%.</p>
+    <table>
+      <thead><tr><th>Fee</th><th>Who sets it</th><th>Where it goes</th><th>Now</th></tr></thead>
+      <tbody>
+        <tr><td>Protocol fee</td><td>the platform, at most 1%</td><td>the platform treasury</td><td class="mono" data-plat="protocolFeeBps"></td></tr>
+        <tr><td>Pool fee</td><td>the creator, at pool creation, up to the platform cap</td><td>stays in the pool for LP holders</td><td class="mono" data-plat="maxLpFeeBps" data-prefix="cap "></td></tr>
+        <tr><td>Hook fee</td><td>the hook, per trade, up to the platform cap</td><td>the hook treasury fixed at creation, always in the quote token</td><td class="mono" data-plat="maxHookFeeBps" data-prefix="cap "></td></tr>
+      </tbody>
+    </table>
+    <p>A hook may also replace the pool fee for one trade with a fee override, up to its own cap (<span class="mono" data-plat="maxFeeOverrideBps"></span>). The launch guard uses this. An override stays in the pool like a normal pool fee.</p>
+    <p>Launching a coin through hooklaunch costs a platform launch fee of <span class="mono" data-plat="launchFeeLamports"></span> plus the rent of the new accounts.</p>
+
+    <h2 id="start">How a launch starts</h2>
+    <p>A launch starts its pool in one of two ways. The launcher picks one on the launch form. The curve is the default.</p>
+    <table>
+      <thead><tr><th></th><th>On the curve</th><th>Seeded</th></tr></thead>
+      <tbody>
+        <tr><td>SOL from the launcher</td><td>none</td><td>the seed</td></tr>
+        <tr><td>Supply</td><td class="mono" data-curve="supply">1,000,000,000</td><td>the launcher's choice</td></tr>
+        <tr><td>Market cap at the start</td><td class="mono" data-curve="virtual">30 SOL</td><td>the seed</td></tr>
+        <tr><td>Liquidity</td><td>opens at graduation</td><td>open from the first trade</td></tr>
+        <tr><td>LP</td><td>all of it locked when the pool is created</td><td>all of it locked by the launch</td></tr>
+      </tbody>
+    </table>
+    <h3>On the curve</h3>
+    <p>The launcher puts no SOL into the pool. The pool gets the whole supply and prices every trade as if it also held <span class="mono" data-curve="virtual">30 SOL</span>. That SOL is virtual. It sets the price, and nobody can take it out. A sell is paid only from the real SOL that buyers put in.</p>
+    <p>The coin opens at a market cap of <span class="mono" data-curve="virtual">30 SOL</span>. It graduates when the pool has raised <span class="mono" data-curve="target">85 SOL</span>. By then about <span class="mono" data-curve="sold">73.9%</span> of the supply has been sold.</p>
+    <p>Graduation drops the virtual SOL. To keep the price where it was, it burns about <span class="mono" data-curve="burn">6.8%</span> of the supply from the pool. After it the pool holds <span class="mono" data-curve="afterSol">85 SOL</span> and about <span class="mono" data-curve="after">192.8M</span> coins, at the same price. A coin that graduates past the target burns less.</p>
+    <p id="curveFee" hidden>At graduation the platform keeps <span class="mono" data-curve="fee"></span> of the SOL the pool raised. It goes to the platform treasury.</p>
+    <p>The buy that reaches the target graduates the coin in the same transaction, right after it. Anyone can also send the graduation on its own, and the watcher does. A pool that stands past its target without it is graduated first by the next trade from this site, and that trade is priced on the graduated pool. The minimum of every trade is your slippage on its quote.</p>
+    <p>Liquidity opens at graduation. Until then nobody can add liquidity or take it out. The pool's LP sits in its lock account from the start, and nobody holds any. After graduation the pool is an ordinary pool of this site, at the same address.</p>
+    <p>A pegged collectible coin cannot launch on the curve. A hook that sets the price itself cannot run a pool on the curve. A hook that works out a price from what the pool sends it must add the pool's virtual SOL.</p>
+    <h3>Seeded</h3>
+    <p>The launcher puts SOL into the pool next to the whole supply, and picks the supply. The seed becomes liquidity, and the launch locks it in the pool. Nobody can withdraw it. The coin opens at a market cap equal to the seed, and liquidity is open from the first trade.</p>
+
+    <h2 id="swap">A swap, step by step</h2>
+    <p>A swap is exact-input. You say what you send and the smallest amount you accept back. The pool runs this order. The quote on the coin page follows the same arithmetic with the same rounding.</p>
+    <ol class="order">
+      <li><span>Take the protocol fee from what you send.</span></li>
+      <li><span>On a buy, take the hook fee from what is left, in the quote token.</span></li>
+      <li><span>Take the pool fee, or the hook's fee override, from what is left. This is <code>net_in</code>.</span></li>
+      <li><span>Run the curve on <code>net_in</code>. The curve is x*y=k, or the hook's own curve when it holds <code>OVERRIDE_CURVE</code>. This gives the gross output.</span></li>
+      <li><span>On a sell, take the hook fee from the gross output, in the quote token.</span></li>
+      <li><span>What is left must be at least your minimum, or the whole transaction fails.</span></li>
+      <li><span>Update the reserves. The input side grows by <code>net_in</code> plus the pool fee. The output side shrinks by the gross output.</span></li>
+    </ol>
+    <p>On a pool on the curve, the SOL side of x*y=k is the real SOL plus the virtual SOL. A sell can never take more than the real SOL.</p>
+    <p>The hook is called first, before step 1, with the direction, the amount, the reserves and the slot. It moves no tokens. It answers, and the pool does the rest. A fee or an override above the platform cap is cut down to the cap. A field its flags do not grant fails the swap. Every fee rounds up.</p>
+    <p>The pool signs that call with an address of its own that belongs to this one hook, <code>["caller", hook program id]</code>. A hook checks the signature. So nobody else can call it, and no other hook can pass a call of the pool on to it.</p>
+
+    <h2 id="kinds">Frozen custom hook or platform template</h2>
+    <p>Every pool with a hook is one of two kinds, decided once when the pool is created and written into the pool account.</p>
+    <p><b>Frozen custom hook.</b> A program whose upgrade authority has been removed, or whose loader never allowed upgrades. Nobody can change its code. It is not a platform program. Someone else wrote it, and the pool checks only that the code is frozen.</p>
+    <p>Frozen means the code. A hook can still change what it keeps in its own accounts, so one with a setting of its own can change its answers. Its flags and the platform caps are the limits that hold. A hook that runs on sells can refuse a sell.</p>
+    <p><b>Platform template.</b> One of the five hooks the platform's team maintains. They are upgradeable by a platform key, so their later behaviour is the team's responsibility, in the same way the pool program itself is.</p>
+    <p>Any other program, meaning a third-party hook that can still be upgraded, is refused and the pool is never created. While the platform requires a review, a frozen custom hook must also be on Programmable's approved list. <a class="link" href="#review">The review</a> explains it.</p>
+
+    <h2 id="card">The hook panel</h2>
+    <p>The Modules panel or the Hook panel on every coin page tells you what the hook can do to your trade before you make it. It reads the flags stored in the pool and turns each into a sentence. The sentences say whether the hook runs on buys, on sells or both, whether it can take a fee, change the pool fee or own the price curve, and whether it runs when liquidity is removed. Under that the panel shows the kind, the manifest and the template's live numbers. A tax coin shows its taxes and whether the owner renounced. A launch guard shows its window and the fee right now. A buyback coin shows its treasury and what has been burned. A coin with modules shows the shares a buy and a sell pay.</p>
+    <p>A hook that is not flagged for sells is never called on a sell. It is the only guarantee against a honeypot that the runtime can give. A failed callback fails the whole transaction, and the pool cannot catch it. The one safe way to promise that sells cannot be blocked is to never call the hook on them.</p>
+    <p>Two coins are the exception: a pegged coin and a strict coin. Their own program runs inside every transfer of the coin, and a sell is a transfer. The panel of such a coin says so.</p>
+    <p>For a frozen custom hook the panel gives the platform caps in numbers. No formula knows what such a hook answers, so the trade form simulates your trade on chain with your wallet. The amount you receive, the minimum and the hook fee it shows come from that simulation, and so does the minimum you sign.</p>
+    <p>A hook fee is paid to a treasury account fixed at pool creation. When that account is missing, the trade still goes through and the fee waits in the pool. The panel then says how much waits, and anyone can pay it out with one button.</p>
+    <p>When a watcher is configured for the site, the coin page also has a Watcher panel with its latest verdict: a buy and a sell simulated against the live pool, the effective taxes it measured, and any configuration changes it saw.</p>
+    <p>The watcher also keeps every coin's recent trades and the list of all coins. With it the coin page takes its trades and its chart from the watcher, and Explore its list. On the coin page the price, the market cap and everything you trade against are still read from the chain. Without a watcher the site reads it all from the chain: the last 50 transactions when a coin page opens, then only new ones.</p>
+
+    <h2 id="workshop">Custom hooks</h2>
+    <p>The <a class="link" href="workshop.html">Custom hooks</a> page lists hooks other people built, read from the chain. While the platform requires a review, it lists the hooks on the approved list, also those without a coin yet. Otherwise it lists every frozen custom hook that at least one pool uses. A listing alone says nothing about a hook's code. The mark Reviewed by Programmable says that the code passed the review.</p>
+    <p>Each hook has a page with two voices. One is the chain. It gives the hook's flags as sentences, with the platform caps in numbers. The other is the author. An author describes a hook in a descriptor, a small JSON file the author hosts and the hook's manifest links to. It holds a name, a summary, the rules in the author's words, a link to the code, and how to build the hook's settings for a new coin. The site shows those words and does not check them against the code.</p>
+    <p>The site loads a descriptor only when the manifest's link is an https address that ends in .json. It refuses a file that names another program than the one it was loaded for. A hook without a descriptor is still listed, from chain facts alone. The file format is in the README of hook-template in the package.</p>
+    <p>A manifest's link can also pin the file. It then ends with <code>#s=</code> and a pin of 22 characters, made from the first 16 bytes of the SHA-256 of the file. The site hashes what it fetched and refuses a file whose pin is another one, and the hook's page says that the description is pinned. A pin proves that the file is the one the author pinned. It is not a signature, and it says nothing about the code. Without the pin the page says that the author can still change the text. The code cannot change either way.</p>
+    <h3>How a hook was checked</h3>
+    <p>A hook's page runs five checks in your browser, against the chain.</p>
+    <table>
+      <thead><tr><th>Check</th><th>Passed means</th></tr></thead>
+      <tbody>
+        <tr><td>The program is frozen</td><td>Its upgrade authority is gone. Nobody can change its code.</td></tr>
+        <tr><td>Manifest and account list</td><td>The pool can read what the hook may do and which accounts to pass it.</td></tr>
+        <tr><td>Descriptor</td><td>The file the manifest links to is a valid descriptor and names this program.</td></tr>
+        <tr><td>A buy and a sell</td><td>A buy, and a sell of the coins it gave, ran in one simulated transaction on one of the hook's pools, with your wallet. Nothing is sent. Without a wallet the page shows the watcher's verdict, when the site has a watcher.</td></tr>
+        <tr><td>Reviewed by Programmable</td><td>The program is on the platform's approved list. The page links its report, from <code>workshop/reviewed.json</code>.</td></tr>
+      </tbody>
+    </table>
+    <p>These checks are not an audit. They say that a hook is wired the way the pool demands. They do not say that its code does what its author wrote.</p>
+    <h3>Launching on a hook from Custom hooks</h3>
+    <p>The first launch transaction runs the hook's own setup instruction with your signature. A program can take SOL from a wallet that signs for it, and it can take the wallet's account itself. So the launch form passes the setup only what a descriptor may ask for: your wallet, accounts of the hook program, the system program, the pool, the two mints and the token programs. It never passes a token account or another wallet.</p>
+    <p>Before your wallet opens, the form simulates that transaction twice, with the setup and without it, and compares. It refuses when the setup takes more than the rent of the accounts it creates plus <span class="mono" data-setup="margin">0.001</span> SOL, or more than <span class="mono" data-setup="cap">0.05</span> SOL in all. It also refuses when the setup changes an account that is not its own, or would hand your wallet's account to another program.</p>
+    <p>The transaction then ends with a check of its own. It fails on chain when your wallet holds less than the simulation showed, or is no longer a plain wallet account. A simulation is not a guarantee of what a hook does on later trades. The hook's code is the truth.</p>
+
+    <h2 id="review">Custom hooks and the review</h2>
+    <p>A custom hook is a hook somebody outside the platform wrote. Programmable reviews such a hook before it can open a pool here. The review reads the code at one commit and checks it against ten rules. For example, sells must always go through, and every fee needs a ceiling fixed at launch.</p>
+    <p>A developer sends a request on <a class="link" href="review-hook.html">Get your hook reviewed</a> and pays a review fee of 25 USD in SOL to Programmable. Deploying the program costs about 1 to 4 SOL more, paid to the network as rent. The fee pays for the review whatever the outcome. The page then gives the request id, and the developer opens a ticket with it in <a class="link" href="https://discord.com/invite/programmable" target="_blank" rel="noopener">Programmable's Discord</a>, where the reviewer answers.</p>
+    <p>Once the code passes, the developer deploys exactly that commit and freezes the program. Programmable checks it on chain and puts it on the platform's approved list. While the platform's rule is on, the pool program refuses a pool on an outside hook that is not on that list.</p>
+    <p>An approved hook carries the mark Reviewed by Programmable, with the date and a link to its report. A hook that turns out to break the rules is taken off the list. No new coin can then launch on it. Coins already on it keep it, because a pool's hook can never change, and their pages show a warning.</p>
+    <p>The platform's own hooks need no approval. Their <a class="link" href="reviews/index.html">reports</a> are written the same way. A review is not an audit and not a promise.</p>
+
+    <h2 id="rules">Launch rules</h2>
+    <p>Launch rules is a template with six rules. The launcher switches on the ones a coin should have and sets their numbers in Module Mode, where each rule is a module. After the launch nobody can change a rule. The program has no instruction that does.</p>
+    <p>The coin stays a normal Solana coin, so every wallet can hold it, unless a strict module is on (below). The rules apply to trades in the coin's pool. Sending the coin from one wallet to another is not a trade and pays nothing.</p>
+    <table>
+      <thead><tr><th>Rule</th><th>What it does</th><th>What it does not do</th></tr></thead>
+      <tbody>
+        <tr><td>Sniper fee</td><td>For the first minutes a buy pays a high pool fee that falls in a straight line to the pool fee. The fee stays in the pool.</td><td>Sells are never touched. The launcher's own first buy pays it too. Nobody can add liquidity while it runs.</td></tr>
+        <tr><td>Creator fee</td><td>A share of every trade is set aside for the launcher, in SOL. The launcher claims it on the coin page.</td><td>Nobody can change who receives it.</td></tr>
+        <tr><td>Rewards for stakers</td><td>A share of every trade is paid in SOL to wallets that stake the coin on its page.</td><td>On a normal coin a wallet that only holds the coin earns nothing; a strict coin pays registered holders instead (below). While less than <span data-rules="eligible">0.1%</span> of the supply is staked, the share buys and burns the coin instead.</td></tr>
+        <tr><td>Burn</td><td>A share of every trade collects in a pot. Anyone can run a buy of the coin with the pot, and what it buys is burned.</td><td>A run spends a slice of the pot, not all of it. It waits while the price climbs.</td></tr>
+        <tr><td>Buy limit</td><td>For the first minutes one buy cannot spend more than a set amount of SOL.</td><td>It is per trade. A wallet can split a large buy into several. Sells are never limited.</td></tr>
+        <tr><td>Creator lock</td><td>The launcher's first buy is locked in the launch transaction and cannot leave before a date. On a normal coin it waits in a lock account; on a strict coin it stays in the launcher's own wallet.</td><td>It holds those coins only, and it needs a first buy. It says nothing about coins the launcher holds elsewhere.</td></tr>
+      </tbody>
+    </table>
+    <p>The creator fee, the rewards and the burn each have one rate for buys and one for sells. A trade pays the three rates of its side on top of the protocol fee and the pool fee. What a trader pays never depends on who has staked. The Modules panel of the coin shows the totals a buy and a sell pay.</p>
+    <h3>Bounds</h3>
+    <p>Module Mode takes numbers up to the middle column. The program refuses anything above the last one.</p>
+    <table>
+      <thead><tr><th>Number</th><th>Module Mode</th><th>The program</th></tr></thead>
+      <tbody id="rulesBounds"></tbody>
+    </table>
+    <p>The pool also cuts the three shares of a trade to the platform's hook fee cap (<span class="mono" data-plat="maxHookFeeBps"></span>) and a sniper fee to the override cap (<span class="mono" data-plat="maxFeeOverrideBps"></span>).</p>
+    <h3 id="strict">The strict coin</h3>
+    <p>Three modules cannot work on a normal coin, because nothing of the platform runs when a normal coin moves from one wallet to another. Switch one of them on and the coin becomes a strict coin: a Token-2022 coin whose transfer hook is the rules program, so the program runs inside every transfer of it. A strict coin can also have every module above except staking. Its rewards go to holders instead.</p>
+    <table>
+      <thead><tr><th>Strict module</th><th>What it does</th><th>What it does not do</th></tr></thead>
+      <tbody>
+        <tr><td>Max wallet</td><td>For a window after launch no wallet can hold more than a share of the supply. A buy or a send that would pass it fails.</td><td>A sell is never held by it. It counts one wallet at a time, so one person with several wallets can pass it. Nobody can add liquidity while it runs.</td></tr>
+        <tr><td>Early lock</td><td>Coins bought from the pool in the first minutes cannot be sold or sent until the unlock. A buyer sees this before buying.</td><td>Coins a wallet got in another way stay free. The launcher's own first buy is early too.</td></tr>
+        <tr><td>Rewards without staking</td><td>A share of every trade is paid in SOL to the wallets that hold the coin and registered once. This site registers a wallet inside its first buy, for a small rent that comes back when the record is closed.</td><td>Nothing is staked. A wallet without a record earns nothing. While less than <span data-rules="eligible">0.1%</span> of the supply is registered, the share buys and burns the coin instead.</td></tr>
+      </tbody>
+    </table>
+    <p>What a strict coin costs, said on the form before the launch: aggregators such as Jupiter will probably not route it, and it trades on this site and through the trade API; fewer wallets and exchanges handle such coins well; a wallet can receive it only in its standard token account; every transfer carries a few more accounts and costs a little more. On a strict coin the creator lock keeps the first buy in the launcher's own wallet, with a floor nobody can go below before the date, and the burn buys through an instruction of the pool that burns the coins inside it.</p>
+    <table>
+      <thead><tr><th>Number</th><th>Module Mode</th><th>The program</th></tr></thead>
+      <tbody id="strictBounds"></tbody>
+    </table>
+    <h3>Module Mode</h3>
+    <p>Four presets fill the modules in one click, and every number stays editable afterwards. A coin with every module off is a plain coin with no hook. The review beside the modules shows what a buy and a sell will pay and where each part goes, what the launcher's first buy pays and receives, the date of the lock and the cost of the launch.</p>
+    <p>The first buy is a buy like any other. It pays the sniper fee of the first slot in full and the three shares of a buy. A first buy above the coin's own buy limit would fail the whole launch, so the form refuses it before the signature.</p>
+    <h3>Staking</h3>
+    <p>The coin page of a coin that pays rewards has a staking form. A wallet stakes coins and earns its part of the rewards of every trade from then on, in SOL. Claim pays what it earned. Staked coins can be taken out about <span data-rules="unstake">1 h</span> after the wallet's last stake, and every new stake restarts that time. A wallet's first stake opens a small account whose rent does not come back.</p>
+    <p>Stakers are paid while at least <span data-rules="eligible">0.1%</span> of the supply at launch is staked. Below that, the share of each trade buys and burns the coin instead. The coin page says which of the two is happening and how much more stake starts the payments.</p>
+    <h3>The creator lock</h3>
+    <p>The lock is an account anyone can read. The coin page shows what it holds and until when, read from that account. A lock that was declared at launch and never made shows as nothing locked. The launch form makes the lock in the same transaction as the first buy, so the coins are never loose. After the date the creator takes them out with Unlock.</p>
+    <p>The launch transaction carries the date the lock ends, and it has to land within <span data-rules="margin">10 min</span> of the moment it was built. When the wallet takes longer, the form says so and builds the transaction again with a new date. It does not send a launch the program would refuse.</p>
+    <h2 id="templates">The other templates</h2>
+    <h3 id="tpl-tax">Tax to treasury</h3>
+    <p>A share of each buy and each sell, in the quote token, goes to a treasury chosen at launch. The ceiling is fixed forever at launch. The owner can set the taxes anywhere between zero and the ceiling, or renounce, after which they never change. The hook runs on buys and sells and can take a fee. It cannot change the price or the pool fee.</p>
+    <p>With SOL as the quote token the treasury is the wrapped SOL account of the wallet chosen at launch, and the tax collects there as wrapped SOL. On the coin page the owner of that wallet takes it as plain SOL, and the account stays open. The owner of the tax changes it or renounces on the same page.</p>
+    <h3 id="tpl-guard">Launch guard</h3>
+    <p>For the first N slots after the pool is created, buys pay a high fee that falls linearly every slot down to the pool fee. The extra fee is a pool fee override, so it stays in the pool as liquidity; nobody collects it. The hook runs on buys only and is never called on a sell. While the window runs nobody can add liquidity to the pool. Once it is over the pool behaves like a pool without a hook. The dev's own first buy, if any, pays the start fee.</p>
+    <h3 id="tpl-buyback">Buyback and burn</h3>
+    <p>A share of each trade, in the quote token, collects in a treasury owned by a program address only the hook controls. Once the balance reaches the minimum set at launch, anyone can call the buyback. A call buys the coin through <code>hook_swap</code>, which runs no callbacks and pays no hook fee, and burns every coin it bought. The hook runs on buys and sells and can take a fee.</p>
+    <p>A buyback never buys at a price its caller just made. The hook keeps a record of the pool's two reserves and of the slot it took them in. A call buys only against a record that is at least <span data-burn="interval">25</span> slots old. So the first call records the pool and buys nothing. A call that finds the price more than twice the cap above the recorded one records the pool again and buys nothing. Any other call buys.</p>
+    <p>One buy spends a slice of the treasury. The slice is a share of the pool's quote reserve that follows the coin's fees, between <span data-burn="min">0.01%</span> and <span data-burn="max">0.5%</span>. A larger treasury takes several calls, each at least <span data-burn="interval">25</span> slots after the one before. The burn of a rules coin works the same way, with its pot in place of the treasury.</p>
+    <h3 id="tpl-collectible">Collectible per buy</h3>
+    <p>Every buy earns the buyer one piece per set amount of coins received, up to a maximum per trade. Each piece is a Metaplex Core NFT in the pool's collection. The hook runs after buys only, takes no fee and cannot change the price. The pool never calls it on a sell.</p>
+    <p>A buy on such a pool commits, it does not decide. The hook records how many pieces the buy earned and a target slot two slots ahead. The hash of the block at that slot fixes the seed of each piece. Nobody knows that hash when the buy is sent, and simulating the buy shows nothing, because no seed exists yet.</p>
+    <p>Anyone can reveal a ticket once the block exists, and the watcher does it for every ticket, so a buyer cannot look at a result and leave it unrevealed. A batch nobody reveals within 512 slots, about three and a half minutes, expires and its pieces are common. A later buy cannot re-roll an earlier one: it first locks in every batch whose block has passed. The one influence left is the block producer of that slot.</p>
+    <p>The buy cannot mint its own pieces, because their block comes two slots later. So the buy pays for their NFTs in advance. It adds a deposit to the buyer's ticket, in the same transaction. Two slots later a keeper mints the pieces into the buyer's wallet and takes back what it spent, plus 10,000 lamports, from that deposit. The buyer approves once. The deposit is about 0.0036 SOL a piece on mainnet; the exact amount is read from the chain. What the mint does not use stays the buyer's. It pays for the NFTs of the next buy, or the coin page gives it back with Withdraw deposit.</p>
+    <p>The deposit belongs to the wallet. Only the mints of its own pieces take from it, and only the wallet can withdraw it. The hook gets no right over the wallet. A keeper sends a mint only after a simulation shows the deposit covers it. If no keeper comes, the coin page offers Mint N waiting, and the deposit pays that mint first. A ticket holds four batches. When all four hold unminted pieces, a new buy earns none until they are minted.</p>
+    <p>A sell right after a buy can meet the keeper. If the NFTs are minted before the sell lands, the sell burns them. Their rent comes back to the seller, but not Metaplex's fee of 0.0015 SOL an NFT.</p>
+    <p>The pieces are pegged to the coin. A wallet holds at most one piece per unit of coins in its token account. The unit is the coins per piece the launcher set. Unipeg on Ethereum works by the same rule.</p>
+    <h4 id="kinds-of-coin">Two kinds of coin</h4>
+    <p>The launcher picks the kind at launch. It never changes. The hook panel of a coin says which kind it is.</p>
+    <p><b>Plain coin.</b> A normal SPL coin. Wallets, exchanges and other apps support it. No program of ours runs when it moves between wallets, and the hook never sees a sell. The peg is kept after the coins left, by <code>settle</code>.</p>
+    <p><b>Pegged coin.</b> A Token-2022 coin whose transfer hook is the collectible program. The program runs inside every transfer of the coin. The pieces the sender's coins no longer back leave the sender in that same transfer, from the end of its list. The receiver takes one piece for each whole unit the transfer sends, when it has a ticket, took the coins in its normal token account and its coins back the piece. The other pieces burn. Waiting pieces are dropped. A sell is a transfer to the pool, so its pieces burn inside the swap.</p>
+    <p>A ticket is a small account for one wallet on one coin. Every wallet that bought the coin here has one. The site opens the receiver's ticket in the same transaction when a transfer carries a piece to it.</p>
+    <p>On a pegged coin the wallet lists are the truth and change inside the transfer. The Metaplex NFT follows. <code>deliver</code> hands the NFT of a moved piece to its new holder, and <code>reap</code> burns the NFT of a burned piece. Anyone can send both. The site adds them to the transactions it builds, and the watcher sweeps the rest within seconds. Whoever burns receives the rent.</p>
+    <p>A pegged coin has costs. Our program runs inside every transfer of the coin, sells included. Fewer wallets, exchanges and apps support such coins. A wallet app can fail to send the coin to a wallet that never held it. A plain send to a wallet without a ticket burns the piece. After a transfer made outside this site, the NFT picture in the wallet can follow a few seconds later. The coin trades in one pool only. Its name and symbol live in the coin itself, not in a Metaplex account.</p>
+    <h4>The peg on a plain coin</h4>
+    <p>When coins leave a wallet, the pieces they no longer back are removed. A sell, a transfer and any other way out count the same. Waiting pieces go first and are dropped. Minted pieces go next and are burned, from the end of the wallet's list. The instruction is <code>settle</code>, and anyone can send it for any wallet. A wallet that still holds the coins loses nothing to it.</p>
+    <p>The site adds <code>settle</code> to every sell, so a sell and its burn are one transaction. The sell form names the pieces a sell burns before you sign. For coins that leave another way, the watcher settles the wallet within seconds. Whoever settles receives the rent of each piece it burns. When a piece is burned or sent, the rent of its place in the wallet's ticket goes to the wallet's deposit, and Withdraw deposit on the coin page gives it back. Like any deposit, a keeper may use it to mint the wallet's own waiting pieces into the wallet; withdraw it if you do not want that.</p>
+    <p>A pegged coin needs no settle for a sell or a transfer. <code>settle</code> still works on it, for a holder who burns coins directly.</p>
+    <h4>Both kinds</h4>
+    <p>Each wallet owns the order of its list. <code>reorder</code> moves one piece to another position, and new pieces join the end. The pieces at the front are safe longest, so the holder chooses which piece a sell burns. On the coin page, pick a piece and move it first or last.</p>
+    <p>Send on the coin page moves one chosen piece with exactly one unit of coins. On a plain coin that is the <code>send</code> instruction, and a piece moves no other way. On a pegged coin the site puts the piece last, stages it and transfers one unit, in one transaction. The pieces are frozen in Metaplex Core. A marketplace cannot list them and a plain NFT transfer fails.</p>
+    <p>A wallet can reorder and send only while its coins back every piece it holds. Above that, both are refused until the wallet buys the coins back or is settled. Nobody can shuffle or move pieces to dodge a settle.</p>
+    <p>The max supply is the most pieces that can exist at once. A burned piece frees its place for a later buy. The number in a piece's name counts every piece ever minted and is never used twice. One wallet holds at most 200 pieces of a coin, minted and waiting together. A full wallet earns none on a buy and cannot be sent more.</p>
+    <p>A piece's address on chain carries its seed and the art parameters it was minted under, so a piece can never change. The launcher may change the collection name, the art and the renderer until they lock the collection. A new name and renderer apply to pieces minted afterwards. New art applies to pieces bought afterwards, so a piece that waits to be minted keeps the art it was bought under. The max supply and the coins per piece are fixed at launch.</p>
+    <h4 id="own-art">Your own art</h4>
+    <p>A launcher can bring a whole collection in place of the generated creatures, in one of two ways. Finished pictures: each picture has its own name, traits and weight. Layers: backgrounds, bodies, eyes and more, each option with its own weight. Each piece then takes one option of every layer.</p>
+    <p>A weight is a chance, not a count. A later block decides each piece's seed, and the seed picks the picture, or one option per layer. Two pieces can show the same picture. A burned piece frees its place, so over a coin's life more pieces are minted than the max supply.</p>
+    <p>Before the launch the files go to permanent storage as one folder, with a file called collection.json that lists them. The connected wallet pays for the storage in SOL with one transfer, and the page shows the price first. The coin's art bytes are the fingerprint of that collection.json, so a piece always shows the collection it was minted under.</p>
+    <p>This site answers each piece's metadata from the folder. A picture is shown straight from the storage. A layered piece is drawn by this site once and kept. The pieces are the same Metaplex Core NFTs as always. Royalty fields in collection.json are information only: nothing enforces them, and the pieces cannot be sold apart from their coins.</p>
+    <p>The site operator can hide a folder that breaks the rules. Its pieces then show a plain image and the words "Hidden by the site operator." The files stay in storage, and nothing changes on chain.</p>
+    <p>Anyone can repeat the draw: the SDK's <code>pickPiece</code> gives the piece a seed draws, and <code>traitOdds</code> the chance of every trait. HOOKS.md in the project describes the format and the draw exactly.</p>
+
+    <h2 id="buyback">Running a buyback or a burn</h2>
+    <ol>
+      <li>Open the coin page. A buyback coin shows its treasury and its minimum on the hook card. A rules coin shows its burn pot on the rules card. Both say what one run can spend.</li>
+      <li>The button says what a press does now. Record the pool means nothing is recorded yet. That call records the pool's price and buys nothing.</li>
+      <li>For the next <span data-burn="interval">25</span> slots, about <span data-burn="seconds">10 s</span>, the chain refuses a call. The button is off and the card counts down.</li>
+      <li>Then the button reads Run buyback, or Buy and burn on a rules coin. A press buys the coin with a slice of the treasury or of the pot and burns it. The card says beforehand what it spends.</li>
+      <li>When the price ran more than twice the cap above the recorded one, the button reads Record the pool again. That call buys nothing and records the pool as it is. A buy can follow <span data-burn="interval">25</span> slots later.</li>
+      <li>Anyone can press. The only cost is the transaction fee. A large treasury or pot takes several runs, and the trades list shows each one.</li>
+    </ol>
+
+    <h2 id="liquidity">Liquidity</h2>
+    <p>Pools use x*y=k with an LP token. Every pool has a lock account, and the pool program has no instruction that moves what is in it. When a pool is created, 1,000 raw units of LP go there. A coin launched through hooklaunch goes further. The launch puts all the liquidity it makes into that lock account, so the seed can never be pulled.</p>
+    <p>Anyone can add liquidity later and take their own out again, with their share of the pool fees. The Liquidity page shows what part of a pool is locked, read from the chain as the lock account's balance against the LP supply. A pause of the platform does not stop withdrawals. A hook that holds a remove-liquidity flag can refuse one, and the hook card says when a hook has that power.</p>
+    <p>A coin with a sniper fee, a launch guard or a strict coin's max wallet takes no new liquidity while that window runs. The Liquidity page says when adding opens. None of the five templates ever refuses a withdrawal.</p>
+    <p>A pool on the curve takes no liquidity and gives none back until it graduates. The Liquidity page then shows both forms switched off, and what the pool has raised of its target.</p>
+    <p>A wallet that keeps a wrapped SOL account receives the SOL of a sell or of a withdrawal there, as wrapped SOL. The site says so before you sign and has an Unwrap button that turns it into plain SOL. A wallet without such an account receives plain SOL.</p>
+
+    <h2 id="api">Trade API</h2>
+    <p>A bot or another site can trade any coin here with two HTTP calls. It needs no SDK and no knowledge of the programs. The API holds no key. It answers an unsigned transaction, and the caller signs it and sends it.</p>
+    <table>
+      <thead><tr><th>Call</th><th>What comes back</th></tr></thead>
+      <tbody>
+        <tr><td><code>GET /api/v1/quote</code></td><td>What a trade gives: the output, the minimum after slippage, each fee with the token it is paid in, what the hook is, and notes to show the trader.</td></tr>
+        <tr><td><code>POST /api/v1/swap</code></td><td>One unsigned transaction for a wallet, the quote it was built on, and the simulated result when asked.</td></tr>
+      </tbody>
+    </table>
+    <p>A quote takes the coin's <code>mint</code>, a <code>side</code> (<code>buy</code> or <code>sell</code>), an <code>amount</code> and an optional <code>slippageBps</code>. Amounts are strings of whole numbers. SOL is given in lamports, a coin in its smallest unit. A swap takes the same fields plus <code>userPublicKey</code>, the wallet that signs and pays.</p>
+    <p>The quote follows the arithmetic of <a class="link" href="#swap">a swap, step by step</a> to the last unit, for pools without a hook and for the five templates. Three cases are marked <code>exact: false</code>. A buy while a launch guard is running gives the quoted amount or more, because the fee falls every slot. So does a buy while the sniper fee of a coin with launch rules is running. On a pool with a custom hook the quote is the formula without the hook, when the pool calls that hook before the swap on that side and the hook holds a fee, a fee override or the curve. The notes of the answer say so.</p>
+    <p>For such a hook <code>/swap</code> does the work itself. It simulates the trade on chain first and answers the real output and a minimum taken from it, so one call is enough. A caller that sends its own <code>minOutAmount</code> keeps it.</p>
+    <p>The transaction carries the minimum inside the swap, so the chain enforces the slippage. Besides the swap, the transaction holds only the compute budget, the creation of missing token accounts, and the wrapping and unwrapping of SOL. On a collectible coin it also holds the buyer's ticket and the deposit for its NFTs, and <code>settle</code> or <code>reap</code> on a sell. On a strict coin the first buy of a wallet also holds <code>open_holder</code>, the wallet's holder record. The caller's wallet is the only signer. On a strict coin, give <code>/quote</code> the wallet as <code>userPublicKey</code>. A buy above the max wallet, a sell of locked coins, or an early buy for a wallet without a record is then refused with its own error code before anything is signed. With <code>simulate</code>, the server runs the transaction on the chain's simulator first and answers the exact output, or the reason it would fail.</p>
+    <p>With <code>recipient</code>, another wallet receives the coins of a buy or the SOL of a sell. The recipient must be a wallet, so an address that holds nothing yet or one the system program owns. A token account, a mint or a program is refused.</p>
+    <p>A signer that keeps a wrapped SOL account keeps it. The API never closes an account that was open before the trade, because it can be the treasury of a tax coin. A sell by such a signer pays wrapped SOL, into the signer's own wrapped SOL account or into the recipient's, and a note in the answer says so. A signer without a wrapped SOL account receives plain SOL.</p>
+    <p>A buy of a collectible coin through the API earns its pieces like any other buy. The transaction also pays the deposit for their NFTs, right after the swap, and a keeper mints them into the wallet a few seconds later. The quote says how much the deposit is, in <code>mintDeposit</code>. Send <code>mintDeposit: false</code> to leave it out. The wallet then mints its pieces itself, in a second transaction. A pegged coin trades through the API like any other coin.</p>
+    <p>Errors have one shape, a <code>code</code> and a <code>message</code>. A buy above the buy limit of a coin with launch rules, asked for while the limit runs, is refused with <code>BUY_LIMIT_EXCEEDED</code>. The answer names the most one buy may spend, in lamports, and the slot the limit ends in. By default one address may ask for 120 quotes and 30 swaps a minute. Browser apps can call the API from any origin. Every field, every error code and a worked example are in API.md in the package.</p>
+
+    <h2 id="programs">Programs</h2>
+    <table>
+      <thead><tr><th>Program</th><th>Role</th><th>Id</th></tr></thead>
+      <tbody id="programRows"></tbody>
+    </table>
+    <p>The pool, launch and template programs are upgradeable by the platform. A hook written by anyone else must be frozen. The full design is HOOKS.md in the repo, and the Hooks page has a tool that checks any program id.</p>
+  </article>
+    </section>
+  </div>
+
+  
+</main>
+
+<footer class="site-footer" id="siteFooter"></footer>
+
+<script type="module">
+  import { boot, ctx, H, platform, fmtPct, fmtSol, fmtSpan, slotsToSeconds, el, explorer, short } from "./common.js";
+  import { SETUP_MARGIN, SETUP_CAP } from "./workshop-lib.js";
+  await boot("docs.html");
+  document.getElementById("clusterName").textContent = ctx.cluster;
+  // the two limits of the launch form's guard are constants of workshop-lib.js
+  for (const n of document.querySelectorAll("[data-setup]")) n.textContent = fmtSol(n.dataset.setup === "cap" ? SETUP_CAP : SETUP_MARGIN, 6);
+  // a buyback and a burn: the wait between two calls and the bounds of one buy, constants of the SDK
+  const burn = { interval: String(H.BURN_INTERVAL_SLOTS), seconds: fmtSpan(slotsToSeconds(H.BURN_INTERVAL_SLOTS)), min: fmtPct(H.MIN_BURN_CAP_BPS), max: fmtPct(H.MAX_BURN_CAP_BPS) };
+  for (const n of document.querySelectorAll("[data-burn]")) n.textContent = burn[n.dataset.burn];
+  // launch rules: the bounds of the form and of the program, and three numbers of the template, from the SDK
+  const facts = { eligible: fmtPct(10_000 / Number(H.RULES_ELIGIBLE_DIVISOR)), unstake: fmtSpan(slotsToSeconds(H.UNSTAKE_DELAY_SLOTS)), margin: fmtSpan(H.RULES_LOCK_MARGIN_SECONDS) };
+  for (const n of document.querySelectorAll("[data-rules]")) n.textContent = facts[n.dataset.rules];
+  const P = H.RULES_POLICY, C = H.RULES_CEILINGS;
+  const mins = (slots) => fmtSpan(slotsToSeconds(slots)), days = (s) => fmtSpan(s);
+  const bounds = [["Creator fee, per side", fmtPct(P.creatorBps), fmtPct(C.creatorBps)], ["Rewards for stakers, per side", fmtPct(P.holdersBps), fmtPct(C.holdersBps)], ["Burn, per side", fmtPct(P.burnBps), fmtPct(C.burnBps)],
+    ["The three together, per side", fmtPct(P.sideBps), fmtPct(C.sideBps)], ["Sniper fee at the start", fmtPct(P.sniperStartFeeBps), fmtPct(C.sniperStartFeeBps)], ["Length of the sniper fee", mins(P.sniperSlots), mins(C.sniperSlots)],
+    ["Length of the buy limit", mins(P.limitSlots), mins(C.limitSlots)], ["Creator lock", days(P.creatorLockSeconds), days(C.creatorLockSeconds)]];
+  document.getElementById("rulesBounds").replaceChildren(...bounds.map(([name, form, program]) => el("tr", null, el("td", { text: name }), el("td", { class: "mono", text: "up to " + form }), el("td", { class: "mono", text: program }))));
+  if (H.RULES_STRICT_POLICY && H.RULES_STRICT_CEILINGS) {
+    const SP = H.RULES_STRICT_POLICY, SC = H.RULES_STRICT_CEILINGS;
+    const strictBounds = [["Max wallet, share of the supply", fmtPct(SP.maxWalletBpsMin) + " to " + fmtPct(SP.maxWalletBpsMax), fmtPct(SC.maxWalletBpsMin) + " to " + fmtPct(SC.maxWalletBpsMax)],
+      ["Length of the max wallet", "up to " + mins(SP.maxWalletSlots), mins(SC.maxWalletSlots)], ["Early window", "up to " + mins(SP.earlySlots), mins(SC.earlySlots)],
+      ["Early coins unlock, after the launch", "up to " + mins(SP.earlyUnlockSlots), mins(SC.earlyUnlockSlots)]];
+    document.getElementById("strictBounds").replaceChildren(...strictBounds.map(([name, form, program]) => el("tr", null, el("td", { text: name }), el("td", { class: "mono", text: form }), el("td", { class: "mono", text: program }))));
+  }
+  const roles = { hookpool: "pools, swaps, liquidity, hook calls, platform settings", hooklaunch: "coin launch in one flow, with the liquidity locked in the pool", hook_tax: "template: tax to treasury", hook_launch_guard: "template: launch guard", hook_buyback: "template: buyback and burn", hook_collectible: "template: collectible per buy", hook_rules: "template: launch rules" };
+  document.getElementById("programRows").replaceChildren(...Object.entries(H.PROGRAMS).map(([k, v]) =>
+    el("tr", null, el("td", null, el("code", { text: k })), el("td", { text: roles[k] || "" }), el("td", null, el("a", { class: "link mono", href: explorer("account", v.toBase58()), target: "_blank", rel: "noopener", text: short(v.toBase58(), 6), title: v.toBase58() })))));
+  try {
+    const p = await platform();
+    if (p) for (const n of document.querySelectorAll("[data-plat]")) {
+      const k = n.dataset.plat; const prefix = n.dataset.prefix || "";
+      n.textContent = prefix + (k === "launchFeeLamports" ? fmtSol(p.launchFeeLamports, 4) + " SOL" : fmtPct(p[k]));
+    }
+    // the curve's numbers for a coin launched now, worked out by the SDK from the platform account
+    if (p && p.curveEnabled) {
+      const { CURVE_SUPPLY_WHOLE, DECIMALS } = await import("./launch-core.js");
+      const supply = CURVE_SUPPLY_WHOLE * 10n ** BigInt(DECIMALS);
+      const fresh = { reserveBase: supply, reserveQuote: 0n, virtualQuote: p.curveVirtualQuote, graduationTarget: p.curveGraduationTarget, graduationFeeBps: p.curveGraduationFeeBps, curveState: H.CURVE_OPEN };
+      const g = H.graduationBurn(fresh), atTarget = g.reserveBaseAfter + g.burned;
+      const whole = (raw) => Number(raw / 10n ** BigInt(DECIMALS));
+      const facts = {
+        supply: CURVE_SUPPLY_WHOLE.toLocaleString("en-US"), virtual: fmtSol(p.curveVirtualQuote, 2) + " SOL", target: fmtSol(p.curveGraduationTarget, 2) + " SOL",
+        burn: fmtPct(Number((g.burned * 10_000n) / supply), 1), sold: fmtPct(Number(((supply - atTarget) * 10_000n) / supply), 1),
+        after: (whole(g.reserveBaseAfter) / 1e6).toLocaleString("en-US", { maximumFractionDigits: 1 }) + "M", fee: fmtSol(g.fee, 4) + " SOL",
+        // what the pool holds after graduation: the target less the platform's fee
+        afterSol: fmtSol(g.reserveQuoteAfter, 2) + " SOL",
+      };
+      for (const n of document.querySelectorAll("[data-curve]")) n.textContent = facts[n.dataset.curve];
+      document.getElementById("curveFee").hidden = !(g.fee > 0n);
+    }
+  } catch (_) {}
+</script>
+</body>
+</html>

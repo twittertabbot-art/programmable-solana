@@ -1,0 +1,148 @@
+/* The review pages: review-hook.html (Get your hook reviewed, and one request's status) and
+   the reports in this folder. Loaded after styles.css and built only from its tokens and
+   components. Every name starts with rv-.
+
+   rv-mark                the mark "Reviewed by Programmable": a chip with a ring, a date, a link
+   rv-cols                two columns inside a panel from 900 px
+   rv-rules               the ten review rules, numbered, two columns from 900 px
+   rv-costs rv-cost       what a review costs, side by side
+   rv-steps rv-step       the six steps, numbered blocks in a grid
+   rv-form rv-aside       the request form and the column beside it with the one button
+   rv-status              one request: its status, its facts, the program id form
+   rv-report              a report: a head panel of facts, then sections of text */
+
+/* ---- the mark ---- */
+.rv-mark { display: inline-flex; align-items: center; gap: 8px; min-height: 30px; padding: 0 10px 0 8px; border-radius: var(--r-chip); background: var(--raised-hover); box-shadow: inset 0 0 0 1px rgba(248, 240, 233, 0.26); color: var(--accent); font-size: var(--fs-sm); font-weight: 600; line-height: 1.2; white-space: nowrap; }
+.rv-mark svg { width: 16px; height: 16px; flex: none; }
+.rv-mark .rv-mark-date { color: var(--muted); font-weight: 500; }
+a.rv-mark { transition: transform 160ms var(--ease-out), background-color 150ms ease; }
+a.rv-mark:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { a.rv-mark:hover { background: #2A2E36; } }
+/* on a card of the Custom hooks list the mark wraps when the card is narrow: its words over two
+   lines, the date whole on a line of its own */
+.coin-card .rv-mark { display: inline-grid; grid-template-columns: 16px minmax(0, auto); column-gap: 8px; row-gap: 1px; align-items: center; max-width: 100%; padding-top: 5px; padding-bottom: 5px; white-space: normal; }
+.coin-card .rv-mark > span { min-width: 0; }
+.coin-card .rv-mark .rv-mark-date { grid-column: 2; font-size: var(--fs-xs); }
+.rv-mark .rv-mark-date { white-space: nowrap; }
+/* under a hook's name the mark stays one line where it fits; on a phone its date moves under it */
+.ws-hero-mark .rv-mark { flex-wrap: wrap; row-gap: 2px; max-width: 100%; white-space: normal; padding-top: 4px; padding-bottom: 4px; }
+
+/* ---- panels of the review page ---- */
+.rv-page > section.panel { margin: 0 0 16px; }
+.rv-page .panel-title { margin-bottom: 8px; }
+.rv-lede { margin: 0 0 18px; max-width: 72ch; color: var(--muted); font-size: 0.9375rem; line-height: 1.55; }
+.rv-cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+@media (min-width: 900px) { .rv-cols { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; } }
+.rv-cols h3 { font-size: var(--fs-base); margin-bottom: 6px; }
+.rv-cols p { margin: 0 0 8px; color: var(--muted); font-size: 0.9375rem; line-height: 1.55; }
+.rv-cols .rv-mark { margin: 2px 0 12px; }
+
+/* the ten rules */
+.rv-rules { margin: 0; padding: 0; list-style: none; counter-reset: rvrule; display: grid; grid-template-columns: minmax(0, 1fr); column-gap: 32px; }
+@media (min-width: 900px) { .rv-rules { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.rv-rules li { counter-increment: rvrule; display: grid; grid-template-columns: 2em minmax(0, 1fr); gap: 0 8px; padding: 14px 0; border-top: 1px solid var(--hair); }
+.rv-rules li::before { content: counter(rvrule, decimal-leading-zero); font-family: var(--font-mono); letter-spacing: 0; font-size: var(--fs-sm); color: var(--accent); padding-top: 2px; font-variant-numeric: tabular-nums; }
+.rv-rules b { display: block; color: var(--text); font-weight: 600; margin-bottom: 4px; }
+.rv-rules p { margin: 0; color: var(--muted); font-size: 0.9375rem; line-height: 1.55; }
+.rv-foot { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--hair); color: var(--text-soft); font-size: var(--fs-sm); }
+
+/* what it costs */
+.rv-costs { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+@media (min-width: 768px) { .rv-costs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.rv-cost { background: var(--raised); border-radius: var(--r-card); padding: 16px; min-width: 0; }
+.rv-cost h3 { font-size: var(--fs-base); margin-bottom: 10px; color: var(--text-soft); }
+.rv-cost .rv-big { font-size: var(--fs-xl); font-weight: 600; letter-spacing: -0.03em; line-height: 1.2; color: var(--text); }
+.rv-cost .rv-sub { margin: 4px 0 12px; font-size: var(--fs-sm); color: var(--text-soft); overflow-wrap: anywhere; }
+.rv-cost .rv-sub .mono { color: var(--text); }
+.rv-cost .rv-sub.bad { color: var(--bad); }
+.rv-cost p { margin: 0 0 6px; color: var(--muted); font-size: var(--fs-sm); line-height: 1.55; }
+
+/* the six steps */
+.rv-steps { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+@media (min-width: 640px) { .rv-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .rv-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; } }
+.rv-step { background: var(--raised); border-radius: var(--r-card); padding: 14px 16px 16px; min-width: 0; }
+.rv-step .n { display: block; font-size: var(--fs-sm); color: var(--muted); font-variant-numeric: tabular-nums; }
+.rv-step b { display: block; margin-top: 8px; font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; color: var(--text); }
+.rv-step p { margin: 4px 0 0; font-size: var(--fs-sm); line-height: 1.5; color: var(--muted); }
+.rv-step code { font-size: 0.8125rem; }
+
+/* ---- the request form and the column beside it ---- */
+.rv-form .field:last-child { margin-bottom: 0; }
+.rv-form textarea { min-height: 132px; }
+.rv-form .field > span .dim.over { color: var(--bad); }
+.rv-form .input[aria-invalid="true"], .rv-form textarea[aria-invalid="true"] { box-shadow: 0 0 0 1px var(--bad); }
+.rv-field-err { display: block; margin-top: 6px; color: var(--bad); font-size: var(--fs-sm); line-height: 1.45; }
+.rv-field-err:empty { display: none; }
+.rv-aside .kv { grid-template-columns: max-content minmax(0, 1fr); }
+.rv-pay { margin: 16px 0 12px; padding: 14px 16px; border-radius: var(--r-card); background: var(--raised); color: var(--text); font-size: var(--fs-md); font-weight: 600; line-height: 1.4; }
+.rv-pay .mono { font-weight: 600; }
+.rv-pay.off { color: var(--muted); font-weight: 400; font-size: 0.9375rem; }
+.rv-result { margin-top: 12px; font-size: 0.875rem; line-height: 1.5; overflow-wrap: anywhere; }
+.rv-result:empty { display: none; }
+.rv-result .bad { color: var(--bad); }
+.rv-result .note { margin-top: 8px; }
+.rv-mine { margin-top: 16px; }
+.rv-mine ul { margin: 6px 0 0; padding: 0; list-style: none; }
+.rv-mine li { padding: 8px 0; border-top: 1px solid var(--hair); font-size: var(--fs-sm); display: flex; gap: 8px 12px; flex-wrap: wrap; align-items: baseline; }
+.rv-mine li:first-child { border-top: 0; }
+.rv-pending { margin-bottom: 16px; }
+.rv-pending .btn { margin-top: 10px; }
+/* the two optional handles side by side, and what comes after the fee: the Discord ticket */
+.rv-handles { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 16px; }
+@media (min-width: 640px) { .rv-handles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.rv-ticket-note { margin-top: 4px; }
+.rv-ticket-note b { display: block; margin-bottom: 4px; color: var(--text); }
+.rv-ticket-note p { margin: 0; line-height: 1.55; }
+.rv-ticket-note .help { margin-top: 6px; }
+
+/* ---- one request ---- */
+.rv-status-head { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; margin-bottom: 10px; }
+.rv-status-text { margin: 0 0 16px; font-size: var(--fs-lg); font-weight: 600; letter-spacing: -0.02em; line-height: 1.35; color: var(--text); max-width: 60ch; }
+.rv-note { margin: 0 0 18px; }
+.rv-note b { display: block; margin-bottom: 4px; }
+.rv-note p { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+.rv-status-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+@media (min-width: 1024px) { .rv-status-grid { grid-template-columns: minmax(0, 1fr) 380px; gap: 32px; align-items: start; } }
+.rv-next { background: var(--raised); border-radius: var(--r-card); padding: 16px; }
+.rv-next h3 { font-size: var(--fs-base); margin-bottom: 8px; }
+.rv-next p { margin: 0; color: var(--text-soft); font-size: 0.9375rem; line-height: 1.55; }
+.rv-next .rv-keep { margin-top: 14px; color: var(--muted); font-size: var(--fs-sm); }
+.rv-ticket { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--hair); }
+.rv-ticket[hidden] { display: none; }
+.rv-ticket-id { display: flex; align-items: center; gap: 8px; margin: 8px 0 12px; padding: 10px 12px; background: var(--panel); border-radius: 10px; font-size: var(--fs-base); color: var(--text); overflow-wrap: anywhere; }
+.rv-ticket-id .mono { flex: 1 1 auto; }
+.rv-status .kv { grid-template-columns: minmax(0, max-content) minmax(0, 1fr); font-size: 0.9375rem; }
+.rv-status .kv dt { white-space: normal; }
+/* words in the sans face; addresses, hashes and amounts carry .mono */
+.rv-status .kv dd { text-align: left; color: var(--text-soft); font-family: var(--font-sans); letter-spacing: -0.006em; }
+.rv-status .kv dd .mono, .rv-status .kv dd a.mono { font-family: var(--font-mono); letter-spacing: 0; }
+.rv-status .kv dd a.link { overflow-wrap: anywhere; }
+@media (max-width: 639px) { .rv-status .kv { grid-template-columns: minmax(0, 1fr); gap: 2px 0; } .rv-status .kv dd { margin-bottom: 10px; } }
+.rv-msg { margin: 10px 0 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.rv-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+.rv-keep { margin-top: 14px; }
+.badge.rv-st { min-height: 28px; padding: 0 10px; font-size: var(--fs-sm); }
+
+/* ---- a report ---- */
+.rv-report-head { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin-bottom: 0; }
+@media (min-width: 1024px) { .rv-report-head { grid-template-columns: minmax(0, 1fr) 420px; gap: 32px; align-items: start; } }
+.rv-report-head .kv { grid-template-columns: max-content minmax(0, 1fr); }
+.rv-report-head .kv dd { text-align: left; color: var(--text-soft); font-family: var(--font-sans); letter-spacing: -0.006em; }
+.rv-report-head .kv dd .mono { font-family: var(--font-mono); letter-spacing: 0; }
+.rv-report .docs-layout { margin-top: 16px; }
+.rv-report-head .lead { margin: 0 0 12px; font-size: var(--fs-md); color: var(--text-soft); line-height: 1.55; max-width: 62ch; }
+.rv-hash { font-family: var(--font-mono); letter-spacing: 0; font-size: var(--fs-sm); overflow-wrap: anywhere; color: var(--text-soft); }
+.rv-report .doc table td:first-child { white-space: normal; }
+.rv-report .doc td.rv-met { color: var(--ok); white-space: nowrap; }
+.rv-report .doc td.rv-not { color: var(--warn); white-space: nowrap; }
+.rv-report .doc code { white-space: normal; overflow-wrap: anywhere; }
+.rv-not-promise { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--hair); color: var(--text); font-weight: 600; }
+.rv-list { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+@media (min-width: 768px) { .rv-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.rv-list a { display: block; min-height: 44px; padding: 14px 16px; border-radius: var(--r-card); background: var(--raised); transition: transform 160ms var(--ease-out), background-color 150ms ease; }
+.rv-list a:active { transform: scale(0.98); }
+@media (hover: hover) and (pointer: fine) { .rv-list a:hover { background: var(--raised-hover); } }
+.rv-list b { display: block; font-size: var(--fs-base); font-weight: 600; color: var(--text); }
+.rv-list span { display: block; margin-top: 2px; font-size: var(--fs-sm); line-height: 1.45; color: var(--muted); }
+.rv-list .mono { font-size: var(--fs-xs); color: var(--dim); margin-top: 6px; overflow-wrap: anywhere; }

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>review frame</title>
+<style>
+  html, body { margin: 0; background: #888; }
+  iframe { display: block; border: 0; background: #fff; }
+</style>
+</head>
+<body>
+<!-- Review harness only: headless Edge on Windows clamps the window width at about 477 px, so a
+     phone layout is reviewed through an iframe of the exact width instead.
+     frame.html?url=../index.html&w=375&h=2000 -->
+<iframe id="f" title="page under review"></iframe>
+<script>
+  const q = new URLSearchParams(location.search);
+  const f = document.getElementById("f");
+  f.width = Number(q.get("w") || 375);
+  f.height = Number(q.get("h") || 2000);
+  f.src = q.get("url") || "../index.html";
+</script>
+</body>
+</html>
